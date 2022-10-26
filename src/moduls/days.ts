@@ -1,6 +1,6 @@
 import Days from './daysInterface'
 import mongoose, { model, Schema } from "mongoose";
-import times from './times';
+
 
 const daysSchema : Schema = new Schema (
 {
@@ -8,96 +8,142 @@ const daysSchema : Schema = new Schema (
         type:String,
         required : true
     },
+    email:{
+        type:String,
+        unique:true,
+        required:true
+    },
+    phoneNo:{
+        type:String,
+        required:true
+    },
+    name:{
+        type:String,
+        required:true
+    },
+    BookedDate:{
+        type:String,
+        required:true
+    },
     Monday:[
         {   
        startTime:{
-           type : String,
+           type : Array,
            required : true
        },
        endTime:{
-           type : String,
+           type : Array,
            required : true
+       },
+       breakTime:{
+        type:Array,
+        required:true
        }
    }     
    ],
     Tuesday	:[
         {   
        startTime:{
-           type : String,
+           type : Array,
            required : true
        },
        endTime:{
-           type : String,
+           type : Array,
            required : true
+       },
+       breakTime:{
+        type:Array,
+        required:true
        }
    }     
    ],
     Wednesday:[
         {   
        startTime:{
-           type : String,
+           type : Array,
            required : true
        },
        endTime:{
-           type : String,
+           type : Array,
            required : true
+       },
+       breakTime:{
+        type:Array,
+        required:true
        }
    }     
    ],	
     Thursday:[
         {   
        startTime:{
-           type : String,
+           type : Array,
            required : true
        },
        endTime:{
-           type : String,
+           type : Array,
            required : true
+       },
+       breakTime:{
+        type:Array,
+        required:true
        }
    }     
    ],	
     Friday :[
         {   
        startTime:{
-           type : String,
+           type : Array,
            required : true
        },
        endTime:{
-           type : String,
+           type : Array,
            required : true
+       },
+       breakTime:{
+        type:Array,
+        required:true
        }
    }     
    ],
-    saturday : [
+    Saturday : [
         {   
        startTime:{
-           type : String,
+           type : Array,
            required : true
        },
        endTime:{
-           type : String,
+           type : Array,
            required : true
+       },
+       breakTime:{
+        type:Array,
+        required:true
        }
    }     
    ],
-    sunday : [
+    Sunday : [
         {   
        startTime:{
-           type : String,
+           type : Array,
            required : true
        },
        endTime:{
-           type : String,
+           type : Array,
            required : true
+       },
+       breakTime:{
+        type:Array,
+        required:true
        }
    }     
-   ]
-    //sunday : {
-  //          type: mongoose.Schema.Types.ObjectId,
-    //        ref:times,
-            //required:true
-        
-    //}
+   ],
+   isDeleted:{
+    type:Boolean,
+    //enum:[true,false],
+    default:false
+    //enum:[true,false]
+   }
+   
 }
 )
 

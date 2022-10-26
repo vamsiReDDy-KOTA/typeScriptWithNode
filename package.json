@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "build": "tsc -w",
-    "start": "concurrently \"tsc \" \"nodemon dest/index.js\" ",
+    "start": "concurrently \"tsc -w\" \"nodemon dest/index.js\" ",
     "another": "nodemon dest/index.js"
   },
   "author": "",

@@ -6,7 +6,7 @@ import { addModel, getApp, getSE, ondays, send } from "./items/server";
 const app = express();
 app.use(express.json())
 app.use(cors())
-app.use("/api/menu/item", itemsRouter);
+app.use("/", itemsRouter);
 
 app.get('/',(req,res)=>{
     res.status(201).send("it is worjking")

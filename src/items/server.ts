@@ -8,14 +8,15 @@ import userDt from "../moduls/appointMentDetals"
 import appointment from "../moduls/appointment";
 import { Detals } from "../moduls/appointMentDetalsInterFace";
 import moment from 'moment-timezone';
-import mongoose from "mongoose";
+import moments from 'moment'
+import mongoose from "mongoose"; 
 //import { Times } from "../moduls/timesInterface";
 import DaysModel from "../moduls/days"
 import Days from "../moduls/daysInterface"
+import days from "../moduls/days";
+import { AnyNsRecord } from "dns";
 
-let items: Items = [
 
-];
 
 const addModel = async (req: any, res: any): Promise<void> => {
   try {
@@ -80,6 +81,16 @@ const getApp = async (req: any, res: any): Promise<void> => {
     //const date = new Date('09/29/2022 04:12:00').toISOString()
     //console.log(date)
 
+  //   while(time.isBetween(startTime,endTime,undefined,[])){
+  //     result.push(time.toString());
+  //     time = time.add(interval,'m');
+  // }
+      
+  // while(startTime <= endTime){
+  //   timeStops.push(new moment(startTime).format('HH:mm'));
+  //   startTime.add(15, 'minutes');
+  // }
+
     var time = {
       "start": "2022-09-27T16:30:00.000Z",
       "end": "2022-09-27T18:30:00.000Z"
@@ -99,8 +110,9 @@ const getApp = async (req: any, res: any): Promise<void> => {
         start: new Date(hold),
         end: newEndTime
       });
-      hold = newEndTime;
+      
     }
+    console.log("vamsi")
     console.log(chunks)
     const all = allAppoint.map(o => o.startTime)
     //console.log(all)
@@ -165,7 +177,7 @@ const getSE = async (req: any, res: any): Promise<void> => {
         start: new Date(hold),
         end: newEndTime
       });
-      hold = newEndTime;
+     
     }
     console.log(chunks)
   } catch (error) {
@@ -178,6 +190,10 @@ const ondays = async (req:any , res:any)=>{
   try {
     const DaysModels : Days = new DaysModel({
     TimeZone : req.body.TimeZone,
+    email:req.body.email,
+    phoneNo:req.body.phoneNo,
+    name:req.body.name,
+    BookedDate:req.body.BookedDate,
     Monday : req.body.Monday,
     Tuesday:req.body.Tuesday,
     Wednesday:req.body.Wednesday,
@@ -213,27 +229,91 @@ const send = async (req: any, res: any) => {
     res.status(400).send(err)
   }
 }
+const GetAppointment =async (req:any,res:any) => {
+  try {
+  let date = req.query.date
+   let slots = await DaysModel.findOne({email:req.query.email})
+   let timeZn:any = slots.TimeZone
+   //console.log(timeZn)
+   let userDt = moment().tz(timeZn).format("DD-MM-YYYY")
+   let userTime = moment().tz(timeZn).format("hh:mm A")
+   let userDay = moment().tz(timeZn).format('dddd')
+   console.log(userDay)
+   //console.log(date)
+   //console.log(userTime);
 
-export const create = async (newItem: BaseItem): Promise<Item> => {
-  const id = new Date().valueOf();
-  items[id] = {
-    id,
-    ...newItem,
-  };
-  const vamsi = items[id]
+    let startTime :any = slots.Monday[0].startTime
+    console.log(startTime)
 
+    let endTime :any = slots.Monday[0].endTime
+    console.log(endTime)
+    console.log(startTime.length)
+    let allTimes = [];
+    let allTime = [];
+    for( let i = 0;i<startTime.length;i++){
+      let startt = moment(startTime[i], "HH:mm");
+      let endt = moment(endTime[i], "HH:mm");
+      while (startt < endt) {
+        allTime.push(startt.format("hh:mm A")); 
+        startt.add(30, 'minutes');
+      }
+    }
 
-  Fs.readFile('fil.json', 'utf-8', function (err, data) {
-    if (err) throw err
-    var arrayOfObjects = JSON.parse(data)
-    arrayOfObjects.push(
-      vamsi
-    )
-    Fs.writeFile('fil.json', JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
-      if (err) throw err
-      console.log('Done!')
+    console.log(allTime)
+   let breakTime = slots?.Monday[0].breakTime
+   console.log(breakTime)
+   let StartbreakTime = breakTime.filter((_: any, i: any) => !(i % 2));
+    console.log(StartbreakTime)
+    let EndbreakTime = breakTime.filter((_:any, i:any) => (i % 2));
+    console.log(EndbreakTime)
+    let allendTime : any = []
+
+    for( let i = 0;i<StartbreakTime.length;i++){
+      let startt = moment(StartbreakTime[i], "HH:mm");
+      let endt = moment(EndbreakTime[i], "HH:mm");
+      while (startt < endt) {
+        allendTime.push(startt.format("hh:mm A")); 
+        startt.add(30, 'minutes');
+      }
+    }
+    console.log(allendTime)
+   allTime = allTime.filter(v => !allendTime.includes(v))
+
+   console.log(allTime)
+// let startt = moment(startTime, "HH:mm");
+// let endt = moment(endTime, "HH:mm");
+// while (startt < endt) {
+//   allTimes.push(startt.format("hh:mm A"));
+//   startt.add(30, 'minutes');
+// }
+//console.log(allTimes)
+
+   let userEnteredDt = moment(date).format("YYYY-MM-DD")
+   let ptz = moment(userEnteredDt).tz(timeZn).format('dddd DD-MM-YYYY')
+   let userEnteredDay = moment(userEnteredDt).tz(timeZn).format('dddd')
+   console.log(userEnteredDay)
+   console.log(ptz);
+   
+   if(userDt<=ptz){
+    console.log("hello")
+   }
+   
+else{
+   return res.status(400).json({
+      message:"slots are not present"
     })
-  })
-  return items[id];
-};
-export { addModel, getApp, send, getSE ,ondays }
+   }
+  //  console.log(userEnteredDt)
+  //  console.log(userDt)
+   return res.status(200).json({
+    message:"slots time",
+    result : allTime
+   })
+  } catch (error) {
+    res.status(400).send(error)
+    console.log(error)
+  }
+}
+
+
+export { addModel, getApp, send, getSE ,ondays,GetAppointment }

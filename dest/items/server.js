@@ -1,27 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -35,15 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ondays = exports.getSE = exports.send = exports.getApp = exports.addModel = exports.create = void 0;
-const Fs = __importStar(require("fs"));
+exports.GetAppointment = exports.ondays = exports.getSE = exports.send = exports.getApp = exports.addModel = void 0;
 const appointment_1 = __importDefault(require("../moduls/appointment"));
 const appointMentDetals_1 = __importDefault(require("../moduls/appointMentDetals"));
 const appointment_2 = __importDefault(require("../moduls/appointment"));
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 //import { Times } from "../moduls/timesInterface";
 const days_1 = __importDefault(require("../moduls/days"));
-let items = [];
 const addModel = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const date = new Date().toLocaleString('en-US', {
@@ -96,6 +71,14 @@ const getApp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         //const vl =  setTimeToDate()
         //const date = new Date('09/29/2022 04:12:00').toISOString()
         //console.log(date)
+        //   while(time.isBetween(startTime,endTime,undefined,[])){
+        //     result.push(time.toString());
+        //     time = time.add(interval,'m');
+        // }
+        // while(startTime <= endTime){
+        //   timeStops.push(new moment(startTime).format('HH:mm'));
+        //   startTime.add(15, 'minutes');
+        // }
         var time = {
             "start": "2022-09-27T16:30:00.000Z",
             "end": "2022-09-27T18:30:00.000Z"
@@ -112,8 +95,8 @@ const getApp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 start: new Date(hold),
                 end: newEndTime
             });
-            hold = newEndTime;
         }
+        console.log("vamsi");
         console.log(chunks);
         const all = allAppoint.map(o => o.startTime);
         //console.log(all)
@@ -169,7 +152,6 @@ const getSE = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 start: new Date(hold),
                 end: newEndTime
             });
-            hold = newEndTime;
         }
         console.log(chunks);
     }
@@ -183,6 +165,10 @@ const ondays = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const DaysModels = new days_1.default({
             TimeZone: req.body.TimeZone,
+            email: req.body.email,
+            phoneNo: req.body.phoneNo,
+            name: req.body.name,
+            BookedDate: req.body.BookedDate,
             Monday: req.body.Monday,
             Tuesday: req.body.Tuesday,
             Wednesday: req.body.Wednesday,
@@ -217,21 +203,82 @@ const send = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.send = send;
-const create = (newItem) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = new Date().valueOf();
-    items[id] = Object.assign({ id }, newItem);
-    const vamsi = items[id];
-    Fs.readFile('fil.json', 'utf-8', function (err, data) {
-        if (err)
-            throw err;
-        var arrayOfObjects = JSON.parse(data);
-        arrayOfObjects.push(vamsi);
-        Fs.writeFile('fil.json', JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
-            if (err)
-                throw err;
-            console.log('Done!');
+const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let date = req.query.date;
+        let slots = yield days_1.default.findOne({ email: req.query.email });
+        let timeZn = slots.TimeZone;
+        //console.log(timeZn)
+        let userDt = (0, moment_timezone_1.default)().tz(timeZn).format("DD-MM-YYYY");
+        let userTime = (0, moment_timezone_1.default)().tz(timeZn).format("hh:mm A");
+        let userDay = (0, moment_timezone_1.default)().tz(timeZn).format('dddd');
+        console.log(userDay);
+        //console.log(date)
+        //console.log(userTime);
+        let startTime = slots.Monday[0].startTime;
+        console.log(startTime);
+        let endTime = slots.Monday[0].endTime;
+        console.log(endTime);
+        console.log(startTime.length);
+        let allTimes = [];
+        let allTime = [];
+        for (let i = 0; i < startTime.length; i++) {
+            let startt = (0, moment_timezone_1.default)(startTime[i], "HH:mm");
+            let endt = (0, moment_timezone_1.default)(endTime[i], "HH:mm");
+            while (startt < endt) {
+                allTime.push(startt.format("hh:mm A"));
+                startt.add(30, 'minutes');
+            }
+        }
+        console.log(allTime);
+        let breakTime = slots === null || slots === void 0 ? void 0 : slots.Monday[0].breakTime;
+        console.log(breakTime);
+        let StartbreakTime = breakTime.filter((_, i) => !(i % 2));
+        console.log(StartbreakTime);
+        let EndbreakTime = breakTime.filter((_, i) => (i % 2));
+        console.log(EndbreakTime);
+        let allendTime = [];
+        for (let i = 0; i < StartbreakTime.length; i++) {
+            let startt = (0, moment_timezone_1.default)(StartbreakTime[i], "HH:mm");
+            let endt = (0, moment_timezone_1.default)(EndbreakTime[i], "HH:mm");
+            while (startt < endt) {
+                allendTime.push(startt.format("hh:mm A"));
+                startt.add(30, 'minutes');
+            }
+        }
+        console.log(allendTime);
+        allTime = allTime.filter(v => !allendTime.includes(v));
+        console.log(allTime);
+        // let startt = moment(startTime, "HH:mm");
+        // let endt = moment(endTime, "HH:mm");
+        // while (startt < endt) {
+        //   allTimes.push(startt.format("hh:mm A"));
+        //   startt.add(30, 'minutes');
+        // }
+        //console.log(allTimes)
+        let userEnteredDt = (0, moment_timezone_1.default)(date).format("YYYY-MM-DD");
+        let ptz = (0, moment_timezone_1.default)(userEnteredDt).tz(timeZn).format('dddd DD-MM-YYYY');
+        let userEnteredDay = (0, moment_timezone_1.default)(userEnteredDt).tz(timeZn).format('dddd');
+        console.log(userEnteredDay);
+        console.log(ptz);
+        if (userDt <= ptz) {
+            console.log("hello");
+        }
+        else {
+            return res.status(400).json({
+                message: "slots are not present"
+            });
+        }
+        //  console.log(userEnteredDt)
+        //  console.log(userDt)
+        return res.status(200).json({
+            message: "slots time",
+            result: allTime
         });
-    });
-    return items[id];
+    }
+    catch (error) {
+        res.status(400).send(error);
+        console.log(error);
+    }
 });
-exports.create = create;
+exports.GetAppointment = GetAppointment;

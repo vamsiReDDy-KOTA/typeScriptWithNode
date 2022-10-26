@@ -11,7 +11,7 @@ const server_1 = require("./items/server");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
-app.use("/api/menu/item", router_1.itemsRouter);
+app.use("/", router_1.itemsRouter);
 app.get('/', (req, res) => {
     res.status(201).send("it is worjking");
 });

@@ -6,14 +6,35 @@ const daysSchema = new mongoose_1.Schema({
         type: String,
         required: true
     },
+    email: {
+        type: String,
+        unique: true,
+        required: true
+    },
+    phoneNo: {
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
+    BookedDate: {
+        type: String,
+        required: true
+    },
     Monday: [
         {
             startTime: {
-                type: String,
+                type: Array,
                 required: true
             },
             endTime: {
-                type: String,
+                type: Array,
+                required: true
+            },
+            breakTime: {
+                type: Array,
                 required: true
             }
         }
@@ -21,11 +42,15 @@ const daysSchema = new mongoose_1.Schema({
     Tuesday: [
         {
             startTime: {
-                type: String,
+                type: Array,
                 required: true
             },
             endTime: {
-                type: String,
+                type: Array,
+                required: true
+            },
+            breakTime: {
+                type: Array,
                 required: true
             }
         }
@@ -33,11 +58,15 @@ const daysSchema = new mongoose_1.Schema({
     Wednesday: [
         {
             startTime: {
-                type: String,
+                type: Array,
                 required: true
             },
             endTime: {
-                type: String,
+                type: Array,
+                required: true
+            },
+            breakTime: {
+                type: Array,
                 required: true
             }
         }
@@ -45,11 +74,15 @@ const daysSchema = new mongoose_1.Schema({
     Thursday: [
         {
             startTime: {
-                type: String,
+                type: Array,
                 required: true
             },
             endTime: {
-                type: String,
+                type: Array,
+                required: true
+            },
+            breakTime: {
+                type: Array,
                 required: true
             }
         }
@@ -57,43 +90,56 @@ const daysSchema = new mongoose_1.Schema({
     Friday: [
         {
             startTime: {
-                type: String,
+                type: Array,
                 required: true
             },
             endTime: {
-                type: String,
+                type: Array,
+                required: true
+            },
+            breakTime: {
+                type: Array,
                 required: true
             }
         }
     ],
-    saturday: [
+    Saturday: [
         {
             startTime: {
-                type: String,
+                type: Array,
                 required: true
             },
             endTime: {
-                type: String,
+                type: Array,
+                required: true
+            },
+            breakTime: {
+                type: Array,
                 required: true
             }
         }
     ],
-    sunday: [
+    Sunday: [
         {
             startTime: {
-                type: String,
+                type: Array,
                 required: true
             },
             endTime: {
-                type: String,
+                type: Array,
+                required: true
+            },
+            breakTime: {
+                type: Array,
                 required: true
             }
         }
-    ]
-    //sunday : {
-    //          type: mongoose.Schema.Types.ObjectId,
-    //        ref:times,
-    //required:true
-    //}
+    ],
+    isDeleted: {
+        type: Boolean,
+        //enum:[true,false],
+        default: false
+        //enum:[true,false]
+    }
 });
 exports.default = (0, mongoose_1.model)("DaysModel", daysSchema);
