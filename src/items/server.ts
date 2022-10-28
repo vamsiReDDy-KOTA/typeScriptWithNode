@@ -1264,7 +1264,7 @@ const updateBooking =  async (req:any, res:any) => {
       })
      }
 
-  let date = moment().tz(req.body.TimeZone).format('YYYY-MM-DD')
+  let date = moment().tz(users.TimeZone).format('YYYY-MM-DD')
   console.log(date)
   let enterdat = moment(req.body.AppointmentDate).format('YYYY-MM-DD')
   console.log(enterdat)

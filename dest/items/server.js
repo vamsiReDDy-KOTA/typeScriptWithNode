@@ -1154,7 +1154,7 @@ const updateBooking = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 message: "user is not there in our database"
             });
         }
-        let date = (0, moment_timezone_1.default)().tz(req.body.TimeZone).format('YYYY-MM-DD');
+        let date = (0, moment_timezone_1.default)().tz(users.TimeZone).format('YYYY-MM-DD');
         console.log(date);
         let enterdat = (0, moment_timezone_1.default)(req.body.AppointmentDate).format('YYYY-MM-DD');
         console.log(enterdat);
