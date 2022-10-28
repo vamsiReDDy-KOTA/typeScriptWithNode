@@ -15,3 +15,4 @@ exports.itemsRouter.put('/updateBooking', server_1.updateBooking);
 exports.itemsRouter.get('/getBookingsByEmail', server_1.getBookingsByEmail);
 exports.itemsRouter.get('/getDaysByEmail', server_1.getDaysByEmail);
 exports.itemsRouter.delete('/softDelete/:id', server_1.softDelete);
+exports.itemsRouter.delete('/DaysSoftDelete/:id', server_1.DaysSoftDelete);

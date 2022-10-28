@@ -1,10 +1,6 @@
 import express, { Request, Response } from "express";
-import * as ItemService from "./server";
-import { BaseItem, Item } from "./module";
-import Joi, { any } from "joi";
-import * as Fs from "fs";
-import { addModel, getApp, getSE, softDelete ,ondays,getDaysByEmail,send,GetAppointment,updateSlot ,bookingSlots,updateBooking,getBookingsByEmail} from "./server";
 
+import { softDelete,DaysSoftDelete ,ondays,getDaysByEmail,GetAppointment,updateSlot ,bookingSlots,updateBooking,getBookingsByEmail} from "./server";
 
 export const itemsRouter = express.Router();
 
@@ -16,3 +12,4 @@ itemsRouter.put('/updateBooking',updateBooking)
 itemsRouter.get('/getBookingsByEmail',getBookingsByEmail)
 itemsRouter.get('/getDaysByEmail',getDaysByEmail)
 itemsRouter.delete('/softDelete/:id',softDelete)
+itemsRouter.delete('/DaysSoftDelete/:id',DaysSoftDelete)

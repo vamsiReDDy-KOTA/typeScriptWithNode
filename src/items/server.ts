@@ -17,176 +17,9 @@ import Days from "../moduls/daysInterface"
 import days from "../moduls/days";
 import { AnyNsRecord } from "dns";
 import Booking from "../moduls/bookingModelInterface";
+import nodemailer from "nodemailer"
 
 
-
-const addModel = async (req: any, res: any): Promise<void> => {
-  try {
-    const date = new Date().toLocaleString('en-US', {
-      timeZone: req.body.DateYouBooked
-    })
-    const Data = DaysModel.find({}).populate({path:"DaysModel",strictPopulate:false}).exec((err, result) => {
-      if(err){
-        console.log({error :  err})
-      }
-       return result 
-      }
-      )
-      console.log(Date)
-    //const body = req.body as Pick<Appoint, "name" | "description" | "price" | "startTime" | "endTime" | "DateYouBooked" | "bookedID" | "dateOfAppointment"| "date" >;
-    const Appointment: Appoint = new AppointModel({
-      name: req.body.name,
-      description: req.body.description,
-      references : await DaysModel.findById({_id:"6335a5bade9a1a748447d6d4"}),
-      //daysModel:Data,
-      startTime: req.body.startTime,
-      endTime: req.body.endTime,
-      DateYouBooked: moment().tz(req.body.DateYouBooked).format(),
-      dateOfAppointment: req.body.dateOfAppointment,
-      conformBooking:req.body.conformBooking
-    });
-    const newAppoint: Appoint = await Appointment.save()
-    //const allAppoint : Appoint[] = await Appointment.find()
-
-    const Adates = moment().tz("Asia/Kolkata").format();
-    console.log(Adates)
-
-    res.status(201).json({
-      message: 'appointment was booked',
-      deatels: newAppoint
-    })
-  }
-  catch (err) {
-    console.log(err)
-  }
-}
-
-const getApp = async (req: any, res: any): Promise<void> => {
-  try {
-    const allAppoint: Appoint[] = await appointment.find(
-      {
-        dateOfAppointment: "27-9-2022"
-      },
-      {
-        "startTime": "$startTime",
-        "endTime": "$endTime"
-      }
-    )
-    
-    //console.log(dates)
-
-    const date = moment().tz("America/Los_Angeles").format();
-    console.log(date)
-
-    //const vl =  setTimeToDate()
-
-    //const date = new Date('09/29/2022 04:12:00').toISOString()
-    //console.log(date)
-
-  //   while(time.isBetween(startTime,endTime,undefined,[])){
-  //     result.push(time.toString());
-  //     time = time.add(interval,'m');
-  // }
-      
-  // while(startTime <= endTime){
-  //   timeStops.push(new moment(startTime).format('HH:mm'));
-  //   startTime.add(15, 'minutes');
-  // }
-
-    var time = {
-      "start": "2022-09-27T16:30:00.000Z",
-      "end": "2022-09-27T18:30:00.000Z"
-    };
-
-    var start = new Date(time.start).getTime();
-    var end = new Date(time.end).getTime();
-
-    //var diff = end - start;
-
-    var chunks = [];
-    var hold = start;
-    var threshold = (60 * 30 * 1000); //30minutes
-    for (var i = (start + threshold); i <= end; i += (threshold)) {
-      var newEndTime = new Date(i);
-      chunks.push({
-        start: new Date(hold),
-        end: newEndTime
-      });
-      
-    }
-    console.log("vamsi")
-    console.log(chunks)
-    const all = allAppoint.map(o => o.startTime)
-    //console.log(all)
-    const startTime = all.forEach(element => {
-      console.log({ "startTime": element })
-    })
-
-    const endt = allAppoint.map(o => o.endTime)
-    const endTime = endt.forEach(element => {
-      console.log({ "endTime": element })
-    })
-    //var arrayToString = JSON.stringify(Object.assign({},all));
-    //var stringToJsonObject = JSON.parse(arrayToString);
-    //console.log(stringToJsonObject)
-    res.status(201).json({
-      message: 'booked time slots on the date',
-      deatels: allAppoint,
-      //StartTimeSlotsBooked:startTime , endTime
-
-    })
-  } catch (error) {
-    console.log(error)
-  }
-}
-
-const getSE = async (req: any, res: any): Promise<void> => {
-  try {
-    appointment.findOne(
-      { _id: req.params.id }, (err: any, doc: any) => {
-      if (err) {
-        console.log(err)
-      }
-      else {
-        res.status(200).json({
-          "msg": "based on id you will get data",
-          "result": doc
-        })
-      }
-    })
-
-    //console.log(OneAppoint)
-
-
-
-    const date = new Date('09/29/2022 04:12:00').toISOString()
-    console.log(date)
-    var time = {
-      "start": "2022-09-27T16:30:00.000Z",
-      "end": "2022-09-27T18:30:00.000Z"
-    };
-
-
-    var start = new Date(time.start).getTime();
-    var end = new Date(time.end).getTime();
-
-    var chunks = [];
-    var hold = start;
-    var threshold = (60 * 30 * 1000); //30minutes
-    for (var i = (start + threshold); i <= end; i += (threshold)) {
-      var newEndTime = new Date(i);
-      chunks.push({
-        start: new Date(hold),
-        end: newEndTime
-      });
-     
-    }
-    console.log(chunks)
-  } catch (error) {
-    console.log(error)
-    res.status(500).send(error)
-  }
-}
 
 const ondays = async (req:any , res:any)=>{
   try {
@@ -217,45 +50,28 @@ const ondays = async (req:any , res:any)=>{
   }
 }
 
-const send = async (req: any, res: any) => {
-  try {
-    const deate: Detals = new userDt({ name: req.body.name })
-    const newdet: Detals = await deate.save()
-    res.status(201).json({
-      message: 'appointment was booked',
-      deatels: newdet
-    })
-
-  }
-  catch (err) {
-    res.status(400).send(err)
-  }
-}
 const GetAppointment =async (req:any,res:any) => {
   try {
   let date = req.query.date
    let slots = await DaysModel.findOne({email:req.query.email})
+   if(slots?.isDeleted){
+    return res.status(400).json({
+      message : "user is not there in our database"
+    })
+   }
    let timeZn:any = slots?.TimeZone
-   //console.log(timeZn)
+
    let userDt = moment().tz(timeZn).format("DD-MM-YYYY")
    let userTime = moment().tz(timeZn).format("hh:mm A")
    let userDay = moment().tz(timeZn).format('dddd')
    
-    let startTime :any = slots?.Monday[0].startTime
-    //console.log(startTime)
-
-    let endTime :any = slots?.Monday[0].endTime
-  
-
    let userEnteredDt = moment(date).format("YYYY-MM-DD")
    let ptz = moment(date).format('DD-MM-YYYY')
    let userEnteredDay = moment(userEnteredDt).format('dddd')
    let currentTime = moment().tz(timeZn).format('HH:mm')
-  //  console.log(userEnteredDay)
-  //  console.log(ptz);
-   console.log(currentTime)
+
    let startti = slots?.Thursday[0].startTime[0]
-   console.log(startti)
+
    if(currentTime>=startti){
     startti=currentTime
     let h = moment(startti,'HH:mm').format('HH')
@@ -268,27 +84,35 @@ const GetAppointment =async (req:any,res:any) => {
     }
     let ti = `${h}:${m}`
     let st = moment(ti,'HH:mm').format('HH:mm')
-    console.log(st);
+   // console.log(st);
    }
    
    if(userDt<=ptz){
+    console.log("vamsi")
+    //let tiz = moment(ptz).format('YYYY-MM-DD')
+    //console.log(tiz)
     const slot = await BookingModel.find({
-      AppointmentDate: "2022-10-28"
-    },
+      AppointmentDate: userEnteredDt,
+      email:req.query.email
+    },  
     {
       "SlotsTime": "$SlotsTime"
     })
+    console.log(slot)
     let allslots : any = []
     for( let i = 0;i<slot.length;i++){
         allslots.push(slot[i].SlotsTime)
     }
-    console.log(allslots.flat())
+   // console.log(allslots.flat())
 
     //console.log(slot[0].SlotsTime)
 
     switch (userEnteredDay) {
       case "Monday":
         console.log("Monday");
+        if(!slots?.Monday[0]){
+          return res.status(400).send("slots are not there")
+        }
         let MbreakTime = slots?.Monday[0].breakTime
         let MStartbreakTime = MbreakTime.filter((_: any, i: any) => !(i % 2));
         console.log("rii")
@@ -299,15 +123,28 @@ const GetAppointment =async (req:any,res:any) => {
          let MallendTime : any = []
          let Mstartti = slots?.Monday[0].startTime[0]
          console.log(Mstartti)
+         
+         let Mall: any = []
+         for( let i = 0;i<MstartTime.length;i++){
+           let startt = moment(MstartTime[i], "HH:mm");
+           let endt = moment(MendTime[i], "HH:mm");
+           while (startt < endt) {
+             Mall.push(startt.format("hh:mm A")); 
+             startt.add(30, 'minutes');
+           }
+         }
+
          if(userDt===ptz){
          if(currentTime>=Mstartti){
            console.log("first")
            for( let i = 0;i<MstartTime.length;i++){
-             let startt = moment(MstartTime[i], "HH:mm").format('HH:mm');
-             startt=currentTime
+             let startt = moment(MstartTime[i], "HH:mm")
+             let starttt = moment(startt).format('HH:mm')
+
+             starttt = currentTime
              let endt = moment(MendTime[i], "HH:mm");
-             let h = moment(startt,'HH:mm').format('HH')
-             let m = moment(startt,'HH:mm').format('mm')
+             let h = moment(starttt,'HH:mm').format('HH')
+             let m = moment(starttt,'HH:mm').format('mm')
              if(m>='1' && m<='29'){
                m='00'
              }
@@ -323,18 +160,30 @@ const GetAppointment =async (req:any,res:any) => {
              }
            }
            console.log(MallTime)
-           // let start = moment(startti,'HH:mm').format('HH:mm')
-           let h = moment(Mstartti,'HH:mm').format('HH')
-           let m = moment(Mstartti,'HH:mm').format('mm')
-           if(m>='1' && m<='29'){
-             m='00'
+           let AFallTime = MallTime.filter(v => !all.includes(v))
+           for( let i = 0;i<MStartbreakTime.length;i++){
+            let startt = moment(MStartbreakTime[i], "HH:mm");
+            let endt = moment(MEndbreakTime[i], "HH:mm");
+            while (startt < endt) {
+              MallendTime.push(startt.format("hh:mm A")); 
+              startt.add(30, 'minutes');
+            }
+          }
+          //console.log(allendTime)
+          let removingslots = MallendTime.concat(allslots.flat(),AFallTime)
+      //console.log(removingslots)
+         MallTime = MallTime.filter(v => !removingslots.includes(v))
+          MallTime.shift()
+          if (MallTime.length === 0) { 
+            return res.status(400).json({
+              status:false,
+              message:"slota are not present"
+            })
            }
-           else if(m>='31' && m<='59'){
-             m='30'
-           }
-           let ti = `${h}:${m}`
-           let st = moment(ti,'HH:mm').format('HH:mm')
-           console.log(st);
+         return res.status(200).json({
+          message:"slots",
+          result:MallTime
+         })
           }
           else if(currentTime<Mstartti){
            console.log('else if')
@@ -395,6 +244,9 @@ const GetAppointment =async (req:any,res:any) => {
         break;
       case "Tuesday":
         console.log("thuesday")
+        if(!slots?.Tuesday[0]){
+          return res.status(400).send("slots are not there")
+        }
         let TubreakTime = slots?.Saturday[0].breakTime
         let TuStartbreakTime = TubreakTime.filter((_: any, i: any) => !(i % 2));
         console.log("rii")
@@ -405,15 +257,29 @@ const GetAppointment =async (req:any,res:any) => {
          let TuallendTime : any = []
          let Tustartti = slots?.Saturday[0].startTime[0]
          console.log(Tustartti)
+
+         let Tuall: any = []
+         for( let i = 0;i<TustartTime.length;i++){
+           let startt = moment(TustartTime[i], "HH:mm");
+           let endt = moment(TuendTime[i], "HH:mm");
+           while (startt < endt) {
+             Tuall.push(startt.format("hh:mm A")); 
+             startt.add(30, 'minutes');
+           }
+         }
+
          if(userDt===ptz){
+
          if(currentTime>=Tustartti){
            console.log("first")
            for( let i = 0;i<TustartTime.length;i++){
-             let startt = moment(TustartTime[i], "HH:mm").format('HH:mm');
-             startt=currentTime
+             let startt = moment(TustartTime[i], "HH:mm");
+             let starttt = moment(startt).format('HH:mm')
+
+             starttt = currentTime
              let endt = moment(TuendTime[i], "HH:mm");
-             let h = moment(startt,'HH:mm').format('HH')
-             let m = moment(startt,'HH:mm').format('mm')
+             let h = moment(starttt,'HH:mm').format('HH')
+             let m = moment(starttt,'HH:mm').format('mm')
              if(m>='1' && m<='29'){
                m='00'
              }
@@ -429,18 +295,32 @@ const GetAppointment =async (req:any,res:any) => {
              }
            }
            console.log(TuallTime)
-           // let start = moment(startti,'HH:mm').format('HH:mm')
-           let h = moment(Tustartti,'HH:mm').format('HH')
-           let m = moment(Tustartti,'HH:mm').format('mm')
-           if(m>='1' && m<='29'){
-             m='00'
+           let AFallTime = TuallTime.filter(v => !Tuall.includes(v))
+           
+           for( let i = 0;i<TuStartbreakTime.length;i++){
+            let startt = moment(TuStartbreakTime[i], "HH:mm");
+            let endt = moment(TuEndbreakTime[i], "HH:mm");
+            while (startt < endt) {
+              TuallendTime.push(startt.format("hh:mm A")); 
+              startt.add(30, 'minutes');
+            }
+          }
+          //console.log(allendTime)
+          let removingslots = TuallendTime.concat(allslots.flat(),AFallTime)
+      //console.log(removingslots)
+         TuallTime = TuallTime.filter(v => !removingslots.includes(v))
+          TuallTime.shift()
+          if (TuallTime.length === 0) { 
+            return res.status(400).json({
+              status:false,
+              message:"slota are not present"
+            })
            }
-           else if(m>='31' && m<='59'){
-             m='30'
-           }
-           let ti = `${h}:${m}`
-           let st = moment(ti,'HH:mm').format('HH:mm')
-           console.log(st);
+         return res.status(200).json({
+          message:"slots",
+          result:TuallTime
+         })
+
           }
           else if(currentTime<Tustartti){
            console.log('else if')
@@ -451,6 +331,7 @@ const GetAppointment =async (req:any,res:any) => {
                TuallTime.push(startt.format("hh:mm A")); 
                startt.add(30, 'minutes');
              }
+
            }
      
            for( let i = 0;i<TuStartbreakTime.length;i++){
@@ -501,25 +382,41 @@ const GetAppointment =async (req:any,res:any) => {
         break
       case "Wednesday":
         console.log(" This is wednesday");
-        let WbreakTime = slots?.Saturday[0].breakTime
+        if(!slots?.Wednesday[0]){
+          return res.status(400).send("slots are not there")
+        }
+        let WbreakTime = slots?.Wednesday[0].breakTime
         let WStartbreakTime = WbreakTime.filter((_: any, i: any) => !(i % 2));
         console.log("rii")
          let WEndbreakTime = WbreakTime.filter((_:any, i:any) => (i % 2));
-         let WstartTime :any = slots?.Saturday[0].startTime
-         let WendTime :any = slots?.Saturday[0].endTime
+         let WstartTime :any = slots?.Wednesday[0].startTime
+         let WendTime :any = slots?.Wednesday[0].endTime
          let WallTime: any[] = [];
          let WallendTime : any = []
-         let Wstartti = slots?.Saturday[0].startTime[0]
+         let Wstartti = slots?.Wednesday[0].startTime[0]
          console.log(Wstartti)
+
+         let Wall: any = []
+         for( let i = 0;i<WstartTime.length;i++){
+           let startt = moment(WstartTime[i], "HH:mm");
+           let endt = moment(WendTime[i], "HH:mm");
+           while (startt < endt) {
+             Wall.push(startt.format("hh:mm A")); 
+             startt.add(30, 'minutes');
+           }
+         }
          if(userDt===ptz){
          if(currentTime>=Wstartti){
            console.log("first")
            for( let i = 0;i<WstartTime.length;i++){
-             let startt = moment(WstartTime[i], "HH:mm").format('HH:mm');
-             startt=currentTime
+             let startt = moment(WstartTime[i], "HH:mm");
+             let starttt = moment(startt).format('HH:mm')
+
+         starttt = currentTime
+        
              let endt = moment(WendTime[i], "HH:mm");
-             let h = moment(startt,'HH:mm').format('HH')
-             let m = moment(startt,'HH:mm').format('mm')
+             let h = moment(starttt,'HH:mm').format('HH')
+             let m = moment(starttt,'HH:mm').format('mm')
              if(m>='1' && m<='29'){
                m='00'
              }
@@ -534,20 +431,33 @@ const GetAppointment =async (req:any,res:any) => {
                st.add(30, 'minutes');
              }
            }
-           console.log(WallTime)
-           // let start = moment(startti,'HH:mm').format('HH:mm')
-           let h = moment(Wstartti,'HH:mm').format('HH')
-           let m = moment(Wstartti,'HH:mm').format('mm')
-           if(m>='1' && m<='29'){
-             m='00'
-           }
-           else if(m>='31' && m<='59'){
-             m='30'
-           }
-           let ti = `${h}:${m}`
-           let st = moment(ti,'HH:mm').format('HH:mm')
-           console.log(st);
+           let AFallTime = WallTime.filter(v => !all.includes(v))
+           for( let i = 0;i<WStartbreakTime.length;i++){
+            let startt = moment(WStartbreakTime[i], "HH:mm");
+            let endt = moment(WEndbreakTime[i], "HH:mm");
+            while (startt < endt) {
+              WallendTime.push(startt.format("hh:mm A")); 
+              startt.add(30, 'minutes');
+            }
           }
+          let removingslots = WallendTime.concat(allslots.flat(),AFallTime)
+          //console.log(removingslots)
+             WallTime = WallTime.filter(v => !removingslots.includes(v))
+              WallTime.shift()
+              if (WallTime.length === 0) { 
+                return res.status(400).json({
+                  status:false,
+                  message:"slota are not present"
+                })
+               }
+             return res.status(200).json({
+              message:"slots",
+              result:WallTime
+             })
+
+        }
+      
+
           else if(currentTime<Wstartti){
            console.log('else if')
            for( let i = 0;i<WstartTime.length;i++){
@@ -579,9 +489,9 @@ const GetAppointment =async (req:any,res:any) => {
          }
           else{
            console.log("else")
-           for( let i = 0;i<TustartTime.length;i++){
-             let startt = moment(TustartTime[i], "HH:mm");
-             let endt = moment(TuendTime[i], "HH:mm");
+           for( let i = 0;i<WstartTime.length;i++){
+             let startt = moment(WstartTime[i], "HH:mm");
+             let endt = moment(WendTime[i], "HH:mm");
              while (startt < endt) {
                WallTime.push(startt.format("hh:mm A")); 
                startt.add(30, 'minutes');
@@ -608,6 +518,9 @@ const GetAppointment =async (req:any,res:any) => {
 
       case "Thursday":
         console.log("thursday")
+        if(!slots?.Thursday[0]){
+          return res.status(400).send("slots are not there")
+        }
     let breakTime = slots?.Thursday[0].breakTime
     let StartbreakTime = breakTime.filter((_: any, i: any) => !(i % 2));
     let EndbreakTime = breakTime.filter((_:any, i:any) => (i % 2));
@@ -615,17 +528,31 @@ const GetAppointment =async (req:any,res:any) => {
     let endTime :any = slots?.Thursday[0].endTime
     let allTime: any[] = [];
     let allendTime : any = []
-    let startti = slots?.Thursday[0].startTime
+    let startti = slots?.Thursday[0].startTime[0]
 
+    let Tall: any = []
+    for( let i = 0;i<startTime.length;i++){
+      let startt = moment(startTime[i], "HH:mm");
+      let endt = moment(endTime[i], "HH:mm");
+      while (startt < endt) {
+        Tall.push(startt.format("hh:mm A")); 
+        startt.add(30, 'minutes');
+      }
+    }
+
+    if(userDt===ptz){
         if(currentTime>=startti){
           console.log("first")
           for( let i = 0;i<startTime.length;i++){
             let startt : any = moment(startTime[i], "HH:mm");
-            startt=currentTime
-            console.log(startt)
+            let starttt = moment(startt).format('HH:mm')
+
+         starttt = currentTime
+            //startt=currentTime
+            
             let endt = moment(endTime[i], "HH:mm");
-            let h = moment(startt,'HH:mm').format('HH')
-            let m = moment(startt,'HH:mm').format('mm')
+            let h = moment(starttt,'HH:mm').format('HH')
+            let m = moment(starttt,'HH:mm').format('mm')
             if(m>='1' && m<='29'){
               m='00'
             }
@@ -633,8 +560,7 @@ const GetAppointment =async (req:any,res:any) => {
               m='30'
             }
             let ti = `${h}:${m}`
-            console.log("hello")
-            console.log(ti)
+            
             let st = moment(ti,'HH:mm')
             //console.log(st);
             while (st < endt) {
@@ -643,18 +569,8 @@ const GetAppointment =async (req:any,res:any) => {
             }
           }
           console.log(allTime)
-          // let start = moment(startti,'HH:mm').format('HH:mm')
-          let h = moment(startti,'HH:mm').format('HH')
-          let m = moment(startti,'HH:mm').format('mm')
-          if(m>='1' && m<='29'){
-            m='00'
-          }
-          else if(m>='31' && m<='59'){
-            m='30'
-          }
-          let ti = `${h}:${m}`
-          let st = moment(ti,'HH:mm').format('HH:mm')
-          console.log(st);
+          let AFallTime = allTime.filter(v => !all.includes(v))
+          
           for( let i = 0;i<StartbreakTime.length;i++){
             let startt = moment(StartbreakTime[i], "HH:mm");
             let endt = moment(EndbreakTime[i], "HH:mm");
@@ -664,10 +580,16 @@ const GetAppointment =async (req:any,res:any) => {
             }
           }
           //console.log(allendTime)
-          let removingslots = allendTime.concat(allslots.flat())
+          let removingslots = allendTime.concat(allslots.flat(),AFallTime)
       console.log(removingslots)
          allTime = allTime.filter(v => !removingslots.includes(v))
           allTime.shift()
+          if (allTime.length === 0) { 
+            return res.status(400).json({
+              status:false,
+              message:"slota are not present"
+            })
+           }
          return res.status(200).json({
           message:"slots",
           result:allTime
@@ -702,6 +624,7 @@ const GetAppointment =async (req:any,res:any) => {
          })
 
          }
+        }
          else{
 
           for( let i = 0;i<startTime.length;i++){
@@ -738,9 +661,12 @@ const GetAppointment =async (req:any,res:any) => {
 
       case "Friday":
         console.log("friday")
-        let FbreakTime = slots?.Friday[0].breakTime
+        if(!slots?.Friday[0]){
+          return res.status(400).send("slots are not there")
+        }
+
+    let FbreakTime = slots?.Friday[0].breakTime
    let FStartbreakTime = FbreakTime.filter((_: any, i: any) => !(i % 2));
-   console.log("rii")
     let FEndbreakTime = FbreakTime.filter((_:any, i:any) => (i % 2));
     let FstartTime :any = slots?.Friday[0].startTime
     let FendTime :any = slots?.Friday[0].endTime
@@ -748,15 +674,35 @@ const GetAppointment =async (req:any,res:any) => {
     let FallendTime : any = []
     let Fstartti = slots?.Friday[0].startTime[0]
     console.log(Fstartti)
+    
+        let all: any = []
+    for( let i = 0;i<FstartTime.length;i++){
+      let startt = moment(FstartTime[i], "HH:mm");
+      let endt = moment(FendTime[i], "HH:mm");
+      while (startt < endt) {
+        all.push(startt.format("hh:mm A")); 
+        startt.add(30, 'minutes');
+      }
+    }
+   // console.log("alll");
+    
+    //console.log(all)
+
     if(userDt===ptz){
+
     if(currentTime>=Fstartti){
       console.log("first")
       for( let i = 0;i<FstartTime.length;i++){
-        let startt = moment(FstartTime[i], "HH:mm").format('HH:mm');
-        startt=currentTime
+        let startt = moment(FstartTime[i], "HH:mm")
+      
         let endt = moment(FendTime[i], "HH:mm");
-        let h = moment(startt,'HH:mm').format('HH')
-        let m = moment(startt,'HH:mm').format('mm')
+        let starttt = moment(startt).format('HH:mm')
+
+         starttt = currentTime
+
+        console.log("hello")
+        let h = moment(starttt,'HH:mm').format('HH')
+        let m = moment(starttt,'HH:mm').format('mm')
         if(m>='1' && m<='29'){
           m='00'
         }
@@ -765,25 +711,39 @@ const GetAppointment =async (req:any,res:any) => {
         }
         let ti = `${h}:${m}`
         let st = moment(ti,'HH:mm')
-        //console.log(st);
+        
+        //console.log(st)
         while (st < endt) {
           FallTime.push(st.format("hh:mm A")); 
-          st.add(30, 'minutes');
+          st.add(30, 'm');
         }
       }
-      console.log(FallTime)
-      // let start = moment(startti,'HH:mm').format('HH:mm')
-      let h = moment(startti,'HH:mm').format('HH')
-      let m = moment(startti,'HH:mm').format('mm')
-      if(m>='1' && m<='29'){
-        m='00'
+      let AFallTime = FallTime.filter(v => !all.includes(v))
+     // console.log(AFallTime)
+      
+      for( let i = 0;i<FStartbreakTime.length;i++){
+        let startt = moment(FStartbreakTime[i], "HH:mm");
+        let endt = moment(FEndbreakTime[i], "HH:mm");
+        while (startt < endt) {
+          FallendTime.push(startt.format("hh:mm A")); 
+          startt.add(30, 'minutes');
+        }
       }
-      else if(m>='31' && m<='59'){
-        m='30'
-      }
-      let ti = `${h}:${m}`
-      let st = moment(ti,'HH:mm').format('HH:mm')
-      console.log(st);
+      //console.log(allendTime)
+      let removingslots = FallendTime.concat(allslots.flat(),AFallTime)
+  //console.log(removingslots)
+     FallTime = FallTime.filter(v => !removingslots.includes(v))
+      FallTime.shift()
+      if (FallTime.length === 0) { 
+        return res.status(400).json({
+          status:false,
+          message:"slota are not present"
+        })
+       } 
+     return res.status(200).json({
+      message:"slots",
+      result:FallTime
+     })
      }
      else if(currentTime<Fstartti){
       console.log('else if')
@@ -850,6 +810,9 @@ const GetAppointment =async (req:any,res:any) => {
 
       case "Saturday":
       console.log("saturday");
+      if(!slots?.Saturday[0]){
+        return res.status(400).send("slots are not there")
+      }
       let SbreakTime = slots?.Saturday[0].breakTime
       let SStartbreakTime = SbreakTime.filter((_: any, i: any) => !(i % 2));
       console.log("rii")
@@ -860,15 +823,28 @@ const GetAppointment =async (req:any,res:any) => {
        let SallendTime : any = []
        let Sstartti = slots?.Saturday[0].startTime[0]
        console.log(Sstartti)
+
+       let Sall: any = []
+       for( let i = 0;i<SstartTime.length;i++){
+         let startt = moment(SstartTime[i], "HH:mm");
+         let endt = moment(SendTime[i], "HH:mm");
+         while (startt < endt) {
+           Sall.push(startt.format("hh:mm A")); 
+           startt.add(30, 'minutes');
+         }
+       }
+
        if(userDt===ptz){
        if(currentTime>=Sstartti){
          console.log("first")
          for( let i = 0;i<SstartTime.length;i++){
-           let startt = moment(SstartTime[i], "HH:mm").format('HH:mm');
-           startt=currentTime
+           let startt = moment(SstartTime[i], "HH:mm");
+           let starttt = moment(startt).format('HH:mm')
+
+           starttt = currentTime
            let endt = moment(SendTime[i], "HH:mm");
-           let h = moment(startt,'HH:mm').format('HH')
-           let m = moment(startt,'HH:mm').format('mm')
+           let h = moment(starttt,'HH:mm').format('HH')
+           let m = moment(starttt,'HH:mm').format('mm')
            if(m>='1' && m<='29'){
              m='00'
            }
@@ -885,17 +861,33 @@ const GetAppointment =async (req:any,res:any) => {
          }
          console.log(SallTime)
          // let start = moment(startti,'HH:mm').format('HH:mm')
-         let h = moment(startti,'HH:mm').format('HH')
-         let m = moment(startti,'HH:mm').format('mm')
-         if(m>='1' && m<='29'){
-           m='00'
-         }
-         else if(m>='31' && m<='59'){
-           m='30'
-         }
-         let ti = `${h}:${m}`
-         let st = moment(ti,'HH:mm').format('HH:mm')
-         console.log(st);
+         let AFallTime = SallTime.filter(v => !Sall.includes(v))
+         // console.log(AFallTime)
+          
+          for( let i = 0;i<SStartbreakTime.length;i++){
+            let startt = moment(SStartbreakTime[i], "HH:mm");
+            let endt = moment(SEndbreakTime[i], "HH:mm");
+            while (startt < endt) {
+              SallendTime.push(startt.format("hh:mm A")); 
+              startt.add(30, 'minutes');
+            }
+          }
+          //console.log(allendTime)
+          let removingslots = FallendTime.concat(allslots.flat(),AFallTime)
+      //console.log(removingslots)
+         SallTime = SallTime.filter(v => !removingslots.includes(v))
+          SallTime.shift()
+          if (SallTime.length === 0) { 
+            return res.status(400).json({
+              status:false,
+              message:"slota are not present"
+            })
+           }
+         return res.status(200).json({
+          message:"slots",
+          result:SallTime
+         })
+    
         }
         else if(currentTime<Sstartti){
          console.log('else if')
@@ -960,6 +952,9 @@ const GetAppointment =async (req:any,res:any) => {
       break
 
       case  "Sunday":
+        if(!slots?.Sunday[0]){
+          return res.status(400).send("slots are not there")
+        }
         let SnbreakTime = slots?.Sunday[0].breakTime
         let SnStartbreakTime = SnbreakTime.filter((_: any, i: any) => !(i % 2));
         console.log("rii")
@@ -970,15 +965,26 @@ const GetAppointment =async (req:any,res:any) => {
          let SnallendTime : any = []
          let Snstartti = slots?.Saturday[0].startTime[0]
          console.log(Sstartti)
+         let Snall: any = []
+    for( let i = 0;i<SnstartTime.length;i++){
+      let startt = moment(SnstartTime[i], "HH:mm");
+      let endt = moment(SnendTime[i], "HH:mm");
+      while (startt < endt) {
+        Snall.push(startt.format("hh:mm A")); 
+        startt.add(30, 'minutes');
+      }
+    }
          if(userDt===ptz){
          if(currentTime>=Sstartti){
            console.log("first")
            for( let i = 0;i<SnstartTime.length;i++){
-             let startt = moment(SnstartTime[i], "HH:mm").format('HH:mm');
-             startt=currentTime
+             let startt = moment(SnstartTime[i], "HH:mm")
+             let starttt = moment(startt).format('HH:mm')
+
+             starttt = currentTime
              let endt = moment(SnendTime[i], "HH:mm");
-             let h = moment(startt,'HH:mm').format('HH')
-             let m = moment(startt,'HH:mm').format('mm')
+             let h = moment(starttt,'HH:mm').format('HH')
+             let m = moment(starttt,'HH:mm').format('mm')
              if(m>='1' && m<='29'){
                m='00'
              }
@@ -994,18 +1000,32 @@ const GetAppointment =async (req:any,res:any) => {
              }
            }
            console.log(SnallTime)
-           // let start = moment(startti,'HH:mm').format('HH:mm')
-           let h = moment(startti,'HH:mm').format('HH')
-           let m = moment(startti,'HH:mm').format('mm')
-           if(m>='1' && m<='29'){
-             m='00'
-           }
-           else if(m>='31' && m<='59'){
-             m='30'
-           }
-           let ti = `${h}:${m}`
-           let st = moment(ti,'HH:mm').format('HH:mm')
-           console.log(st);
+           let AFallTime = SnallTime.filter(v => !all.includes(v))
+     // console.log(AFallTime)
+      
+      for( let i = 0;i<SnStartbreakTime.length;i++){
+        let startt = moment(SnStartbreakTime[i], "HH:mm");
+        let endt = moment(SnEndbreakTime[i], "HH:mm");
+        while (startt < endt) {
+          SnallendTime.push(startt.format("hh:mm A")); 
+          startt.add(30, 'minutes');
+        }
+      }
+      //console.log(allendTime)
+      let removingslots = SnallendTime.concat(allslots.flat(),AFallTime)
+  //console.log(removingslots)
+     SnallTime = SnallTime.filter(v => !removingslots.includes(v))
+      SnallTime.shift()
+      if (SnallTime.length === 0) { 
+        return res.status(400).json({
+          status:false,
+          message:"slota are not present"
+        })
+       }
+     return res.status(200).json({
+      message:"slots",
+      result:SnallTime
+     })
           }
           else if(currentTime<Snstartti){
            console.log('else if')
@@ -1090,6 +1110,11 @@ const updateSlot =  async (req:any, res:any) => {
         message: "user is not presnt",
       });
     }
+    if(users?.isDeleted){
+      return res.status(400).json({
+        message : "user is not there in our database"
+      })
+     }
     const newUserData = {
     TimeZone : req.body.TimeZone||users.TimeZone,
     email:users.email,
@@ -1122,25 +1147,42 @@ const updateSlot =  async (req:any, res:any) => {
 
 const bookingSlots = async (req:any , res:any)=>{
   
-  let user = await BookingModel.find({TimeZone:req.body.TimeZone,AppointmentDate:req.body.AppointmentDate},{"SlotsTime":"$SlotsTime"})
-  console.log(user)
+  let user = await BookingModel.find({TimeZone:req.body.TimeZone,AppointmentDate:req.body.AppointmentDate,email:req.body.email},{"SlotsTime":"$SlotsTime"})
+  let daysdata = await DaysModel.findOne({email:req.body.email}) 
+
+  if(!daysdata){
+    return res.status(400).json({
+      status:false,
+      message:"user is not present"
+    })
+  }
+
+  let date = moment().tz(req.body.TimeZone).format('YYYY-MM-DD')
+  console.log(date)
+  let enterdat = moment(req.body.AppointmentDate).format('YYYY-MM-DD')
+  console.log(enterdat)
+  if(date === enterdat){
+    console.log("vamsi")
+  }
+  if(date>enterdat){
+    return res.status(400).json({
+      status:false,
+      message:"date is grater or equalto  today"
+    })
+  }
+
+  //console.log(user)
   let allslots : any = []
   for( let i = 0;i<user.length;i++){
       allslots.push(user[i].SlotsTime)
   }
   console.log(allslots.flat())
-
-  let result = allslots.flat().some(function (a: any, i: any, aa: { [x: string]: any; }) {
-    return req.body.SlotsTime.every(function (b: any, j: any) {
-        return aa[i + j] === b;
-    });
-});
 const found = allslots.flat().some((r: any)=> req.body.SlotsTime.indexOf(r) >= 0)
-console.log(found)
+//console.log(found)
 if(found){
   return res.status(400).json({
     Status:false,
-    message:'Slot is already present'
+    message:'Slot is already Booked'
   })
 };
 
@@ -1154,23 +1196,50 @@ if(found){
       Duerication:req.body.Duerication,
       AppointmentDate:req.body.AppointmentDate
     }) 
-    const slot:Booking  = await BookingModels.save()
-    
-    res.status(200).json({
+    let slot:Booking  = await BookingModels.save()
+
+    let transporters = nodemailer.createTransport(
+      {
+          service: 'gmail',
+          auth:{
+            user: "kotavamsi16@gmail.com",
+            pass: "mbjypwpxtpswciyp",
+          },
+          tls: {
+            rejectUnauthorized: true,
+          },
+          
+      }
+  )
+    let mailOptions : any = {
+      from: "kotavamsi16@gmail.com",
+      to: "vamsi.1255237@gmail.com",
+      subject: "slot booked",
+      text: `Hello ${slot.Name} your slot has been updated to ${slot.AppointmentDate} and slots will be at ${slot.SlotsTime} `,
+    };
+    transporters.sendMail(mailOptions, function (error:any, info:any) {
+      if (error) {
+        console.log(error);
+      } 
+      console.log('Message sent: ' + info.response);
+    })
+    return res.status(200).json({
       message : "slot booking sucess",
       result:slot
     })
+  }
 
-  } catch (error) {
+  catch (error) {
     console.log(error)
     res.status(500).send(error)
   }
-}
+};
 
 const updateBooking =  async (req:any, res:any) => {
   try {
+ 
     let users : any = await BookingModel.findById(req.query.id);
-    let use : any = BookingModel.find()
+    console.log(users.TimeZone)
     //console.log(use)
     if (!users) {
       //console.log("hello")
@@ -1179,7 +1248,50 @@ const updateBooking =  async (req:any, res:any) => {
         message: "user is not presnt",
       }); 
     }
+    let daysdata = await DaysModel.findOne({email:req.body.email}) 
+  console.log("hello")  
+  //console.log(daysdata)
+  if(!daysdata){
+    return res.status(400).json({
+      status:false,
+      message:"user is not present"
+    })
+  }
+
+    if(users?.isDeleted){
+      return res.status(400).json({
+        message : "user is not there in our database"
+      })
+     }
+
+  let date = moment().tz(req.body.TimeZone).format('YYYY-MM-DD')
+  console.log(date)
+  let enterdat = moment(req.body.AppointmentDate).format('YYYY-MM-DD')
+  console.log(enterdat)
+  if(date>enterdat){
+    return res.status(400).json({
+      status:false,
+      message:"date is grater then today"
+    })
+  }
+    let user = await BookingModel.find({TimeZone:users.TimeZone,email:req.body.email,AppointmentDate:req.body.AppointmentDate},{"SlotsTime":"$SlotsTime"})
+  //console.log(user)
+  let allslots : any = []
+  for( let i = 0;i<user.length;i++){
+      allslots.push(user[i].SlotsTime)
+  }
+  console.log(allslots.flat())
+const found = allslots.flat().some((r: any)=> req.body.SlotsTime.indexOf(r) >= 0)
+console.log(found)
+if(found){
+  return res.status(400).json({
+    Status:false,
+    message:'Slot is already Booked'
+  })
+};
+   
     const newUserData = {
+      TimeZone:users.TimeZone,
       SlotsTime:req.body.SlotsTime || users.SlotsTime,
       Service:req.body.Service || users.Service,
       email:req.body.email || users.email,
@@ -1188,30 +1300,57 @@ const updateBooking =  async (req:any, res:any) => {
       AppointmentDate:req.body.AppointmentDate || users.AppointmentDate
     }
 
-    let user = await BookingModel.findByIdAndUpdate({_id:req.query.id}, newUserData, {
+    let data:any = await BookingModel.findByIdAndUpdate({_id:req.query.id}, newUserData, {
       new: true,
       runValidators: false,
       userFindAndModify: true,
     });
+    let transporters = nodemailer.createTransport(
+      {
+          service: 'gmail',
+          auth:{
+            user: "kotavamsi16@gmail.com",
+            pass: "mbjypwpxtpswciyp",
+          },
+          tls: {
+            rejectUnauthorized: true,
+          },
+          
+      }
+  )
+    let mailOptions : any = {
+      from: "kotavamsi16@gmail.com",
+      to: "vamsi.1255237@gmail.com",
+      subject: "your slot has been updated",
+      text: `Hello ${data.Name} your slot has been updated to ${data.AppointmentDate} and slots will be at ${data.SlotsTime} `
+    };
+    transporters.sendMail(mailOptions, function (error:any, info:any) {
+      if (error) {
+        console.log(error);
+      } 
+      console.log('Message sent: ' + info.response);
+    })
     return res.status(200).json({
       message:"user updated sucessfully",
-      result:user
+      result:data
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).send("Internal server");
+    return res.status(500).send("Hello Internal server");
   }
 };
 
 const getBookingsByEmail =async (req:any,res:any) => {
   try {
-    let user = await BookingModel.find({email:req.query.email})
+    let user = await BookingModel.find({email:req.query.email,isDeleted:false})
     if (!user) {
       return res.status(400).json({
         success: false,
         message: "user is not presnt",
       }); 
     }
+
+  
 
     res.status(200).json({
       message:"data",
@@ -1228,7 +1367,7 @@ const getBookingsByEmail =async (req:any,res:any) => {
 
 const getDaysByEmail = async (req:any,res:any) => {
   try {
-    let user = await DaysModel.find({email:req.query.email})
+    let user = await DaysModel.find({email:req.query.email , isDeleted:false})
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -1260,16 +1399,37 @@ const softDelete = async (req:any, res:any) => {
         error: 'Requested category does not exist'
       });
     }
-    
       const softdelete =await BookingModel.findOneAndUpdate({_id:users._id},{isDeleted:true})
 
-      
-    
+      let transporters = nodemailer.createTransport(
+        {
+            service: 'gmail',
+            auth:{
+              user: "kotavamsi16@gmail.com",
+              pass: "mbjypwpxtpswciyp",
+            },
+            tls: {
+              rejectUnauthorized: true,
+            },
+            
+        }
+    )
+      let mailOptions : any = {
+        from: "kotavamsi16@gmail.com",
+        to: "vamsi.1255237@gmail.com",
+        subject: "your slot deleted",
+        text: `Hello ${users.Name} your slot has been deleted`,
+      };
+      transporters.sendMail(mailOptions, function (error:any, info:any) {
+        if (error) {
+          console.log(error);
+        } 
+        console.log('Message sent: ' + info.response);
+      })
     res.status(200).json({
       message: "Your slot was deleted",
       data:softdelete
     });
-
   }
   catch (error) {
     res.status(400).json({
@@ -1278,5 +1438,27 @@ const softDelete = async (req:any, res:any) => {
   }
 };
 
+const DaysSoftDelete = async (req:any, res:any) => {
+  try {
+    const users : any = await DaysModel.findById(req.params.id);
+    console.log(users)
 
-export { addModel, getApp, send, getSE ,ondays,GetAppointment,updateSlot,softDelete,bookingSlots,updateBooking,getBookingsByEmail,getDaysByEmail }
+    if (users.isDeleted === true) {
+      return res.status(404).json({
+        error: 'Requested category does not exist'
+      });
+    }
+      const softdelete =await DaysModel.findOneAndUpdate({_id:users._id},{isDeleted:true})
+    res.status(200).json({
+      message: "deleted sucess",
+      data:softdelete
+    });
+  }
+  catch (error) {
+    res.status(400).json({
+      error: error
+    });
+  }
+};
+
+export {ondays,GetAppointment,updateSlot,DaysSoftDelete,softDelete,bookingSlots,updateBooking,getBookingsByEmail,getDaysByEmail }

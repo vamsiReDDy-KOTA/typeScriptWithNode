@@ -7,7 +7,8 @@ export interface Booking extends Document {
     email:string,
     Name:string,
     Duerication:string,
-    AppointmentDate:string
+    AppointmentDate:string,
+    isDeleted:boolean
    
 }
 

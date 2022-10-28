@@ -2,21 +2,16 @@ import express, { Request, Response } from "express";
 import mongoose from "mongoose"
 import cors from "cors"
 import { itemsRouter } from "./items/router"
-import { addModel, getApp, getSE, ondays, send } from "./items/server";
+
 const app = express();
 app.use(express.json())
 app.use(cors())
 app.use("/", itemsRouter);
 
 app.get('/',(req,res)=>{
-    res.status(201).send("it is worjking")
+    res.status(201).send("it is working")
 })
 
-app.post("/appointment", addModel) 
-app.get("/appointment",getApp) 
-app.post("/det",send )
-app.get('/pro/:id',getSE)
-app.post("/da", ondays )
 
 //mongodb+srv://vamsi:vamsi22@cluster0.auer7qa.mongodb.net/?retryWrites=true&w=majority
 const uri: string = "mongodb+srv://vamsiReddyk:vamsi22@cluster0.auer7qa.mongodb.net/timezone?retryWrites=true&w=majority"
