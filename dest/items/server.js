@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDaysByEmail = exports.getBookingsByEmail = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.updateSlot = exports.GetAppointment = exports.ondays = void 0;
+//import { readFile, writeFile } from "fs";
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 //import { Times } from "../moduls/timesInterface";
 const days_1 = __importDefault(require("../moduls/days"));
@@ -57,60 +58,30 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
         }
         let timeZn = slots === null || slots === void 0 ? void 0 : slots.TimeZone;
         let userDt = (0, moment_timezone_1.default)().tz(timeZn).format("DD-MM-YYYY");
-        let userTime = (0, moment_timezone_1.default)().tz(timeZn).format("hh:mm A");
-        let userDay = (0, moment_timezone_1.default)().tz(timeZn).format('dddd');
         let userEnteredDt = (0, moment_timezone_1.default)(date).format("YYYY-MM-DD");
         let ptz = (0, moment_timezone_1.default)(date).format('DD-MM-YYYY');
         let userEnteredDay = (0, moment_timezone_1.default)(userEnteredDt).format('dddd');
         let currentTime = (0, moment_timezone_1.default)().tz(timeZn).format('HH:mm');
-        let startti = slots === null || slots === void 0 ? void 0 : slots.Thursday[0].startTime[0];
-        if (currentTime >= startti) {
-            startti = currentTime;
-            let h = (0, moment_timezone_1.default)(startti, 'HH:mm').format('HH');
-            let m = (0, moment_timezone_1.default)(startti, 'HH:mm').format('mm');
-            if (m >= '1' && m <= '29') {
-                m = '00';
-            }
-            else if (m >= '31' && m <= '59') {
-                m = '30';
-            }
-            let ti = `${h}:${m}`;
-            let st = (0, moment_timezone_1.default)(ti, 'HH:mm').format('HH:mm');
-            // console.log(st);
-        }
         if (userDt <= ptz) {
-            console.log("vamsi");
-            //let tiz = moment(ptz).format('YYYY-MM-DD')
-            //console.log(tiz)
-            const slot = yield bookingModel_1.default.find({
-                AppointmentDate: userEnteredDt,
-                email: req.query.email
-            }, {
-                "SlotsTime": "$SlotsTime"
-            });
+            const slot = yield bookingModel_1.default.find({ AppointmentDate: userEnteredDt, email: req.query.email }, { "SlotsTime": "$SlotsTime" });
             console.log(slot);
             let allslots = [];
             for (let i = 0; i < slot.length; i++) {
                 allslots.push(slot[i].SlotsTime);
             }
-            // console.log(allslots.flat())
-            //console.log(slot[0].SlotsTime)
             switch (userEnteredDay) {
                 case "Monday":
-                    console.log("Monday");
                     if (!(slots === null || slots === void 0 ? void 0 : slots.Monday[0])) {
                         return res.status(400).send("slots are not there");
                     }
                     let MbreakTime = slots === null || slots === void 0 ? void 0 : slots.Monday[0].breakTime;
                     let MStartbreakTime = MbreakTime.filter((_, i) => !(i % 2));
-                    console.log("rii");
                     let MEndbreakTime = MbreakTime.filter((_, i) => (i % 2));
                     let MstartTime = slots === null || slots === void 0 ? void 0 : slots.Monday[0].startTime;
                     let MendTime = slots === null || slots === void 0 ? void 0 : slots.Monday[0].endTime;
                     let MallTime = [];
                     let MallendTime = [];
                     let Mstartti = slots === null || slots === void 0 ? void 0 : slots.Monday[0].startTime[0];
-                    console.log(Mstartti);
                     let Mall = [];
                     for (let i = 0; i < MstartTime.length; i++) {
                         let startt = (0, moment_timezone_1.default)(MstartTime[i], "HH:mm");
@@ -120,14 +91,15 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             startt.add(30, 'minutes');
                         }
                     }
+                    //console.log(Mall)
                     if (userDt === ptz) {
-                        if (currentTime >= Mstartti) {
+                        if (currentTime > Mstartti) {
                             console.log("first");
                             for (let i = 0; i < MstartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(MstartTime[i], "HH:mm");
+                                let endt = (0, moment_timezone_1.default)(MendTime[i], "HH:mm");
                                 let starttt = (0, moment_timezone_1.default)(startt).format('HH:mm');
                                 starttt = currentTime;
-                                let endt = (0, moment_timezone_1.default)(MendTime[i], "HH:mm");
                                 let h = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('HH');
                                 let m = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('mm');
                                 if (m >= '1' && m <= '29') {
@@ -144,8 +116,9 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                                     st.add(30, 'minutes');
                                 }
                             }
-                            console.log(MallTime);
-                            let AFallTime = MallTime.filter(v => !all.includes(v));
+                            // console.log(MallTime)
+                            let AFallTime = MallTime.filter(v => !Mall.includes(v));
+                            console.log(AFallTime);
                             for (let i = 0; i < MStartbreakTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(MStartbreakTime[i], "HH:mm");
                                 let endt = (0, moment_timezone_1.default)(MEndbreakTime[i], "HH:mm");
@@ -156,9 +129,16 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             }
                             //console.log(allendTime)
                             let removingslots = MallendTime.concat(allslots.flat(), AFallTime);
-                            //console.log(removingslots)
+                            //log(removingslots)
                             MallTime = MallTime.filter(v => !removingslots.includes(v));
                             MallTime.shift();
+                            MallTime.shift();
+                            MallTime.shift();
+                            MallTime.shift();
+                            MallTime.shift();
+                            MallTime.shift();
+                            MallTime.shift();
+                            // console.log(MallTime)
                             if (MallTime.length === 0) {
                                 return res.status(400).json({
                                     status: false,
@@ -170,7 +150,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                                 result: MallTime
                             });
                         }
-                        else if (currentTime < Mstartti) {
+                        else if (currentTime <= Mstartti) {
                             console.log('else if');
                             for (let i = 0; i < MstartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(MstartTime[i], "HH:mm");
@@ -247,7 +227,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         }
                     }
                     if (userDt === ptz) {
-                        if (currentTime >= Tustartti) {
+                        if (currentTime > Tustartti) {
                             console.log("first");
                             for (let i = 0; i < TustartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(TustartTime[i], "HH:mm");
@@ -281,7 +261,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                                 }
                             }
                             //console.log(allendTime)
-                            let removingslots = TuallendTime.concat(allslots.flat(), AFallTime);
+                            let removingslots = TuallendTime.concat(allslots.flat(), AFallTime, TuendTime.flat());
                             //console.log(removingslots)
                             TuallTime = TuallTime.filter(v => !removingslots.includes(v));
                             TuallTime.shift();
@@ -296,7 +276,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                                 result: TuallTime
                             });
                         }
-                        else if (currentTime < Tustartti) {
+                        else if (currentTime <= Tustartti) {
                             console.log('else if');
                             for (let i = 0; i < TustartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(TustartTime[i], "HH:mm");
@@ -373,7 +353,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         }
                     }
                     if (userDt === ptz) {
-                        if (currentTime >= Wstartti) {
+                        if (currentTime > Wstartti) {
                             console.log("first");
                             for (let i = 0; i < WstartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(WstartTime[i], "HH:mm");
@@ -420,7 +400,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                                 result: WallTime
                             });
                         }
-                        else if (currentTime < Wstartti) {
+                        else if (currentTime <= Wstartti) {
                             console.log('else if');
                             for (let i = 0; i < WstartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(WstartTime[i], "HH:mm");
@@ -495,7 +475,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         }
                     }
                     if (userDt === ptz) {
-                        if (currentTime >= startti) {
+                        if (currentTime > startti) {
                             console.log("first");
                             for (let i = 0; i < startTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(startTime[i], "HH:mm");
@@ -530,7 +510,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                                 }
                             }
                             //console.log(allendTime)
-                            let removingslots = allendTime.concat(allslots.flat(), AFallTime);
+                            let removingslots = allendTime.concat(allslots.flat(), AFallTime, EndbreakTime.flat());
                             console.log(removingslots);
                             allTime = allTime.filter(v => !removingslots.includes(v));
                             allTime.shift();
@@ -545,7 +525,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                                 result: allTime
                             });
                         }
-                        else if (currentTime < startti) {
+                        else if (currentTime <= startti) {
                             console.log("else if");
                             for (let i = 0; i < startTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(startTime[i], "HH:mm");
@@ -624,7 +604,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                     // console.log("alll");
                     //console.log(all)
                     if (userDt === ptz) {
-                        if (currentTime >= Fstartti) {
+                        if (currentTime > Fstartti) {
                             console.log("first");
                             for (let i = 0; i < FstartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(FstartTime[i], "HH:mm");
@@ -674,7 +654,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                                 result: FallTime
                             });
                         }
-                        else if (currentTime < Fstartti) {
+                        else if (currentTime <= Fstartti) {
                             console.log('else if');
                             for (let i = 0; i < FstartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(FstartTime[i], "HH:mm");
@@ -755,7 +735,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         }
                     }
                     if (userDt === ptz) {
-                        if (currentTime >= Sstartti) {
+                        if (currentTime > Sstartti) {
                             console.log("first");
                             for (let i = 0; i < SstartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(SstartTime[i], "HH:mm");
@@ -806,7 +786,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                                 result: SallTime
                             });
                         }
-                        else if (currentTime < Sstartti) {
+                        else if (currentTime <= Sstartti) {
                             console.log('else if');
                             for (let i = 0; i < SstartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(SstartTime[i], "HH:mm");
@@ -886,7 +866,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         }
                     }
                     if (userDt === ptz) {
-                        if (currentTime >= Sstartti) {
+                        if (currentTime > Snstartti) {
                             console.log("first");
                             for (let i = 0; i < SnstartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(SnstartTime[i], "HH:mm");
@@ -936,7 +916,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                                 result: SnallTime
                             });
                         }
-                        else if (currentTime < Snstartti) {
+                        else if (currentTime <= Snstartti) {
                             console.log('else if');
                             for (let i = 0; i < SnstartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(SnstartTime[i], "HH:mm");
