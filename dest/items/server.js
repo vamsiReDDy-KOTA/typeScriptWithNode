@@ -37,13 +37,15 @@ const ondays = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
         const newDays = yield DaysModels.save();
         res.status(200).json({
-            message: "this is date and time",
+            message: "successfully posted",
             result: newDays
         });
     }
     catch (error) {
         console.log(error);
-        res.status(500).send(error);
+        res.status(500).json({
+            message: "internal server error"
+        });
     }
 });
 exports.ondays = ondays;
@@ -130,6 +132,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             //console.log(allendTime)
                             let removingslots = MallendTime.concat(allslots.flat(), AFallTime);
                             //log(removingslots)
+                            console.log(MallTime);
                             MallTime = MallTime.filter(v => !removingslots.includes(v));
                             MallTime.shift();
                             MallTime.shift();
@@ -138,11 +141,10 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             MallTime.shift();
                             MallTime.shift();
                             MallTime.shift();
-                            // console.log(MallTime)
                             if (MallTime.length === 0) {
                                 return res.status(400).json({
                                     status: false,
-                                    message: "slota are not present"
+                                    message: "slots are not present"
                                 });
                             }
                             return res.status(200).json({
@@ -989,12 +991,12 @@ const updateSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         if (!users) {
             return res.status(500).json({
                 success: false,
-                message: "user is not presnt",
+                message: "user is not present",
             });
         }
         if (users === null || users === void 0 ? void 0 : users.isDeleted) {
             return res.status(400).json({
-                message: "user is not there in our database"
+                message: "user is not present"
             });
         }
         const newUserData = {
@@ -1046,7 +1048,7 @@ const bookingSlots = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     if (date > enterdat) {
         return res.status(400).json({
             status: false,
-            message: "date is grater or equalto  today"
+            message: "date is grater or equal to  today"
         });
     }
     //console.log(user)
@@ -1104,7 +1106,9 @@ const bookingSlots = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
     catch (error) {
         console.log(error);
-        res.status(500).send(error);
+        res.status(500).json({
+            message: "internal server error"
+        });
     }
 });
 exports.bookingSlots = bookingSlots;
@@ -1302,9 +1306,14 @@ const DaysSoftDelete = (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         const users = yield days_1.default.findById(req.params.id);
         console.log(users);
+        if (!users) {
+            return res.status(400).json({
+                error: "Staff dose not present"
+            });
+        }
         if (users.isDeleted === true) {
             return res.status(404).json({
-                error: 'Requested category does not exist'
+                error: 'Staff does not exist'
             });
         }
         const softdelete = yield days_1.default.findOneAndUpdate({ _id: users._id }, { isDeleted: true });

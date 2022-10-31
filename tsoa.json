@@ -1,0 +1,14 @@
+
+  {
+    "swagger": {
+      "outputDirectory": "./dist/folder",
+      "specVersion": 3
+     
+    },
+    "routes": {
+      "basePath": "/",
+      
+      "routesDir": "./src/items/"
+      
+    }
+  }
