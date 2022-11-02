@@ -12,15 +12,52 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDaysByEmail = exports.getBookingsByEmail = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.updateSlot = exports.GetAppointment = exports.ondays = void 0;
+exports.getDaysByEmail = exports.getBookingsByEmail = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.updateSlot = exports.GetAppointment = exports.ondays = exports.Appointment = void 0;
 //import { readFile, writeFile } from "fs";
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 //import { Times } from "../moduls/timesInterface";
 const days_1 = __importDefault(require("../moduls/days"));
 const bookingModel_1 = __importDefault(require("../moduls/bookingModel"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
+const tsoa_1 = require("tsoa");
+class Appointment extends tsoa_1.Controller {
+}
+exports.Appointment = Appointment;
+// User Registration API
+/**
+ * @api {post} /api/registration User Registration API
+ * @apiGroup User
+ * @apiBody (Request body) {String} name User name
+ * @apiBody (Request body) {String} email User email
+ * @apiBody (Request body) {String='local', 'google', 'facebook', 'twitter', 'linkedin', 'apple'} provider=local User provider
+ * @apiBody (Request body) {String='agent','user'} role User role
+ * @apiBody (Request body) {String} [password] User Password (if required Only provider is local)
+ * @apiParamExample {json} Input
+ * {
+ *      "name" : "",
+ *      "email" : "",
+ *      "provider" : "",
+ *      "role" : "",
+ *      "password":""
+ * }
+ * @apiSuccessExample {json} Success
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "Registration Successfully.",
+ *      "status": "1"
+ * }
+ * @apiSampleRequest /api/registration
+ * @apiErrorExample {json} User error
+ * HTTP/1.1 400 Internal Server Error
+ */
 const ondays = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        let user = yield days_1.default.findOne({ email: req.body.email });
+        if (user) {
+            return res.status(400).json({
+                message: "user is already present"
+            });
+        }
         const DaysModels = new days_1.default({
             TimeZone: req.body.TimeZone,
             email: req.body.email,
@@ -53,9 +90,14 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         let date = req.query.date;
         let slots = yield days_1.default.findOne({ email: req.query.email });
+        if (!slots) {
+            return res.status(400).json({
+                Message: "user is not present in our database"
+            });
+        }
         if (slots === null || slots === void 0 ? void 0 : slots.isDeleted) {
             return res.status(400).json({
-                message: "user is not there in our database"
+                message: "user is not present in our database"
             });
         }
         let timeZn = slots === null || slots === void 0 ? void 0 : slots.TimeZone;
@@ -93,6 +135,17 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             startt.add(30, 'minutes');
                         }
                     }
+                    for (let i = 0; i < MStartbreakTime.length; i++) {
+                        let startt = (0, moment_timezone_1.default)(MStartbreakTime[i], "HH:mm");
+                        let endt = (0, moment_timezone_1.default)(MEndbreakTime[i], "HH:mm");
+                        while (startt < endt) {
+                            MallendTime.push(startt.format("hh:mm A"));
+                            startt.add(30, 'minutes');
+                        }
+                    }
+                    //console.log(allendTime)
+                    let Mremovingslots = MallendTime.concat(allslots.flat());
+                    Mall = Mall.filter((v) => !Mremovingslots.includes(v));
                     //console.log(Mall)
                     if (userDt === ptz) {
                         if (currentTime > Mstartti) {
@@ -100,47 +153,29 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             for (let i = 0; i < MstartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(MstartTime[i], "HH:mm");
                                 let endt = (0, moment_timezone_1.default)(MendTime[i], "HH:mm");
-                                let starttt = (0, moment_timezone_1.default)(startt).format('HH:mm');
-                                starttt = currentTime;
-                                let h = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('HH');
-                                let m = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('mm');
-                                if (m >= '1' && m <= '29') {
-                                    m = '00';
-                                }
-                                else if (m >= '31' && m <= '59') {
-                                    m = '30';
-                                }
-                                let ti = `${h}:${m}`;
-                                let st = (0, moment_timezone_1.default)(ti, 'HH:mm');
-                                //console.log(st);
-                                while (st < endt) {
-                                    MallTime.push(st.format("hh:mm A"));
-                                    st.add(30, 'minutes');
-                                }
-                            }
-                            // console.log(MallTime)
-                            let AFallTime = MallTime.filter(v => !Mall.includes(v));
-                            console.log(AFallTime);
-                            for (let i = 0; i < MStartbreakTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(MStartbreakTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(MEndbreakTime[i], "HH:mm");
                                 while (startt < endt) {
-                                    MallendTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
+                                    MallTime.push(startt.add(30, 'm').format("hh:mm A"));
                                 }
                             }
-                            //console.log(allendTime)
-                            let removingslots = MallendTime.concat(allslots.flat(), AFallTime);
-                            //log(removingslots)
-                            console.log(MallTime);
-                            MallTime = MallTime.filter(v => !removingslots.includes(v));
-                            MallTime.shift();
-                            MallTime.shift();
-                            MallTime.shift();
-                            MallTime.shift();
-                            MallTime.shift();
-                            MallTime.shift();
-                            MallTime.shift();
+                            let h = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('HH');
+                            let m = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('mm');
+                            if (m >= '1' && m <= '29') {
+                                m = '00';
+                            }
+                            else if (m >= '31' && m <= '59') {
+                                m = '30';
+                            }
+                            let ti = `${h}:${m}`;
+                            let st = (0, moment_timezone_1.default)(ti, 'HH:mm');
+                            let startt = (0, moment_timezone_1.default)(Mstartti, "HH:mm");
+                            console.log(startt);
+                            let hello = [];
+                            while (startt < st) {
+                                hello.push(startt.add(30, 'minutes').format('hh:mm A'));
+                            }
+                            let hii = MallTime.filter((k) => !hello.includes(k));
+                            let removingslots = MallendTime.concat(allslots.flat());
+                            hii = hii.filter((v) => !removingslots.includes(v));
                             if (MallTime.length === 0) {
                                 return res.status(400).json({
                                     status: false,
@@ -154,24 +189,6 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         }
                         else if (currentTime <= Mstartti) {
                             console.log('else if');
-                            for (let i = 0; i < MstartTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(MstartTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(MendTime[i], "HH:mm");
-                                while (startt < endt) {
-                                    MallTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
-                                }
-                            }
-                            for (let i = 0; i < MStartbreakTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(MStartbreakTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(MEndbreakTime[i], "HH:mm");
-                                while (startt < endt) {
-                                    MallendTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
-                                }
-                            }
-                            //console.log(allendTime)
-                            MallTime = MallTime.filter(v => !MallendTime.includes(v));
                             return res.status(200).json({
                                 message: "slots",
                                 result: MallTime
@@ -180,24 +197,6 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                     }
                     else {
                         console.log("else");
-                        for (let i = 0; i < MstartTime.length; i++) {
-                            let startt = (0, moment_timezone_1.default)(MstartTime[i], "HH:mm");
-                            let endt = (0, moment_timezone_1.default)(MendTime[i], "HH:mm");
-                            while (startt < endt) {
-                                MallTime.push(startt.format("hh:mm A"));
-                                startt.add(30, 'minutes');
-                            }
-                        }
-                        for (let i = 0; i < MStartbreakTime.length; i++) {
-                            let startt = (0, moment_timezone_1.default)(MStartbreakTime[i], "HH:mm");
-                            let endt = (0, moment_timezone_1.default)(MEndbreakTime[i], "HH:mm");
-                            while (startt < endt) {
-                                MallendTime.push(startt.format("hh:mm A"));
-                                startt.add(30, 'minutes');
-                            }
-                        }
-                        //console.log(allendTime)
-                        MallTime = MallTime.filter(v => !MallendTime.includes(v));
                         return res.status(200).json({
                             message: "slots",
                             result: MallTime
@@ -205,20 +204,18 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                     }
                     break;
                 case "Tuesday":
-                    console.log("thuesday");
+                    console.log("tuesday");
                     if (!(slots === null || slots === void 0 ? void 0 : slots.Tuesday[0])) {
                         return res.status(400).send("slots are not there");
                     }
-                    let TubreakTime = slots === null || slots === void 0 ? void 0 : slots.Saturday[0].breakTime;
+                    let TubreakTime = slots === null || slots === void 0 ? void 0 : slots.Tuesday[0].breakTime;
                     let TuStartbreakTime = TubreakTime.filter((_, i) => !(i % 2));
-                    console.log("rii");
                     let TuEndbreakTime = TubreakTime.filter((_, i) => (i % 2));
-                    let TustartTime = slots === null || slots === void 0 ? void 0 : slots.Saturday[0].startTime;
-                    let TuendTime = slots === null || slots === void 0 ? void 0 : slots.Saturday[0].endTime;
+                    let TustartTime = slots === null || slots === void 0 ? void 0 : slots.Tuesday[0].startTime;
+                    let TuendTime = slots === null || slots === void 0 ? void 0 : slots.Tuesday[0].endTime;
                     let TuallTime = [];
                     let TuallendTime = [];
-                    let Tustartti = slots === null || slots === void 0 ? void 0 : slots.Saturday[0].startTime[0];
-                    console.log(Tustartti);
+                    let Tustartti = slots === null || slots === void 0 ? void 0 : slots.Tuesday[0].startTime[0];
                     let Tuall = [];
                     for (let i = 0; i < TustartTime.length; i++) {
                         let startt = (0, moment_timezone_1.default)(TustartTime[i], "HH:mm");
@@ -228,46 +225,50 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             startt.add(30, 'minutes');
                         }
                     }
+                    for (let i = 0; i < TuStartbreakTime.length; i++) {
+                        let startt = (0, moment_timezone_1.default)(TuStartbreakTime[i], "HH:mm");
+                        let endt = (0, moment_timezone_1.default)(TuEndbreakTime[i], "HH:mm");
+                        while (startt < endt) {
+                            TuallendTime.push(startt.format("hh:mm A"));
+                            startt.add(30, 'minutes');
+                        }
+                    }
+                    // console.log(TuallendTime)
+                    let Turemovingslots = TuallendTime.concat(allslots.flat());
+                    Tuall = Tuall.filter((v) => !Turemovingslots.includes(v));
                     if (userDt === ptz) {
                         if (currentTime > Tustartti) {
                             console.log("first");
                             for (let i = 0; i < TustartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(TustartTime[i], "HH:mm");
-                                let starttt = (0, moment_timezone_1.default)(startt).format('HH:mm');
-                                starttt = currentTime;
                                 let endt = (0, moment_timezone_1.default)(TuendTime[i], "HH:mm");
-                                let h = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('HH');
-                                let m = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('mm');
-                                if (m >= '1' && m <= '29') {
-                                    m = '00';
-                                }
-                                else if (m >= '31' && m <= '59') {
-                                    m = '30';
-                                }
-                                let ti = `${h}:${m}`;
-                                let st = (0, moment_timezone_1.default)(ti, 'HH:mm');
-                                //console.log(st);
-                                while (st < endt) {
-                                    TuallTime.push(st.format("hh:mm A"));
-                                    st.add(30, 'minutes');
-                                }
-                            }
-                            console.log(TuallTime);
-                            let AFallTime = TuallTime.filter(v => !Tuall.includes(v));
-                            for (let i = 0; i < TuStartbreakTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(TuStartbreakTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(TuEndbreakTime[i], "HH:mm");
                                 while (startt < endt) {
-                                    TuallendTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
+                                    TuallTime.push(startt.add(30, 'm').format("hh:mm A"));
                                 }
                             }
-                            //console.log(allendTime)
-                            let removingslots = TuallendTime.concat(allslots.flat(), AFallTime, TuendTime.flat());
-                            //console.log(removingslots)
-                            TuallTime = TuallTime.filter(v => !removingslots.includes(v));
-                            TuallTime.shift();
-                            if (TuallTime.length === 0) {
+                            // let AFallTime = TuallTime.filter(v => !Tuall.includes(v))
+                            let h = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('HH');
+                            let m = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('mm');
+                            if (m >= '1' && m <= '29') {
+                                m = '00';
+                            }
+                            else if (m >= '31' && m <= '59') {
+                                m = '30';
+                            }
+                            let ti = `${h}:${m}`;
+                            let st = (0, moment_timezone_1.default)(ti, 'HH:mm');
+                            let startt = (0, moment_timezone_1.default)(Tustartti, "HH:mm");
+                            console.log(startt);
+                            let hello = [];
+                            while (startt < st) {
+                                hello.push(startt.add(30, 'minutes').format('hh:mm A'));
+                            }
+                            let hii = TuallTime.filter((k) => !hello.includes(k));
+                            let removingslots = TuallendTime.concat(allslots.flat());
+                            console.log(removingslots);
+                            hii = hii.filter((v) => !removingslots.includes(v));
+                            hii.shift();
+                            if (hii.length === 0) {
                                 return res.status(400).json({
                                     status: false,
                                     message: "slota are not present"
@@ -275,58 +276,22 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             }
                             return res.status(200).json({
                                 message: "slots",
-                                result: TuallTime
+                                result: hii
                             });
                         }
                         else if (currentTime <= Tustartti) {
                             console.log('else if');
-                            for (let i = 0; i < TustartTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(TustartTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(TuendTime[i], "HH:mm");
-                                while (startt < endt) {
-                                    TuallTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
-                                }
-                            }
-                            for (let i = 0; i < TuStartbreakTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(TuStartbreakTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(TuEndbreakTime[i], "HH:mm");
-                                while (startt < endt) {
-                                    TuallendTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
-                                }
-                            }
-                            //console.log(allendTime)
-                            TuallTime = TuallTime.filter(v => !TuallendTime.includes(v));
                             return res.status(200).json({
                                 message: "slots",
-                                result: TuallTime
+                                result: Tuall
                             });
                         }
                     }
                     else {
                         console.log("else");
-                        for (let i = 0; i < TustartTime.length; i++) {
-                            let startt = (0, moment_timezone_1.default)(TustartTime[i], "HH:mm");
-                            let endt = (0, moment_timezone_1.default)(TuendTime[i], "HH:mm");
-                            while (startt < endt) {
-                                TuallTime.push(startt.format("hh:mm A"));
-                                startt.add(30, 'minutes');
-                            }
-                        }
-                        for (let i = 0; i < TuStartbreakTime.length; i++) {
-                            let startt = (0, moment_timezone_1.default)(TuStartbreakTime[i], "HH:mm");
-                            let endt = (0, moment_timezone_1.default)(TuEndbreakTime[i], "HH:mm");
-                            while (startt < endt) {
-                                TuallendTime.push(startt.format("hh:mm A"));
-                                startt.add(30, 'minutes');
-                            }
-                        }
-                        //console.log(allendTime)
-                        TuallTime = TuallTime.filter(v => !TuallendTime.includes(v));
                         return res.status(200).json({
                             message: "slots",
-                            result: TuallTime
+                            result: Tuall
                         });
                     }
                     break;
@@ -337,7 +302,6 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                     }
                     let WbreakTime = slots === null || slots === void 0 ? void 0 : slots.Wednesday[0].breakTime;
                     let WStartbreakTime = WbreakTime.filter((_, i) => !(i % 2));
-                    console.log("rii");
                     let WEndbreakTime = WbreakTime.filter((_, i) => (i % 2));
                     let WstartTime = slots === null || slots === void 0 ? void 0 : slots.Wednesday[0].startTime;
                     let WendTime = slots === null || slots === void 0 ? void 0 : slots.Wednesday[0].endTime;
@@ -354,43 +318,46 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             startt.add(30, 'minutes');
                         }
                     }
+                    for (let i = 0; i < WStartbreakTime.length; i++) {
+                        let startt = (0, moment_timezone_1.default)(WStartbreakTime[i], "HH:mm");
+                        let endt = (0, moment_timezone_1.default)(WEndbreakTime[i], "HH:mm");
+                        while (startt < endt) {
+                            WallendTime.push(startt.format("hh:mm A"));
+                            startt.add(30, 'minutes');
+                        }
+                    }
+                    //console.log(Wall)
+                    let removingslots = WallendTime.concat(allslots.flat());
+                    Wall = Wall.filter((v) => !removingslots.includes(v));
                     if (userDt === ptz) {
                         if (currentTime > Wstartti) {
                             console.log("first");
                             for (let i = 0; i < WstartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(WstartTime[i], "HH:mm");
-                                let starttt = (0, moment_timezone_1.default)(startt).format('HH:mm');
-                                starttt = currentTime;
                                 let endt = (0, moment_timezone_1.default)(WendTime[i], "HH:mm");
-                                let h = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('HH');
-                                let m = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('mm');
-                                if (m >= '1' && m <= '29') {
-                                    m = '00';
-                                }
-                                else if (m >= '31' && m <= '59') {
-                                    m = '30';
-                                }
-                                let ti = `${h}:${m}`;
-                                let st = (0, moment_timezone_1.default)(ti, 'HH:mm');
-                                //console.log(st);
-                                while (st < endt) {
-                                    WallTime.push(st.format("hh:mm A"));
-                                    st.add(30, 'minutes');
-                                }
-                            }
-                            let AFallTime = WallTime.filter(v => !all.includes(v));
-                            for (let i = 0; i < WStartbreakTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(WStartbreakTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(WEndbreakTime[i], "HH:mm");
                                 while (startt < endt) {
-                                    WallendTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
+                                    WallTime.push(startt.add(30, 'minutes').format('hh:mm A'));
                                 }
                             }
-                            let removingslots = WallendTime.concat(allslots.flat(), AFallTime);
-                            //console.log(removingslots)
-                            WallTime = WallTime.filter(v => !removingslots.includes(v));
-                            WallTime.shift();
+                            let h = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('HH');
+                            let m = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('mm');
+                            if (m >= '1' && m <= '29') {
+                                m = '00';
+                            }
+                            else if (m >= '31' && m <= '59') {
+                                m = '30';
+                            }
+                            let ti = `${h}:${m}`;
+                            let st = (0, moment_timezone_1.default)(ti, 'HH:mm');
+                            let startt = (0, moment_timezone_1.default)(Wstartti, "HH:mm");
+                            console.log(startt);
+                            let hello = [];
+                            while (startt < st) {
+                                hello.push(startt.add(30, 'minutes').format('hh:mm A'));
+                            }
+                            let hii = WallTime.filter((k) => !hello.includes(k));
+                            let removingslots = WallendTime.concat(allslots.flat());
+                            hii = hii.filter((v) => !removingslots.includes(v));
                             if (WallTime.length === 0) {
                                 return res.status(400).json({
                                     status: false,
@@ -399,58 +366,22 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             }
                             return res.status(200).json({
                                 message: "slots",
-                                result: WallTime
+                                result: hii
                             });
                         }
                         else if (currentTime <= Wstartti) {
                             console.log('else if');
-                            for (let i = 0; i < WstartTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(WstartTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(WendTime[i], "HH:mm");
-                                while (startt < endt) {
-                                    WallTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
-                                }
-                            }
-                            for (let i = 0; i < WStartbreakTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(WStartbreakTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(WEndbreakTime[i], "HH:mm");
-                                while (startt < endt) {
-                                    WallendTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
-                                }
-                            }
-                            //console.log(allendTime)
-                            WallTime = WallTime.filter(v => !WallendTime.includes(v));
                             return res.status(200).json({
                                 message: "slots",
-                                result: WallTime
+                                result: Wall
                             });
                         }
                     }
                     else {
                         console.log("else");
-                        for (let i = 0; i < WstartTime.length; i++) {
-                            let startt = (0, moment_timezone_1.default)(WstartTime[i], "HH:mm");
-                            let endt = (0, moment_timezone_1.default)(WendTime[i], "HH:mm");
-                            while (startt < endt) {
-                                WallTime.push(startt.format("hh:mm A"));
-                                startt.add(30, 'minutes');
-                            }
-                        }
-                        for (let i = 0; i < WStartbreakTime.length; i++) {
-                            let startt = (0, moment_timezone_1.default)(WStartbreakTime[i], "HH:mm");
-                            let endt = (0, moment_timezone_1.default)(WEndbreakTime[i], "HH:mm");
-                            while (startt < endt) {
-                                WallendTime.push(startt.format("hh:mm A"));
-                                startt.add(30, 'minutes');
-                            }
-                        }
-                        //console.log(allendTime)
-                        WallTime = WallTime.filter(v => !WallendTime.includes(v));
                         return res.status(200).json({
                             message: "slots",
-                            result: WallTime
+                            result: Wall
                         });
                     }
                     break;
@@ -476,47 +407,49 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             startt.add(30, 'minutes');
                         }
                     }
+                    for (let i = 0; i < StartbreakTime.length; i++) {
+                        let startt = (0, moment_timezone_1.default)(StartbreakTime[i], "HH:mm");
+                        let endt = (0, moment_timezone_1.default)(EndbreakTime[i], "HH:mm");
+                        while (startt < endt) {
+                            allendTime.push(startt.format("hh:mm A"));
+                            startt.add(30, 'minutes');
+                        }
+                    }
+                    //console.log(allendTime)
+                    let thremovingslots = allendTime.concat(allslots.flat());
+                    Tall = Tall.filter((v) => !thremovingslots.includes(v));
                     if (userDt === ptz) {
                         if (currentTime > startti) {
                             console.log("first");
                             for (let i = 0; i < startTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(startTime[i], "HH:mm");
-                                let starttt = (0, moment_timezone_1.default)(startt).format('HH:mm');
-                                starttt = currentTime;
-                                //startt=currentTime
                                 let endt = (0, moment_timezone_1.default)(endTime[i], "HH:mm");
-                                let h = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('HH');
-                                let m = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('mm');
-                                if (m >= '1' && m <= '29') {
-                                    m = '00';
-                                }
-                                else if (m >= '31' && m <= '59') {
-                                    m = '30';
-                                }
-                                let ti = `${h}:${m}`;
-                                let st = (0, moment_timezone_1.default)(ti, 'HH:mm');
-                                //console.log(st);
-                                while (st < endt) {
-                                    allTime.push(st.format("hh:mm A"));
-                                    st.add(30, 'minutes');
-                                }
-                            }
-                            console.log(allTime);
-                            let AFallTime = allTime.filter(v => !all.includes(v));
-                            for (let i = 0; i < StartbreakTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(StartbreakTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(EndbreakTime[i], "HH:mm");
                                 while (startt < endt) {
-                                    allendTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
+                                    allTime.push(startt.add(30, 'm').format("hh:mm A"));
                                 }
                             }
-                            //console.log(allendTime)
-                            let removingslots = allendTime.concat(allslots.flat(), AFallTime, EndbreakTime.flat());
-                            console.log(removingslots);
-                            allTime = allTime.filter(v => !removingslots.includes(v));
-                            allTime.shift();
-                            if (allTime.length === 0) {
+                            let h = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('HH');
+                            let m = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('mm');
+                            if (m >= '1' && m <= '29') {
+                                m = '00';
+                            }
+                            else if (m >= '31' && m <= '59') {
+                                m = '30';
+                            }
+                            let ti = `${h}:${m}`;
+                            let st = (0, moment_timezone_1.default)(ti, 'HH:mm');
+                            let startt = (0, moment_timezone_1.default)(startti, "HH:mm");
+                            console.log(startt);
+                            let hello = [];
+                            while (startt < st) {
+                                hello.push(startt.add(30, 'minutes').format('hh:mm A'));
+                            }
+                            let hii = allTime.filter((k) => !hello.includes(k));
+                            let removingslots = allendTime.concat(allslots.flat(), EndbreakTime.flat());
+                            //console.log(removingslots)
+                            hii = hii.filter((v) => !removingslots.includes(v));
+                            hii.shift();
+                            if (hii.length === 0) {
                                 return res.status(400).json({
                                     status: false,
                                     message: "slota are not present"
@@ -524,59 +457,22 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             }
                             return res.status(200).json({
                                 message: "slots",
-                                result: allTime
+                                result: hii
                             });
                         }
                         else if (currentTime <= startti) {
                             console.log("else if");
-                            for (let i = 0; i < startTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(startTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(endTime[i], "HH:mm");
-                                while (startt < endt) {
-                                    allTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
-                                }
-                            }
-                            for (let i = 0; i < StartbreakTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(StartbreakTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(EndbreakTime[i], "HH:mm");
-                                while (startt < endt) {
-                                    allendTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
-                                }
-                            }
-                            //console.log(allendTime)
-                            allTime = allTime.filter(v => !allendTime.includes(v));
                             return res.status(200).json({
                                 message: "slots",
-                                result: allTime
+                                result: Tall
                             });
                         }
                     }
                     else {
-                        for (let i = 0; i < startTime.length; i++) {
-                            let startt = (0, moment_timezone_1.default)(startTime[i], "HH:mm");
-                            let endt = (0, moment_timezone_1.default)(endTime[i], "HH:mm");
-                            while (startt < endt) {
-                                allTime.push(startt.format("hh:mm A"));
-                                startt.add(30, 'minutes');
-                            }
-                        }
-                        for (let i = 0; i < StartbreakTime.length; i++) {
-                            let startt = (0, moment_timezone_1.default)(StartbreakTime[i], "HH:mm");
-                            let endt = (0, moment_timezone_1.default)(EndbreakTime[i], "HH:mm");
-                            while (startt < endt) {
-                                allendTime.push(startt.format("hh:mm A"));
-                                startt.add(30, 'minutes');
-                            }
-                        }
-                        //console.log(allendTime)
-                        let removingslots = allendTime.concat(allslots.flat());
-                        console.log(removingslots);
-                        allTime = allTime.filter(v => !removingslots.includes(v));
+                        console.log('elif');
                         return res.status(200).json({
                             message: "slots",
-                            result: allTime
+                            result: Tall
                         });
                     }
                     break;
@@ -603,49 +499,52 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             startt.add(30, 'minutes');
                         }
                     }
-                    // console.log("alll");
-                    //console.log(all)
+                    for (let i = 0; i < FStartbreakTime.length; i++) {
+                        let startt = (0, moment_timezone_1.default)(FStartbreakTime[i], "HH:mm");
+                        let endt = (0, moment_timezone_1.default)(FEndbreakTime[i], "HH:mm");
+                        while (startt < endt) {
+                            FallendTime.push(startt.format("hh:mm A"));
+                            startt.add(30, 'minutes');
+                        }
+                    }
+                    //console.log(allendTime)
+                    let Faremovingslots = FallendTime.concat(allslots.flat());
+                    //console.log(removingslots)
+                    all = all.filter((v) => !Faremovingslots.includes(v));
                     if (userDt === ptz) {
                         if (currentTime > Fstartti) {
                             console.log("first");
                             for (let i = 0; i < FstartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(FstartTime[i], "HH:mm");
                                 let endt = (0, moment_timezone_1.default)(FendTime[i], "HH:mm");
-                                let starttt = (0, moment_timezone_1.default)(startt).format('HH:mm');
-                                starttt = currentTime;
-                                console.log("hello");
-                                let h = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('HH');
-                                let m = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('mm');
-                                if (m >= '1' && m <= '29') {
-                                    m = '00';
-                                }
-                                else if (m >= '31' && m <= '59') {
-                                    m = '30';
-                                }
-                                let ti = `${h}:${m}`;
-                                let st = (0, moment_timezone_1.default)(ti, 'HH:mm');
-                                //console.log(st)
-                                while (st < endt) {
-                                    FallTime.push(st.format("hh:mm A"));
-                                    st.add(30, 'm');
-                                }
-                            }
-                            let AFallTime = FallTime.filter(v => !all.includes(v));
-                            // console.log(AFallTime)
-                            for (let i = 0; i < FStartbreakTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(FStartbreakTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(FEndbreakTime[i], "HH:mm");
                                 while (startt < endt) {
-                                    FallendTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
+                                    FallTime.push(startt.format("hh:mm A"));
+                                    startt.add(30, 'm');
                                 }
                             }
-                            //console.log(allendTime)
-                            let removingslots = FallendTime.concat(allslots.flat(), AFallTime);
+                            let h = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('HH');
+                            let m = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('mm');
+                            if (m >= '1' && m <= '29') {
+                                m = '00';
+                            }
+                            else if (m >= '31' && m <= '59') {
+                                m = '30';
+                            }
+                            let ti = `${h}:${m}`;
+                            let st = (0, moment_timezone_1.default)(ti, 'HH:mm');
+                            let startt = (0, moment_timezone_1.default)(Fstartti, "HH:mm");
+                            console.log(startt);
+                            let hello = [];
+                            while (startt < st) {
+                                hello.push(startt.add(30, 'minutes').format('hh:mm A'));
+                            }
+                            let hii = FallTime.filter((k) => !hello.includes(k));
+                            // let AFallTime = FallTime.filter(v => !all.includes(v))
+                            let removingslots = FallendTime.concat(allslots.flat());
                             //console.log(removingslots)
-                            FallTime = FallTime.filter(v => !removingslots.includes(v));
-                            FallTime.shift();
-                            if (FallTime.length === 0) {
+                            hii = hii.filter((v) => !removingslots.includes(v));
+                            hii.shift();
+                            if (hii.length === 0) {
                                 return res.status(400).json({
                                     status: false,
                                     message: "slota are not present"
@@ -653,62 +552,22 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             }
                             return res.status(200).json({
                                 message: "slots",
-                                result: FallTime
+                                result: hii
                             });
                         }
                         else if (currentTime <= Fstartti) {
                             console.log('else if');
-                            for (let i = 0; i < FstartTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(FstartTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(FendTime[i], "HH:mm");
-                                while (startt < endt) {
-                                    FallTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
-                                }
-                            }
-                            for (let i = 0; i < FStartbreakTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(FStartbreakTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(FEndbreakTime[i], "HH:mm");
-                                while (startt < endt) {
-                                    FallendTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
-                                }
-                            }
-                            //console.log(allendTime)
-                            let removingslots = FallendTime.concat(allslots.flat());
-                            console.log(removingslots);
-                            FallTime = FallTime.filter(v => !removingslots.includes(v));
                             return res.status(200).json({
                                 message: "slots",
-                                result: FallTime
+                                result: all
                             });
                         }
                     }
                     else {
                         console.log("else");
-                        for (let i = 0; i < FstartTime.length; i++) {
-                            let startt = (0, moment_timezone_1.default)(FstartTime[i], "HH:mm");
-                            let endt = (0, moment_timezone_1.default)(FendTime[i], "HH:mm");
-                            while (startt < endt) {
-                                FallTime.push(startt.format("hh:mm A"));
-                                startt.add(30, 'minutes');
-                            }
-                        }
-                        for (let i = 0; i < FStartbreakTime.length; i++) {
-                            let startt = (0, moment_timezone_1.default)(FStartbreakTime[i], "HH:mm");
-                            let endt = (0, moment_timezone_1.default)(FEndbreakTime[i], "HH:mm");
-                            while (startt < endt) {
-                                FallendTime.push(startt.format("hh:mm A"));
-                                startt.add(30, 'minutes');
-                            }
-                        }
-                        //console.log(allendTime)
-                        let removingslots = FallendTime.concat(allslots.flat());
-                        console.log(removingslots);
-                        FallTime = FallTime.filter(v => !removingslots.includes(v));
                         return res.status(200).json({
                             message: "slots",
-                            result: FallTime
+                            result: all
                         });
                     }
                     break;
@@ -736,60 +595,21 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             startt.add(30, 'minutes');
                         }
                     }
+                    for (let i = 0; i < SStartbreakTime.length; i++) {
+                        let startt = (0, moment_timezone_1.default)(SStartbreakTime[i], "HH:mm");
+                        let endt = (0, moment_timezone_1.default)(SEndbreakTime[i], "HH:mm");
+                        while (startt < endt) {
+                            SallendTime.push(startt.format("hh:mm A"));
+                            startt.add(30, 'minutes');
+                        }
+                    }
+                    //console.log(allendTime)
+                    let saremovingslots = SallendTime.concat(allslots.flat());
+                    console.log(removingslots);
+                    Sall = Sall.filter((v) => !saremovingslots.includes(v));
                     if (userDt === ptz) {
                         if (currentTime > Sstartti) {
                             console.log("first");
-                            for (let i = 0; i < SstartTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(SstartTime[i], "HH:mm");
-                                let starttt = (0, moment_timezone_1.default)(startt).format('HH:mm');
-                                starttt = currentTime;
-                                let endt = (0, moment_timezone_1.default)(SendTime[i], "HH:mm");
-                                let h = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('HH');
-                                let m = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('mm');
-                                if (m >= '1' && m <= '29') {
-                                    m = '00';
-                                }
-                                else if (m >= '31' && m <= '59') {
-                                    m = '30';
-                                }
-                                let ti = `${h}:${m}`;
-                                let st = (0, moment_timezone_1.default)(ti, 'HH:mm');
-                                //console.log(st);
-                                while (st < endt) {
-                                    SallTime.push(st.format("hh:mm A"));
-                                    st.add(30, 'minutes');
-                                }
-                            }
-                            console.log(SallTime);
-                            // let start = moment(startti,'HH:mm').format('HH:mm')
-                            let AFallTime = SallTime.filter(v => !Sall.includes(v));
-                            // console.log(AFallTime)
-                            for (let i = 0; i < SStartbreakTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(SStartbreakTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(SEndbreakTime[i], "HH:mm");
-                                while (startt < endt) {
-                                    SallendTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
-                                }
-                            }
-                            //console.log(allendTime)
-                            let removingslots = FallendTime.concat(allslots.flat(), AFallTime);
-                            //console.log(removingslots)
-                            SallTime = SallTime.filter(v => !removingslots.includes(v));
-                            SallTime.shift();
-                            if (SallTime.length === 0) {
-                                return res.status(400).json({
-                                    status: false,
-                                    message: "slota are not present"
-                                });
-                            }
-                            return res.status(200).json({
-                                message: "slots",
-                                result: SallTime
-                            });
-                        }
-                        else if (currentTime <= Sstartti) {
-                            console.log('else if');
                             for (let i = 0; i < SstartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(SstartTime[i], "HH:mm");
                                 let endt = (0, moment_timezone_1.default)(SendTime[i], "HH:mm");
@@ -798,49 +618,51 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                                     startt.add(30, 'minutes');
                                 }
                             }
-                            for (let i = 0; i < SStartbreakTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(SStartbreakTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(SEndbreakTime[i], "HH:mm");
-                                while (startt < endt) {
-                                    SallendTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
-                                }
+                            let h = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('HH');
+                            let m = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('mm');
+                            if (m >= '1' && m <= '29') {
+                                m = '00';
                             }
-                            //console.log(allendTime)
-                            let removingslots = SallendTime.concat(allslots.flat());
-                            console.log(removingslots);
-                            SallTime = SallTime.filter(v => !removingslots.includes(v));
+                            else if (m >= '31' && m <= '59') {
+                                m = '30';
+                            }
+                            let ti = `${h}:${m}`;
+                            let st = (0, moment_timezone_1.default)(ti, 'HH:mm');
+                            let startt = (0, moment_timezone_1.default)(Sstartti, "HH:mm");
+                            console.log(startt);
+                            let hello = [];
+                            while (startt < st) {
+                                hello.push(startt.add(30, 'minutes').format('hh:mm A'));
+                            }
+                            let hii = SallTime.filter((k) => !hello.includes(k));
+                            let removingslots = FallendTime.concat(allslots.flat());
+                            //console.log(removingslots)
+                            hii = hii.filter((v) => !removingslots.includes(v));
+                            hii.shift();
+                            if (SallTime.length === 0) {
+                                return res.status(400).json({
+                                    status: false,
+                                    message: "slota are not present"
+                                });
+                            }
                             return res.status(200).json({
                                 message: "slots",
-                                result: SallTime
+                                result: hii
+                            });
+                        }
+                        else if (currentTime <= Sstartti) {
+                            console.log('else if');
+                            return res.status(200).json({
+                                message: "slots",
+                                result: Sall
                             });
                         }
                     }
                     else {
                         console.log("else");
-                        for (let i = 0; i < SstartTime.length; i++) {
-                            let startt = (0, moment_timezone_1.default)(SstartTime[i], "HH:mm");
-                            let endt = (0, moment_timezone_1.default)(SendTime[i], "HH:mm");
-                            while (startt < endt) {
-                                SallTime.push(startt.format("hh:mm A"));
-                                startt.add(30, 'minutes');
-                            }
-                        }
-                        for (let i = 0; i < SStartbreakTime.length; i++) {
-                            let startt = (0, moment_timezone_1.default)(SStartbreakTime[i], "HH:mm");
-                            let endt = (0, moment_timezone_1.default)(SEndbreakTime[i], "HH:mm");
-                            while (startt < endt) {
-                                SallendTime.push(startt.format("hh:mm A"));
-                                startt.add(30, 'minutes');
-                            }
-                        }
-                        let removingslots = SallendTime.concat(allslots.flat());
-                        console.log(removingslots);
-                        //console.log(allendTime)
-                        SallTime = SallTime.filter(v => !removingslots.includes(v));
                         return res.status(200).json({
                             message: "slots",
-                            result: SallTime
+                            result: Sall
                         });
                     }
                     break;
@@ -867,50 +689,56 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             startt.add(30, 'minutes');
                         }
                     }
+                    for (let i = 0; i < SnStartbreakTime.length; i++) {
+                        let startt = (0, moment_timezone_1.default)(SnStartbreakTime[i], "HH:mm");
+                        let endt = (0, moment_timezone_1.default)(SnEndbreakTime[i], "HH:mm");
+                        while (startt < endt) {
+                            SnallendTime.push(startt.format("hh:mm A"));
+                            startt.add(30, 'minutes');
+                        }
+                    }
+                    //console.log(allendTime)
+                    let Snremovingslots = SnallendTime.concat(allslots.flat());
+                    Snall = Snall.filter((v) => !Snremovingslots.includes(v));
                     if (userDt === ptz) {
                         if (currentTime > Snstartti) {
                             console.log("first");
                             for (let i = 0; i < SnstartTime.length; i++) {
                                 let startt = (0, moment_timezone_1.default)(SnstartTime[i], "HH:mm");
-                                let starttt = (0, moment_timezone_1.default)(startt).format('HH:mm');
-                                starttt = currentTime;
                                 let endt = (0, moment_timezone_1.default)(SnendTime[i], "HH:mm");
-                                let h = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('HH');
-                                let m = (0, moment_timezone_1.default)(starttt, 'HH:mm').format('mm');
-                                if (m >= '1' && m <= '29') {
-                                    m = '00';
-                                }
-                                else if (m >= '31' && m <= '59') {
-                                    m = '30';
-                                }
-                                let ti = `${h}:${m}`;
-                                let st = (0, moment_timezone_1.default)(ti, 'HH:mm');
-                                //console.log(st);
-                                while (st < endt) {
-                                    SnallTime.push(st.format("hh:mm A"));
-                                    st.add(30, 'minutes');
-                                }
-                            }
-                            console.log(SnallTime);
-                            let AFallTime = SnallTime.filter(v => !all.includes(v));
-                            // console.log(AFallTime)
-                            for (let i = 0; i < SnStartbreakTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(SnStartbreakTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(SnEndbreakTime[i], "HH:mm");
                                 while (startt < endt) {
-                                    SnallendTime.push(startt.format("hh:mm A"));
+                                    SnallTime.push(startt.format("hh:mm A"));
                                     startt.add(30, 'minutes');
                                 }
                             }
-                            //console.log(allendTime)
-                            let removingslots = SnallendTime.concat(allslots.flat(), AFallTime);
+                            let h = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('HH');
+                            let m = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('mm');
+                            if (m >= '1' && m <= '29') {
+                                m = '00';
+                            }
+                            else if (m >= '31' && m <= '59') {
+                                m = '30';
+                            }
+                            let ti = `${h}:${m}`;
+                            let st = (0, moment_timezone_1.default)(ti, 'HH:mm');
+                            let startt = (0, moment_timezone_1.default)(Snstartti, "HH:mm");
+                            console.log(startt);
+                            let hello = [];
+                            while (startt < st) {
+                                hello.push(startt.add(30, 'minutes').format('hh:mm A'));
+                            }
+                            let hii = SnallTime.filter((k) => !hello.includes(k));
+                            // console.log(SnallTime)
+                            // let AFallTime = SnallTime.filter(v => !all.includes(v))
+                            // console.log(AFallTime)
+                            let removingslots = SnallendTime.concat(allslots.flat());
                             //console.log(removingslots)
-                            SnallTime = SnallTime.filter(v => !removingslots.includes(v));
-                            SnallTime.shift();
-                            if (SnallTime.length === 0) {
+                            hii = hii.filter(v => !removingslots.includes(v));
+                            hii.shift();
+                            if (hii.length === 0) {
                                 return res.status(400).json({
                                     status: false,
-                                    message: "slota are not present"
+                                    message: "slots are not present"
                                 });
                             }
                             return res.status(200).json({
@@ -920,53 +748,18 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         }
                         else if (currentTime <= Snstartti) {
                             console.log('else if');
-                            for (let i = 0; i < SnstartTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(SnstartTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(SnendTime[i], "HH:mm");
-                                while (startt < endt) {
-                                    SnallTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
-                                }
-                            }
-                            for (let i = 0; i < SnStartbreakTime.length; i++) {
-                                let startt = (0, moment_timezone_1.default)(SnStartbreakTime[i], "HH:mm");
-                                let endt = (0, moment_timezone_1.default)(SnEndbreakTime[i], "HH:mm");
-                                while (startt < endt) {
-                                    SnallendTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
-                                }
-                            }
-                            //console.log(allendTime)
-                            SnallTime = SnallTime.filter(v => !SnallendTime.includes(v));
+                            //SnallTime = SnallTime.filter(v => !SnallendTime.includes(v))
                             return res.status(200).json({
                                 message: "slots",
-                                result: SnallTime
+                                result: Snall
                             });
                         }
                     }
                     else {
                         console.log("else");
-                        for (let i = 0; i < SnstartTime.length; i++) {
-                            let startt = (0, moment_timezone_1.default)(SnstartTime[i], "HH:mm");
-                            let endt = (0, moment_timezone_1.default)(SnendTime[i], "HH:mm");
-                            while (startt < endt) {
-                                SnallTime.push(startt.format("hh:mm A"));
-                                startt.add(30, 'minutes');
-                            }
-                        }
-                        for (let i = 0; i < SnStartbreakTime.length; i++) {
-                            let startt = (0, moment_timezone_1.default)(SnStartbreakTime[i], "HH:mm");
-                            let endt = (0, moment_timezone_1.default)(SnEndbreakTime[i], "HH:mm");
-                            while (startt < endt) {
-                                SnallendTime.push(startt.format("hh:mm A"));
-                                startt.add(30, 'minutes');
-                            }
-                        }
-                        //console.log(allendTime)
-                        SnallTime = SnallTime.filter(v => !SnallendTime.includes(v));
                         return res.status(200).json({
                             message: "slots",
-                            result: SnallTime
+                            result: Snall
                         });
                     }
                     console.log("sunday");
@@ -975,7 +768,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
         }
         else {
             return res.status(400).json({
-                message: "slots are not present"
+                message: "slots are not present hui"
             });
         }
     }

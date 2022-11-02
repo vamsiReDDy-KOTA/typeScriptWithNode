@@ -5,11 +5,19 @@
   "main": "server.js",
   "scripts": {
     "build": "tsc -w",
-    "start": "concurrently \"tsc -w\" \"nodemon dest/index.js\" \"nodemon -x tsoa spec\" ",
+    "generatedoc": "apidoc -i src -o src/public/apidoc",
+    "start": "concurrently \"tsc -w\" \"nodemon dest/index.js\" \"generatedoc\" ",
     "swagger": "tsoa spec",
     "another": "nodemon dest/index.js",
-    "generate": "tsoa routes && tsoa swagger",
-    "runDocs":"apidoc -i src -o ./Doc"
+    "generate": "tsoa routes && tsoa swagger"
+   
+  },
+  "apidoc": {
+    "name": "Cogsworth API Docs",
+    "version": "1.0.0",
+    "description": "Base URL --->  http://localhost:4001 \n",
+    "title": "Cogsworth RESTFUL API Document",
+    "url" : "https://localhost:4001/apidoc"
   },
   "author": "",
   "license": "ISC",
@@ -26,6 +34,7 @@
     "@types/swagger-ui-express": "^4.1.3",
     "concurrently": "^7.4.0",
     "grunt-apidoc": "^0.11.0",
+    "moment": "^2.29.4",
     "nodemon": "^2.0.20",
     "typescript": "^4.7.4"
   },
@@ -35,23 +44,12 @@
     "cors": "^2.8.5",
     "express": "^4.18.1",
     "joi": "^17.6.0",
-    "moment": "^2.29.4",
     "moment-timezone": "^0.5.37",
-    "mongoose": "^6.6.1",
+    "mongoose": "^6.7.0",
     "morgan": "^1.10.0",
     "nodemailer": "^6.8.0",
     "swagger-jsdoc": "^6.2.5",
     "swagger-ui-express": "^4.5.0",
     "tsoa": "^4.1.3"
-  },
-  "apidoc": {
-    "header": {
-      "title": "Introduction",
-      "filename": "header.md"
-    },
-    "footer": {
-      "title": "Best practices",
-      "filename": "footer.md"
-    }
   }
 }
