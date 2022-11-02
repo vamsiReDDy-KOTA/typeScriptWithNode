@@ -12,49 +12,49 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDaysByEmail = exports.getBookingsByEmail = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.updateSlot = exports.GetAppointment = exports.ondays = exports.Appointment = void 0;
+exports.getDaysByEmail = exports.getBookingsByEmail = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.updateSlot = exports.GetAppointment = exports.ondays = void 0;
 //import { readFile, writeFile } from "fs";
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 //import { Times } from "../moduls/timesInterface";
 const days_1 = __importDefault(require("../moduls/days"));
 const bookingModel_1 = __importDefault(require("../moduls/bookingModel"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
-const tsoa_1 = require("tsoa");
-class Appointment extends tsoa_1.Controller {
-}
-exports.Appointment = Appointment;
-// User Registration API
+// Staff Days API
 /**
- * @api {post} /api/registration User Registration API
- * @apiGroup User
- * @apiBody (Request body) {String} name User name
- * @apiBody (Request body) {String} email User email
- * @apiBody (Request body)  provider=local User provider
- * @apiBody (Request body) {String='agent','user'} role User role
- * @apiBody (Request body) {String} [password] User Password (if required Only provider is local)
- * @apiParamExample {json} Input
- * {
- *      "name" : "",
- *      "email" : "",
- *      "provider" : "",
- *      "role" : "",
- *      "password":""
- * }
- * @apiSuccessExample {json} Success
+ * @api {post} /Days It post when the staff is avalbul
+ * @apiGroup Staff
+ * @apiBody (Request body) {String} TimeZone which timezone he is present
+ * @apiBody (Request body) {String} email Staff email
+ * @apiBody (Request body) {String} phoneNo Staff phoneNo
+ * @apiBody (Request body) {String} name Staff name
+ * @apiBody (Request body) {Array} [Monday[startTime][endTime][breakTime]] Times that the staff will be avalibul on monday
+ * @apiBody (Request body) {Array} [Tuesday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Tuesday
+ * @apiBody (Request body) {Array} [Wednesday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Wednesday
+ * @apiBody (Request body) {Array} [Thursday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Thursday
+ * @apiBody (Request body) {Array} [Friday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Friday
+ * @apiBody (Request body) {Array} [Saturday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Saturday
+ * @apiBody (Request body) {Array} [Sunday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Sunday
+ *
+ * @apiSuccessExample {json} Success-Response
  * HTTP/1.1 200 OK
  * {
- *      "message": "Registration Successfully.",
- *      "status": "1"
+ *       message: "successfully posted",
+ *        result: { }
  * }
- * @apiSampleRequest /api/registration
- * @apiErrorExample {json} User error
- * HTTP/1.1 400 Internal Server Error
+ *@apiSampleRequest /Days
+ *@apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "User is already present"
+ *     }
+ *
+ * HTTP/1.1 500 Internal Server Error
  */
 const ondays = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let user = yield days_1.default.findOne({ email: req.body.email });
         if (user) {
-            return res.status(400).json({
+            return res.status(404).json({
                 message: "user is already present"
             });
         }
@@ -63,7 +63,6 @@ const ondays = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             email: req.body.email,
             phoneNo: req.body.phoneNo,
             name: req.body.name,
-            BookedDate: req.body.BookedDate,
             Monday: req.body.Monday,
             Tuesday: req.body.Tuesday,
             Wednesday: req.body.Wednesday,
@@ -86,17 +85,49 @@ const ondays = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.ondays = ondays;
+// Staff getAppointment API
+/**
+ * @api {} /getAppointment It post when the staff is avalbul
+ * @apiGroup Appointment
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "email": " "
+ *     }
+ *     {
+ *          "date":" "
+ *     }
+ * @apiQuery email {String}
+ * @apiQuery date {String}
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ * message: "slots",
+ * result: " "
+ * }
+ *@apiSampleRequest /getAppointment
+ *@apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "user is not present in our database"
+ *     }
+ *    HTTP/1.1 400
+ *    {
+ *        "message": "slots are not present"
+ *    }
+ *
+ *    HTTP/1.1 500 Internal Server Error
+ */
 const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let date = req.query.date;
         let slots = yield days_1.default.findOne({ email: req.query.email });
         if (!slots) {
-            return res.status(400).json({
+            return res.status(404).json({
                 Message: "user is not present in our database"
             });
         }
         if (slots === null || slots === void 0 ? void 0 : slots.isDeleted) {
-            return res.status(400).json({
+            return res.status(404).json({
                 message: "user is not present in our database"
             });
         }
@@ -189,17 +220,29 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         }
                         else if (currentTime <= Mstartti) {
                             console.log('else if');
+                            if (Mall.length === 0) {
+                                return res.status(400).json({
+                                    status: false,
+                                    message: "slot are not present"
+                                });
+                            }
                             return res.status(200).json({
                                 message: "slots",
-                                result: MallTime
+                                result: Mall
                             });
                         }
                     }
                     else {
                         console.log("else");
+                        if (Mall.length === 0) {
+                            return res.status(400).json({
+                                status: false,
+                                message: "slot are not present"
+                            });
+                        }
                         return res.status(200).json({
                             message: "slots",
-                            result: MallTime
+                            result: Mall
                         });
                     }
                     break;
@@ -271,7 +314,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             if (hii.length === 0) {
                                 return res.status(400).json({
                                     status: false,
-                                    message: "slota are not present"
+                                    message: "slots are not present"
                                 });
                             }
                             return res.status(200).json({
@@ -281,6 +324,12 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         }
                         else if (currentTime <= Tustartti) {
                             console.log('else if');
+                            if (Tuall.length === 0) {
+                                return res.status(400).json({
+                                    status: false,
+                                    message: "slot are not present"
+                                });
+                            }
                             return res.status(200).json({
                                 message: "slots",
                                 result: Tuall
@@ -289,6 +338,12 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                     }
                     else {
                         console.log("else");
+                        if (Tuall.length === 0) {
+                            return res.status(400).json({
+                                status: false,
+                                message: "slot are not present"
+                            });
+                        }
                         return res.status(200).json({
                             message: "slots",
                             result: Tuall
@@ -358,7 +413,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             let hii = WallTime.filter((k) => !hello.includes(k));
                             let removingslots = WallendTime.concat(allslots.flat());
                             hii = hii.filter((v) => !removingslots.includes(v));
-                            if (WallTime.length === 0) {
+                            if (hii.length === 0) {
                                 return res.status(400).json({
                                     status: false,
                                     message: "slota are not present"
@@ -371,6 +426,12 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         }
                         else if (currentTime <= Wstartti) {
                             console.log('else if');
+                            if (Wall.length === 0) {
+                                return res.status(400).json({
+                                    status: false,
+                                    message: "slota are not present"
+                                });
+                            }
                             return res.status(200).json({
                                 message: "slots",
                                 result: Wall
@@ -379,6 +440,12 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                     }
                     else {
                         console.log("else");
+                        if (Wall.length === 0) {
+                            return res.status(400).json({
+                                status: false,
+                                message: "slota are not present"
+                            });
+                        }
                         return res.status(200).json({
                             message: "slots",
                             result: Wall
@@ -462,6 +529,12 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         }
                         else if (currentTime <= startti) {
                             console.log("else if");
+                            if (Tall.length === 0) {
+                                return res.status(400).json({
+                                    status: false,
+                                    message: "slot are not present"
+                                });
+                            }
                             return res.status(200).json({
                                 message: "slots",
                                 result: Tall
@@ -470,6 +543,12 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                     }
                     else {
                         console.log('elif');
+                        if (Tall.length === 0) {
+                            return res.status(400).json({
+                                status: false,
+                                message: "slot are not present"
+                            });
+                        }
                         return res.status(200).json({
                             message: "slots",
                             result: Tall
@@ -557,6 +636,12 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         }
                         else if (currentTime <= Fstartti) {
                             console.log('else if');
+                            if (all.length === 0) {
+                                return res.status(400).json({
+                                    status: false,
+                                    message: "slot are not present"
+                                });
+                            }
                             return res.status(200).json({
                                 message: "slots",
                                 result: all
@@ -565,6 +650,12 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                     }
                     else {
                         console.log("else");
+                        if (all.length === 0) {
+                            return res.status(400).json({
+                                status: false,
+                                message: "slot are not present"
+                            });
+                        }
                         return res.status(200).json({
                             message: "slots",
                             result: all
@@ -652,6 +743,12 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         }
                         else if (currentTime <= Sstartti) {
                             console.log('else if');
+                            if (Sall.length === 0) {
+                                return res.status(400).json({
+                                    status: false,
+                                    message: "slot are not present"
+                                });
+                            }
                             return res.status(200).json({
                                 message: "slots",
                                 result: Sall
@@ -660,6 +757,12 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                     }
                     else {
                         console.log("else");
+                        if (Sall.length === 0) {
+                            return res.status(400).json({
+                                status: false,
+                                message: "slot are not present"
+                            });
+                        }
                         return res.status(200).json({
                             message: "slots",
                             result: Sall
@@ -749,6 +852,12 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         else if (currentTime <= Snstartti) {
                             console.log('else if');
                             //SnallTime = SnallTime.filter(v => !SnallendTime.includes(v))
+                            if (Snall.length === 0) {
+                                return res.status(400).json({
+                                    status: false,
+                                    message: "slot are not present"
+                                });
+                            }
                             return res.status(200).json({
                                 message: "slots",
                                 result: Snall
@@ -757,6 +866,12 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                     }
                     else {
                         console.log("else");
+                        if (Snall.length === 0) {
+                            return res.status(400).json({
+                                status: false,
+                                message: "slot are not present"
+                            });
+                        }
                         return res.status(200).json({
                             message: "slots",
                             result: Snall
@@ -768,27 +883,63 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
         }
         else {
             return res.status(400).json({
-                message: "slots are not present hui"
+                message: "slots are not present"
             });
         }
     }
     catch (error) {
-        res.status(400).send(error);
+        res.status(400).send("Internal Server Error");
         console.log(error);
     }
 });
 exports.GetAppointment = GetAppointment;
+// Staff updateSlot API
+/**
+ * @api {put} /updateSlot It post when the staff is avalbul
+ * @apiGroup Staff
+ * @apiBody (Request body) {String} TimeZone which timezone he is present
+ * @apiBody (Request body) {String} email Staff email
+ * @apiBody (Request body) {String} phoneNo Staff phoneNo
+ * @apiBody (Request body) {String} name Staff name
+ * @apiBody (Request body) {Array} [Monday[startTime][endTime][breakTime]] Times that the staff will be avalibul on monday
+ * @apiBody (Request body) {Array} [Tuesday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Tuesday
+ * @apiBody (Request body) {Array} [Wednesday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Wednesday
+ * @apiBody (Request body) {Array} [Thursday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Thursday
+ * @apiBody (Request body) {Array} [Friday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Friday
+ * @apiBody (Request body) {Array} [Saturday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Saturday
+ * @apiBody (Request body) {Array} [Sunday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Sunday
+ *
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "email": " "
+ *     }
+ 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *         message: "user updated sucessfully",
+ *         result: {  }
+ * }
+ *@apiSampleRequest /updateSlot
+ *@apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "User is not present"
+ *     }
+ *
+ * HTTP/1.1 500 Internal Server Error
+ */
 const updateSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let users = yield days_1.default.findOne({ email: req.query.email });
         if (!users) {
-            return res.status(500).json({
+            return res.status(404).json({
                 success: false,
                 message: "user is not present",
             });
         }
         if (users === null || users === void 0 ? void 0 : users.isDeleted) {
-            return res.status(400).json({
+            return res.status(404).json({
                 message: "user is not present"
             });
         }
@@ -797,7 +948,6 @@ const updateSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             email: users.email,
             phoneNo: req.body.phoneNo || users.phoneNo,
             name: req.body.name || users.name,
-            BookedDate: req.body.BookedDate || users.BookedDate,
             Monday: req.body.Monday || users.Monday,
             Tuesday: req.body.Tuesday || users.Tuesday,
             Wednesday: req.body.Wednesday || users.Wednesday,
@@ -822,11 +972,43 @@ const updateSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.updateSlot = updateSlot;
+// Staff booking API
+/**
+ * @api {post} /booking It post when the staff is avalbul
+ * @apiGroup Booking
+ * @apiBody (Request body) {String} TimeZone which timezone he is present
+ * @apiBody (Request body) {String} email user email
+ * @apiBody (Request body) {String} SlotsTime user Slot time
+ * @apiBody (Request body) {Array} Service user service
+ * @apiBody (Request body) {String} AppointmentDate user date Appointment
+ * @apiBody (Request body) {String} name user name
+ * @apiBody (Request body) {String} Duerication user Duerication of slot
+ 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *           message: "slot booking sucess",
+ *           result: { }
+ * }
+ *@apiSampleRequest /updateSlot
+ *@apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "User is not present"
+ *     }
+ *
+ *  HTTP/1.1 400
+ * {
+ *  status: false,
+ * message: "date is grater then today"
+ * }
+ * HTTP/1.1 500 Internal Server Error
+ */
 const bookingSlots = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let user = yield bookingModel_1.default.find({ TimeZone: req.body.TimeZone, AppointmentDate: req.body.AppointmentDate, email: req.body.email }, { "SlotsTime": "$SlotsTime" });
     let daysdata = yield days_1.default.findOne({ email: req.body.email });
     if (!daysdata) {
-        return res.status(400).json({
+        return res.status(404).json({
             status: false,
             message: "user is not present"
         });
@@ -835,9 +1017,6 @@ const bookingSlots = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     console.log(date);
     let enterdat = (0, moment_timezone_1.default)(req.body.AppointmentDate).format('YYYY-MM-DD');
     console.log(enterdat);
-    if (date === enterdat) {
-        console.log("vamsi");
-    }
     if (date > enterdat) {
         return res.status(400).json({
             status: false,
@@ -905,6 +1084,43 @@ const bookingSlots = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.bookingSlots = bookingSlots;
+// User updateBooking API
+/**
+ * @api {put} /updateBooking This api will update the booking of user
+ * @apiGroup Booking
+ * @apiBody (Request body) {String} email user email
+ * @apiBody (Request body) {String} SlotsTime user Slot time
+ * @apiBody (Request body) {Array} Service user service
+ * @apiBody (Request body) {String} AppointmentDate user date Appointment
+ * @apiBody (Request body) {String} name user name
+ * @apiBody (Request body) {String} Duerication user Duerication of slot
+
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "email": " "
+ *     }
+ *
+ 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *           message: "slot booking sucess",
+ *           result: { }
+ * }
+ *@apiSampleRequest /updateBooking
+ *@apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "User is not present"
+ *     }
+ *
+ * HTTP/1.1 500 Internal Server Error
+ *  HTTP/1.1 400
+ * {
+ *  status: false,
+ * message: "date is grater then today"
+ * }
+ */
 const updateBooking = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let users = yield bookingModel_1.default.findById(req.query.id);
@@ -912,7 +1128,7 @@ const updateBooking = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         //console.log(use)
         if (!users) {
             //console.log("hello")
-            return res.status(400).json({
+            return res.status(404).json({
                 success: false,
                 message: "user is not presnt",
             });
@@ -921,14 +1137,14 @@ const updateBooking = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         console.log("hello");
         //console.log(daysdata)
         if (!daysdata) {
-            return res.status(400).json({
+            return res.status(404).json({
                 status: false,
                 message: "user is not present"
             });
         }
         if (users === null || users === void 0 ? void 0 : users.isDeleted) {
-            return res.status(400).json({
-                message: "user is not there in our database"
+            return res.status(404).json({
+                message: " user is not present "
             });
         }
         let date = (0, moment_timezone_1.default)().tz(users.TimeZone).format('YYYY-MM-DD');
@@ -1004,11 +1220,42 @@ const updateBooking = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.updateBooking = updateBooking;
+// user getBookingsByEmail API
+/**
+ * @api {get} /getBookingsByEmail This api will get the bookings of user by email
+
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "email": " "
+ *     }
+ *
+ 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *           message: "data",
+ *           result: { }
+ * }
+ *@apiSampleRequest /getBookingsByEmail
+ *@apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *        "success":false
+ *       "message": "User is not present"
+ *     }
+ *
+ * HTTP/1.1 500
+ * {
+ * message:"Internal Server Error",
+ * error : { }
+ * }
+
+ */
 const getBookingsByEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let user = yield bookingModel_1.default.find({ email: req.query.email, isDeleted: false });
         if (!user) {
-            return res.status(400).json({
+            return res.status(404).json({
                 success: false,
                 message: "user is not presnt",
             });
@@ -1021,12 +1268,43 @@ const getBookingsByEmail = (req, res) => __awaiter(void 0, void 0, void 0, funct
     catch (error) {
         console.log(error);
         res.status(500).json({
-            message: "internal error",
+            message: "internal server error",
             error: error
         });
     }
 });
 exports.getBookingsByEmail = getBookingsByEmail;
+// staff getDaysByEmail API
+/**
+ * @api {get} /getDaysByEmail This api will get staff by email
+
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "email": " "
+ *     }
+ *
+ 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *           message: "data",
+ *           result: { }
+ * }
+ *@apiSampleRequest /getDaysByEmail
+ *@apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *        "success":false
+ *       "message": "User is not present"
+ *     }
+ *
+ * HTTP/1.1 500
+ * {
+ * message:"Internal Server Error",
+ * error : { }
+ * }
+
+ */
 const getDaysByEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let user = yield days_1.default.find({ email: req.query.email, isDeleted: false });
@@ -1050,14 +1328,49 @@ const getDaysByEmail = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.getDaysByEmail = getDaysByEmail;
+// user softDelete API
+/**
+ * @api {delete} /softDelete/:id This api will delete user bookings by id
+
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "id": " "
+ *     }
+ *
+ 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *           message: "Your slot was deleted"
+ * }
+ *@apiSampleRequest /softDelete/:id
+ *@apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *        "success":false
+ *       "message": "User is not present"
+ *     }
+ *
+ * HTTP/1.1 500
+ * {
+ * message:"Internal Server Error",
+ * error : { }
+ * }
+
+ */
 const softDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     debugger;
     try {
         const users = yield bookingModel_1.default.findById(req.params.id);
         console.log(users);
+        if (!users) {
+            return res.status(404).json({
+                error: 'user is not present'
+            });
+        }
         if (users.isDeleted === true) {
             return res.status(404).json({
-                error: 'Requested category does not exist'
+                error: 'user is not present'
             });
         }
         const softdelete = yield bookingModel_1.default.findOneAndUpdate({ _id: users._id }, { isDeleted: true });
@@ -1084,39 +1397,72 @@ const softDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             console.log('Message sent: ' + info.response);
         });
         res.status(200).json({
-            message: "Your slot was deleted",
-            data: softdelete
+            message: "Your slot was deleted"
         });
     }
     catch (error) {
-        res.status(400).json({
+        res.status(500).json({
+            message: "Internal Server Error",
             error: error
         });
     }
 });
 exports.softDelete = softDelete;
+// user DaysSoftDelete API
+/**
+ * @api {delete} /DaysSoftDelete/:id This api will delete user staff by email
+
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "id": " "
+ *     }
+ *
+ 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *           message: "Your slot was deleted"
+ * }
+ *@apiSampleRequest /DaysSoftDelete/:id
+ *@apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *        "success":false
+ *       "message":  "Staff dose not present"
+ *     }
+ *
+ * HTTP/1.1 500
+ * {
+ * message:"Internal Server Error",
+ * error : { }
+ * }
+
+ */
 const DaysSoftDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield days_1.default.findById(req.params.id);
         console.log(users);
         if (!users) {
-            return res.status(400).json({
+            return res.status(404).json({
+                "success": false,
                 error: "Staff dose not present"
             });
         }
         if (users.isDeleted === true) {
             return res.status(404).json({
-                error: 'Staff does not exist'
+                "success": false,
+                error: "Staff dose not present"
             });
         }
         const softdelete = yield days_1.default.findOneAndUpdate({ _id: users._id }, { isDeleted: true });
         res.status(200).json({
-            message: "deleted sucess",
+            message: "deleted success",
             data: softdelete
         });
     }
     catch (error) {
-        res.status(400).json({
+        res.status(500).json({
+            message: "Internal Server Error",
             error: error
         });
     }

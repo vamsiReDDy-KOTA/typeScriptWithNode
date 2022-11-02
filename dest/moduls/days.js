@@ -19,10 +19,6 @@ const daysSchema = new mongoose_1.Schema({
         type: String,
         required: true
     },
-    BookedDate: {
-        type: String,
-        required: true
-    },
     Monday: [
         {
             startTime: {

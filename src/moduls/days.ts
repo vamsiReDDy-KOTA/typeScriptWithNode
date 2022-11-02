@@ -21,10 +21,6 @@ const daysSchema : Schema = new Schema (
         type:String,
         required:true
     },
-    BookedDate:{
-        type:String,
-        required:true
-    },
     Monday:[
         {   
        startTime:{
