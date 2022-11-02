@@ -22,7 +22,7 @@ export class Appointment extends Controller { }
  * @apiGroup User
  * @apiBody (Request body) {String} name User name
  * @apiBody (Request body) {String} email User email
- * @apiBody (Request body) {String='local', 'google', 'facebook', 'twitter', 'linkedin', 'apple'} provider=local User provider
+ * @apiBody (Request body)  provider=local User provider
  * @apiBody (Request body) {String='agent','user'} role User role
  * @apiBody (Request body) {String} [password] User Password (if required Only provider is local)
  * @apiParamExample {json} Input
