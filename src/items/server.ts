@@ -214,7 +214,7 @@ const GetAppointment = async (req: any, res: any) => {
       
               hii = hii.filter((v: any) => !removingslots.includes(v))
 
-              if (MallTime.length === 0) {
+              if (hii.length === 0) {
                 return res.status(400).json({
                   status: false,
                   message: "slots are not present"
@@ -222,7 +222,7 @@ const GetAppointment = async (req: any, res: any) => {
               }
               return res.status(200).json({
                 message: "slots",
-                result: MallTime
+                result: hii
               })
             }
             else if (currentTime <= Mstartti) {
@@ -1421,6 +1421,8 @@ const getDaysByEmail = async (req: any, res: any) => {
 // user softDelete API
 /**
  * @api {delete} /softDelete/:id This api will delete user bookings by id
+ 
+ * @apiParam {Number} id Users unique ID.
 
  * @apiParamExample {json} Request-Example:
  *     {
@@ -1508,7 +1510,9 @@ const softDelete = async (req: any, res: any) => {
 
 // user DaysSoftDelete API
 /**
- * @api {delete} /DaysSoftDelete/:id This api will delete user staff by email
+ * @api {delete} /DaysSoftDelete/:id This api will delete user staff by id
+ 
+ * @apiParam {Number} id Users unique ID.
 
  * @apiParamExample {json} Request-Example:
  *     {

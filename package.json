@@ -16,8 +16,7 @@
     "name": "Cogsworth API Docs",
     "version": "1.0.0",
     "description": "Base URL --->  http://localhost:4001 \n",
-    "title": "Cogsworth RESTFUL API Document",
-    "url" : "https://localhost:4001/apidoc"
+    "title": "Cogsworth RESTFUL API Document"
   },
   "author": "",
   "license": "ISC",

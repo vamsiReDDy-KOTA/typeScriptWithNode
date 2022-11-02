@@ -207,7 +207,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             let hii = MallTime.filter((k) => !hello.includes(k));
                             let removingslots = MallendTime.concat(allslots.flat());
                             hii = hii.filter((v) => !removingslots.includes(v));
-                            if (MallTime.length === 0) {
+                            if (hii.length === 0) {
                                 return res.status(400).json({
                                     status: false,
                                     message: "slots are not present"
@@ -215,7 +215,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             }
                             return res.status(200).json({
                                 message: "slots",
-                                result: MallTime
+                                result: hii
                             });
                         }
                         else if (currentTime <= Mstartti) {
