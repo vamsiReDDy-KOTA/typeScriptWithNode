@@ -1,9 +1,8 @@
 
-//import { readFile, writeFile } from "fs";
-
 import moment from 'moment-timezone';
 //import moments from 'moment'
 import mongoose from "mongoose";
+import vtoken from "../mid/token"
 //import { Times } from "../moduls/timesInterface";
 import DaysModel from "../moduls/days"
 import SignupDt from '../moduls/signup';
@@ -15,6 +14,7 @@ import Booking from "../moduls/bookingModelInterface";
 import nodemailer from "nodemailer"
 import { Signup } from '../moduls/signupinterface';
 import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken";
 
 //signup api
 
@@ -22,7 +22,7 @@ import bcrypt from "bcrypt"
 const signup  = async (req:any, res:any) => {
   try {
     const salt = bcrypt.genSaltSync(10);
-    const { fullname, lastname, email, password, confirmPassword, isAdmin } =
+    const { firstname, lastname, email, password, confirmPassword, isAdmin } =
       req.body;
     //const {image} =  req.file.filename
     const hass = bcrypt.hashSync(password, salt);
@@ -39,7 +39,7 @@ const signup  = async (req:any, res:any) => {
         .send(" password and confirmpassword should be same");
     }
     let newUser = new SignupDt({
-      fullname,
+      firstname,
       lastname,
       email,
       password: hass,
@@ -53,6 +53,159 @@ const signup  = async (req:any, res:any) => {
     console.log(error);
     return res.send(500).send("Internal server");
   }
+}
+
+const signin = async (req:any, res:any) => {
+  try {
+    const { email, password } = req.body;
+
+    let exist : any = await SignupDt.findOne({ email });
+
+    if (!exist) {
+      return res.status(400).send("user is not present in our Database");
+    }
+
+    const isPasswordCorrect =  bcrypt.compare(password, exist.password);
+
+    //console.log(exist)
+
+    if (!isPasswordCorrect) {
+      return res.status(400).send("password went wrong");
+    }
+
+    let payload = {
+      user: {
+        id: exist.id,
+      },
+    };
+
+    jwt.sign(
+      payload,
+      "vamsi",
+      { expiresIn: 60 * 60 * 1000 },
+      async (err, token) => {
+        if (err) {
+          console.log(err);
+        }
+        return await res.json({
+          token: token,
+          id: exist._id,
+          email: exist.email,
+          isAdmin: exist.isAdmin,
+        });
+      }
+    );
+    //return res.json(exist)
+  } catch (error) {
+    console.log(error);
+    return res.send(500).send("Internal server");
+  }
+}
+
+const updateuser =async (req:any,res:any) => {
+  try {
+    let users: any = await SignupDt.findOne({ email: req.query.email });
+    if (!users) {
+      return res.status(404).json({
+        success: false,
+        message: "user is not present",
+      });
+    }
+    if (users?.isDeleted) {
+      return res.status(404).json({
+        message: "user is not present"
+      })
+    }
+    const salt = bcrypt.genSaltSync(10);
+    let password = req.body.password || users.password
+    let confirmPassword = req.body.confirmPassword || users.confirmPassword
+
+    if (password !== confirmPassword) {
+      return res
+        .status(400)
+        .send(" password and confirmpassword should be same");
+    }
+
+    const hass = bcrypt.hashSync(password, salt);
+    const conHass = bcrypt.hashSync(confirmPassword, salt);
+
+    const newUserData = {
+      
+      email: users.email,
+      fullname: req.body.fullname || users.fullname,
+      lastname: req.body.lastname || users.lastname,
+      password: hass,
+      confirmPassword: conHass,
+      isAdmin: req.body.isAdmin || users.isAdmin
+    };
+
+    const user = await SignupDt.findOneAndUpdate({ email: req.query.email }, newUserData, {
+      new: true,
+      runValidators: false,
+      userFindAndModify: true,
+    });
+    return res.status(200).json({
+      message: "user updated sucessfully",
+      result: user
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send("Internal server");
+  }
+}
+
+const logingetuser =async (req:any,res:any) => {
+  try {
+    let user = await SignupDt.find({ email: req.query.email, isDeleted: false })
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "user is not presnt",
+      });
+    }
+
+    res.status(200).json({
+      message: "data",
+      result: user
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      message: "internal error",
+      error: error
+    })
+  }
+}
+
+const deleteuser =async (req:any,res:any) => {
+  try {
+    let users: any = await SignupDt.findById(req.params.id);
+    console.log(users)
+    if (!users) {
+      return res.status(404).json({
+        "success":false,
+        error: "user not present"
+
+      })
+    }
+    if (users.isDeleted === true) {
+      return res.status(404).json({
+        "success":false,
+        error:  "user not present"
+      });
+    }
+    let softdelete = await SignupDt.findOneAndUpdate({ _id: users._id }, { isDeleted: true })
+    res.status(200).json({
+      message: "deleted success",
+    
+    });
+  }
+  catch (error) {
+    res.status(500).json({
+      message:"Internal Server Error",
+      error: error
+    });
+}
 }
 
 // Staff Days API
@@ -1613,4 +1766,27 @@ const DaysSoftDelete = async (req: any, res: any) => {
   }
 };
 
-export { ondays, GetAppointment, updateSlot, DaysSoftDelete, softDelete, bookingSlots, updateBooking,signup, getBookingsByEmail, getDaysByEmail }
+const getallstaffs =async (req:any,res:any) => {
+  try {
+    let user = await DaysModel.find({isDeleted: false })
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "user is not presnt",
+      });
+    }
+
+    res.status(200).json({
+      message: "data",
+      result: user
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      message: "internal error",
+      error: error
+    })
+  }
+}
+
+export { ondays, GetAppointment, updateSlot, DaysSoftDelete, softDelete, bookingSlots, updateBooking,signup,updateuser,logingetuser,deleteuser,getallstaffs ,signin ,getBookingsByEmail, getDaysByEmail }

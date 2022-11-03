@@ -1,5 +1,4 @@
 "use strict";
-//import { readFile, writeFile } from "fs";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -13,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDaysByEmail = exports.getBookingsByEmail = exports.signup = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.updateSlot = exports.GetAppointment = exports.ondays = void 0;
+exports.getDaysByEmail = exports.getBookingsByEmail = exports.signin = exports.getallstaffs = exports.deleteuser = exports.logingetuser = exports.updateuser = exports.signup = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.updateSlot = exports.GetAppointment = exports.ondays = void 0;
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 //import { Times } from "../moduls/timesInterface";
 const days_1 = __importDefault(require("../moduls/days"));
@@ -21,11 +20,12 @@ const signup_1 = __importDefault(require("../moduls/signup"));
 const bookingModel_1 = __importDefault(require("../moduls/bookingModel"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 //signup api
 const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const salt = bcrypt_1.default.genSaltSync(10);
-        const { fullname, lastname, email, password, confirmPassword, isAdmin } = req.body;
+        const { firstname, lastname, email, password, confirmPassword, isAdmin } = req.body;
         //const {image} =  req.file.filename
         const hass = bcrypt_1.default.hashSync(password, salt);
         const conHass = bcrypt_1.default.hashSync(confirmPassword, salt);
@@ -39,7 +39,7 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 .send(" password and confirmpassword should be same");
         }
         let newUser = new signup_1.default({
-            fullname,
+            firstname,
             lastname,
             email,
             password: hass,
@@ -55,6 +55,142 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.signup = signup;
+const signin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, password } = req.body;
+        let exist = yield signup_1.default.findOne({ email });
+        if (!exist) {
+            return res.status(400).send("user is not present in our Database");
+        }
+        const isPasswordCorrect = bcrypt_1.default.compare(password, exist.password);
+        //console.log(exist)
+        if (!isPasswordCorrect) {
+            return res.status(400).send("password went wrong");
+        }
+        let payload = {
+            user: {
+                id: exist.id,
+            },
+        };
+        jsonwebtoken_1.default.sign(payload, "vamsi", { expiresIn: 60 * 60 * 1000 }, (err, token) => __awaiter(void 0, void 0, void 0, function* () {
+            if (err) {
+                console.log(err);
+            }
+            return yield res.json({
+                token: token,
+                id: exist._id,
+                email: exist.email,
+                isAdmin: exist.isAdmin,
+            });
+        }));
+        //return res.json(exist)
+    }
+    catch (error) {
+        console.log(error);
+        return res.send(500).send("Internal server");
+    }
+});
+exports.signin = signin;
+const updateuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let users = yield signup_1.default.findOne({ email: req.query.email });
+        if (!users) {
+            return res.status(404).json({
+                success: false,
+                message: "user is not present",
+            });
+        }
+        if (users === null || users === void 0 ? void 0 : users.isDeleted) {
+            return res.status(404).json({
+                message: "user is not present"
+            });
+        }
+        const salt = bcrypt_1.default.genSaltSync(10);
+        let password = req.body.password || users.password;
+        let confirmPassword = req.body.confirmPassword || users.confirmPassword;
+        if (password !== confirmPassword) {
+            return res
+                .status(400)
+                .send(" password and confirmpassword should be same");
+        }
+        const hass = bcrypt_1.default.hashSync(password, salt);
+        const conHass = bcrypt_1.default.hashSync(confirmPassword, salt);
+        const newUserData = {
+            email: users.email,
+            fullname: req.body.fullname || users.fullname,
+            lastname: req.body.lastname || users.lastname,
+            password: hass,
+            confirmPassword: conHass,
+            isAdmin: req.body.isAdmin || users.isAdmin
+        };
+        const user = yield signup_1.default.findOneAndUpdate({ email: req.query.email }, newUserData, {
+            new: true,
+            runValidators: false,
+            userFindAndModify: true,
+        });
+        return res.status(200).json({
+            message: "user updated sucessfully",
+            result: user
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).send("Internal server");
+    }
+});
+exports.updateuser = updateuser;
+const logingetuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let user = yield signup_1.default.find({ email: req.query.email, isDeleted: false });
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "user is not presnt",
+            });
+        }
+        res.status(200).json({
+            message: "data",
+            result: user
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "internal error",
+            error: error
+        });
+    }
+});
+exports.logingetuser = logingetuser;
+const deleteuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let users = yield signup_1.default.findById(req.params.id);
+        console.log(users);
+        if (!users) {
+            return res.status(404).json({
+                "success": false,
+                error: "user not present"
+            });
+        }
+        if (users.isDeleted === true) {
+            return res.status(404).json({
+                "success": false,
+                error: "user not present"
+            });
+        }
+        let softdelete = yield signup_1.default.findOneAndUpdate({ _id: users._id }, { isDeleted: true });
+        res.status(200).json({
+            message: "deleted success",
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            message: "Internal Server Error",
+            error: error
+        });
+    }
+});
+exports.deleteuser = deleteuser;
 // Staff Days API
 /**
  * @api {post} /Days post staff availability days
@@ -1509,3 +1645,26 @@ const DaysSoftDelete = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.DaysSoftDelete = DaysSoftDelete;
+const getallstaffs = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let user = yield days_1.default.find({ isDeleted: false });
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "user is not presnt",
+            });
+        }
+        res.status(200).json({
+            message: "data",
+            result: user
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "internal error",
+            error: error
+        });
+    }
+});
+exports.getallstaffs = getallstaffs;
