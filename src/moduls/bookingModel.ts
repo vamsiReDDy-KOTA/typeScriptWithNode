@@ -1,4 +1,3 @@
-import { Detals } from "./appointMentDetalsInterFace";
 import Booking from "./bookingModelInterface";
 import mongoose, { model, Schema } from "mongoose";
 

@@ -6,30 +6,70 @@ import moment from 'moment-timezone';
 import mongoose from "mongoose";
 //import { Times } from "../moduls/timesInterface";
 import DaysModel from "../moduls/days"
+import SignupDt from '../moduls/signup';
 import BookingModel from "../moduls/bookingModel"
 import Days from "../moduls/daysInterface"
 import days from "../moduls/days";
 import { AnyNsRecord } from "dns";
 import Booking from "../moduls/bookingModelInterface";
 import nodemailer from "nodemailer"
-import { Controller } from "tsoa";
+import { Signup } from '../moduls/signupinterface';
+import bcrypt from "bcrypt"
 
+//signup api
+
+
+const signup  = async (req:any, res:any) => {
+  try {
+    const salt = bcrypt.genSaltSync(10);
+    const { fullname, lastname, email, password, confirmPassword, isAdmin } =
+      req.body;
+    //const {image} =  req.file.filename
+    const hass = bcrypt.hashSync(password, salt);
+    const conHass = bcrypt.hashSync(confirmPassword, salt);
+    let exist = await SignupDt.findOne({ email });
+
+    if (exist) {
+      return res.status(400).send("email is their");
+    }
+
+    if (password !== confirmPassword) {
+      return res
+        .status(400)
+        .send(" password and confirmpassword should be same");
+    }
+    let newUser = new SignupDt({
+      fullname,
+      lastname,
+      email,
+      password: hass,
+      confirmPassword: conHass,
+      isAdmin,
+    });
+
+    await newUser.save();
+    return res.status(200).send("user regested done");
+  } catch (error) {
+    console.log(error);
+    return res.send(500).send("Internal server");
+  }
+}
 
 // Staff Days API
 /**
- * @api {post} /Days It post when the staff is avalbul
+ * @api {post} /Days post staff availability days
  * @apiGroup Staff
  * @apiBody (Request body) {String} TimeZone which timezone he is present
  * @apiBody (Request body) {String} email Staff email
  * @apiBody (Request body) {String} phoneNo Staff phoneNo
  * @apiBody (Request body) {String} name Staff name
- * @apiBody (Request body) {Array} [Monday[startTime][endTime][breakTime]] Times that the staff will be avalibul on monday
- * @apiBody (Request body) {Array} [Tuesday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Tuesday
- * @apiBody (Request body) {Array} [Wednesday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Wednesday
- * @apiBody (Request body) {Array} [Thursday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Thursday
- * @apiBody (Request body) {Array} [Friday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Friday
- * @apiBody (Request body) {Array} [Saturday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Saturday
- * @apiBody (Request body) {Array} [Sunday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Sunday
+ * @apiBody (Request body) {Array} [Monday] [startTime][endTime][breakTime] Times that the staff will be avalibul on monday
+ * @apiBody (Request body) {Array} [Tuesday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Tuesday
+ * @apiBody (Request body) {Array} [Wednesday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Wednesday
+ * @apiBody (Request body) {Array} [Thursday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Thursday
+ * @apiBody (Request body) {Array} [Friday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Friday
+ * @apiBody (Request body) {Array} [Saturday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Saturday
+ * @apiBody (Request body) {Array} [Sunday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Sunday
  * 
  * @apiSuccessExample {json} Success-Response
  * HTTP/1.1 200 OK
@@ -84,17 +124,11 @@ const ondays = async (req: any, res: any) => {
 
 // Staff getAppointment API
 /**
- * @api {} /getAppointment It post when the staff is avalbul
+ * @api {get}/getAppointment availabul slots 
  * @apiGroup Appointment
- * @apiParamExample {json} Request-Example:
- *     {
- *       "email": " "
- *     }
- *     {
- *          "date":" "
- *     }
- * @apiQuery email {String}
- * @apiQuery date {String}
+ * 
+ * @apiQuery {String} email email is in the string format
+ * @apiQuery {String} date data format will be YYYY-MM-DD and it is in string format
  * @apiSuccessExample {json} Success-Response
  * HTTP/1.1 200 OK
  * {
@@ -172,7 +206,7 @@ const GetAppointment = async (req: any, res: any) => {
             let startt = moment(MStartbreakTime[i], "HH:mm");
             let endt = moment(MEndbreakTime[i], "HH:mm");
             while (startt < endt) {
-              MallendTime.push(startt.format("hh:mm A"));
+              MallendTime.push(startt.format("hh:mm A DD-MM-YYYY" ));
               startt.add(30, 'minutes');
             }
           }
@@ -964,24 +998,27 @@ const GetAppointment = async (req: any, res: any) => {
 
 // Staff updateSlot API
 /**
- * @api {put} /updateSlot It post when the staff is avalbul
+ * @api {put} /updateSlot update staff availability time
  * @apiGroup Staff
  * @apiBody (Request body) {String} TimeZone which timezone he is present
  * @apiBody (Request body) {String} email Staff email
  * @apiBody (Request body) {String} phoneNo Staff phoneNo
  * @apiBody (Request body) {String} name Staff name
- * @apiBody (Request body) {Array} [Monday[startTime][endTime][breakTime]] Times that the staff will be avalibul on monday
- * @apiBody (Request body) {Array} [Tuesday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Tuesday
- * @apiBody (Request body) {Array} [Wednesday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Wednesday
- * @apiBody (Request body) {Array} [Thursday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Thursday
- * @apiBody (Request body) {Array} [Friday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Friday
- * @apiBody (Request body) {Array} [Saturday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Saturday
- * @apiBody (Request body) {Array} [Sunday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Sunday
+ * @apiBody (Request body) {Array} [Monday] [startTime][endTime][breakTime] Times that the staff will be avalibul on monday
+ * @apiBody (Request body) {Array} [Tuesday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Tuesday
+ * @apiBody (Request body) {Array} [Wednesday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Wednesday
+ * @apiBody (Request body) {Array} [Thursday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Thursday
+ * @apiBody (Request body) {Array} [Friday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Friday
+ * @apiBody (Request body) {Array} [Saturday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Saturday
+ * @apiBody (Request body) {Array} [Sunday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Sunday
  * 
  * @apiParamExample {json} Request-Example:
  *     {
  *       "email": " "
  *     }
+ * 
+ * @apiQuery {String} email email is in the string format
+ 
  
  * @apiSuccessExample {json} Success-Response
  * HTTP/1.1 200 OK
@@ -1033,7 +1070,7 @@ const updateSlot = async (req: any, res: any) => {
       userFindAndModify: true,
     });
     return res.status(200).json({
-      message: "user updated sucessfully",
+      message: "staff updated sucessfully",
       result: user
     });
   } catch (error) {
@@ -1299,7 +1336,7 @@ const updateBooking = async (req: any, res: any) => {
       console.log('Message sent: ' + info.response);
     })
     return res.status(200).json({
-      message: "user updated sucessfully",
+      message: "user updated successfully",
       result: data
     });
   } catch (error) {
@@ -1565,7 +1602,7 @@ const DaysSoftDelete = async (req: any, res: any) => {
     const softdelete = await DaysModel.findOneAndUpdate({ _id: users._id }, { isDeleted: true })
     res.status(200).json({
       message: "deleted success",
-      data: softdelete
+      //data: softdelete
     });
   }
   catch (error) {
@@ -1576,4 +1613,4 @@ const DaysSoftDelete = async (req: any, res: any) => {
   }
 };
 
-export { ondays, GetAppointment, updateSlot, DaysSoftDelete, softDelete, bookingSlots, updateBooking, getBookingsByEmail, getDaysByEmail }
+export { ondays, GetAppointment, updateSlot, DaysSoftDelete, softDelete, bookingSlots, updateBooking,signup, getBookingsByEmail, getDaysByEmail }

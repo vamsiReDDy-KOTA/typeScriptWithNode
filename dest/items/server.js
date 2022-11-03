@@ -13,27 +13,63 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDaysByEmail = exports.getBookingsByEmail = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.updateSlot = exports.GetAppointment = exports.ondays = void 0;
+exports.getDaysByEmail = exports.getBookingsByEmail = exports.signup = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.updateSlot = exports.GetAppointment = exports.ondays = void 0;
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 //import { Times } from "../moduls/timesInterface";
 const days_1 = __importDefault(require("../moduls/days"));
+const signup_1 = __importDefault(require("../moduls/signup"));
 const bookingModel_1 = __importDefault(require("../moduls/bookingModel"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
+//signup api
+const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const salt = bcrypt_1.default.genSaltSync(10);
+        const { fullname, lastname, email, password, confirmPassword, isAdmin } = req.body;
+        //const {image} =  req.file.filename
+        const hass = bcrypt_1.default.hashSync(password, salt);
+        const conHass = bcrypt_1.default.hashSync(confirmPassword, salt);
+        let exist = yield signup_1.default.findOne({ email });
+        if (exist) {
+            return res.status(400).send("email is their");
+        }
+        if (password !== confirmPassword) {
+            return res
+                .status(400)
+                .send(" password and confirmpassword should be same");
+        }
+        let newUser = new signup_1.default({
+            fullname,
+            lastname,
+            email,
+            password: hass,
+            confirmPassword: conHass,
+            isAdmin,
+        });
+        yield newUser.save();
+        return res.status(200).send("user regested done");
+    }
+    catch (error) {
+        console.log(error);
+        return res.send(500).send("Internal server");
+    }
+});
+exports.signup = signup;
 // Staff Days API
 /**
- * @api {post} /Days It post when the staff is avalbul
+ * @api {post} /Days post staff availability days
  * @apiGroup Staff
  * @apiBody (Request body) {String} TimeZone which timezone he is present
  * @apiBody (Request body) {String} email Staff email
  * @apiBody (Request body) {String} phoneNo Staff phoneNo
  * @apiBody (Request body) {String} name Staff name
- * @apiBody (Request body) {Array} [Monday[startTime][endTime][breakTime]] Times that the staff will be avalibul on monday
- * @apiBody (Request body) {Array} [Tuesday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Tuesday
- * @apiBody (Request body) {Array} [Wednesday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Wednesday
- * @apiBody (Request body) {Array} [Thursday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Thursday
- * @apiBody (Request body) {Array} [Friday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Friday
- * @apiBody (Request body) {Array} [Saturday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Saturday
- * @apiBody (Request body) {Array} [Sunday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Sunday
+ * @apiBody (Request body) {Array} [Monday] [startTime][endTime][breakTime] Times that the staff will be avalibul on monday
+ * @apiBody (Request body) {Array} [Tuesday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Tuesday
+ * @apiBody (Request body) {Array} [Wednesday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Wednesday
+ * @apiBody (Request body) {Array} [Thursday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Thursday
+ * @apiBody (Request body) {Array} [Friday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Friday
+ * @apiBody (Request body) {Array} [Saturday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Saturday
+ * @apiBody (Request body) {Array} [Sunday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Sunday
  *
  * @apiSuccessExample {json} Success-Response
  * HTTP/1.1 200 OK
@@ -87,17 +123,11 @@ const ondays = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.ondays = ondays;
 // Staff getAppointment API
 /**
- * @api {} /getAppointment It post when the staff is avalbul
+ * @api {get}/getAppointment availabul slots
  * @apiGroup Appointment
- * @apiParamExample {json} Request-Example:
- *     {
- *       "email": " "
- *     }
- *     {
- *          "date":" "
- *     }
- * @apiQuery email {String}
- * @apiQuery date {String}
+ *
+ * @apiQuery {String} email email is in the string format
+ * @apiQuery {String} date data format will be YYYY-MM-DD and it is in string format
  * @apiSuccessExample {json} Success-Response
  * HTTP/1.1 200 OK
  * {
@@ -170,7 +200,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         let startt = (0, moment_timezone_1.default)(MStartbreakTime[i], "HH:mm");
                         let endt = (0, moment_timezone_1.default)(MEndbreakTime[i], "HH:mm");
                         while (startt < endt) {
-                            MallendTime.push(startt.format("hh:mm A"));
+                            MallendTime.push(startt.format("hh:mm A DD-MM-YYYY"));
                             startt.add(30, 'minutes');
                         }
                     }
@@ -895,24 +925,27 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.GetAppointment = GetAppointment;
 // Staff updateSlot API
 /**
- * @api {put} /updateSlot It post when the staff is avalbul
+ * @api {put} /updateSlot update staff availability time
  * @apiGroup Staff
  * @apiBody (Request body) {String} TimeZone which timezone he is present
  * @apiBody (Request body) {String} email Staff email
  * @apiBody (Request body) {String} phoneNo Staff phoneNo
  * @apiBody (Request body) {String} name Staff name
- * @apiBody (Request body) {Array} [Monday[startTime][endTime][breakTime]] Times that the staff will be avalibul on monday
- * @apiBody (Request body) {Array} [Tuesday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Tuesday
- * @apiBody (Request body) {Array} [Wednesday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Wednesday
- * @apiBody (Request body) {Array} [Thursday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Thursday
- * @apiBody (Request body) {Array} [Friday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Friday
- * @apiBody (Request body) {Array} [Saturday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Saturday
- * @apiBody (Request body) {Array} [Sunday[startTime][endTime][breakTime]] Times that the staff will be avalibul on Sunday
+ * @apiBody (Request body) {Array} [Monday] [startTime][endTime][breakTime] Times that the staff will be avalibul on monday
+ * @apiBody (Request body) {Array} [Tuesday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Tuesday
+ * @apiBody (Request body) {Array} [Wednesday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Wednesday
+ * @apiBody (Request body) {Array} [Thursday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Thursday
+ * @apiBody (Request body) {Array} [Friday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Friday
+ * @apiBody (Request body) {Array} [Saturday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Saturday
+ * @apiBody (Request body) {Array} [Sunday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Sunday
  *
  * @apiParamExample {json} Request-Example:
  *     {
  *       "email": " "
  *     }
+ *
+ * @apiQuery {String} email email is in the string format
+ 
  
  * @apiSuccessExample {json} Success-Response
  * HTTP/1.1 200 OK
@@ -962,7 +995,7 @@ const updateSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             userFindAndModify: true,
         });
         return res.status(200).json({
-            message: "user updated sucessfully",
+            message: "staff updated sucessfully",
             result: user
         });
     }
@@ -1210,7 +1243,7 @@ const updateBooking = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             console.log('Message sent: ' + info.response);
         });
         return res.status(200).json({
-            message: "user updated sucessfully",
+            message: "user updated successfully",
             result: data
         });
     }
@@ -1465,7 +1498,7 @@ const DaysSoftDelete = (req, res) => __awaiter(void 0, void 0, void 0, function*
         const softdelete = yield days_1.default.findOneAndUpdate({ _id: users._id }, { isDeleted: true });
         res.status(200).json({
             message: "deleted success",
-            data: softdelete
+            //data: softdelete
         });
     }
     catch (error) {
