@@ -1,4 +1,5 @@
 "use strict";
+//import { readFile, writeFile } from "fs";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -13,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDaysByEmail = exports.getBookingsByEmail = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.updateSlot = exports.GetAppointment = exports.ondays = void 0;
-//import { readFile, writeFile } from "fs";
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 //import { Times } from "../moduls/timesInterface";
 const days_1 = __importDefault(require("../moduls/days"));
@@ -1223,6 +1223,7 @@ exports.updateBooking = updateBooking;
 // user getBookingsByEmail API
 /**
  * @api {get} /getBookingsByEmail This api will get the bookings of user by email
+ * @apiGroup Booking
 
  * @apiParamExample {json} Request-Example:
  *     {
@@ -1277,6 +1278,7 @@ exports.getBookingsByEmail = getBookingsByEmail;
 // staff getDaysByEmail API
 /**
  * @api {get} /getDaysByEmail This api will get staff by email
+ * @apiGroup Staff
 
  * @apiParamExample {json} Request-Example:
  *     {
@@ -1331,6 +1333,9 @@ exports.getDaysByEmail = getDaysByEmail;
 // user softDelete API
 /**
  * @api {delete} /softDelete/:id This api will delete user bookings by id
+ * @apiGroup Booking
+ 
+ * @apiParam {Number} id Users unique ID.
 
  * @apiParamExample {json} Request-Example:
  *     {
@@ -1410,7 +1415,10 @@ const softDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.softDelete = softDelete;
 // user DaysSoftDelete API
 /**
- * @api {delete} /DaysSoftDelete/:id This api will delete user staff by email
+ * @api {delete} /DaysSoftDelete/:id This api will delete user staff by id
+ * @apiGroup Staff
+ 
+ * @apiParam {Number} id Users unique ID.
 
  * @apiParamExample {json} Request-Example:
  *     {

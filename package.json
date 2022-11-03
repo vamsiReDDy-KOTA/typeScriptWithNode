@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "build": "tsc -w",
-    "generatedoc": "apidoc -i src -o src/public/apidoc",
+    "generatedoc": "apidoc -i src -o ./Docs",
     "start": "concurrently \"tsc -w\" \"nodemon dest/index.js\" \"generatedoc\" ",
     "swagger": "tsoa spec",
     "another": "nodemon dest/index.js",

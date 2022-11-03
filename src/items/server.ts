@@ -1,4 +1,4 @@
-import { BaseItem, Item } from "./module";
+
 //import { readFile, writeFile } from "fs";
 
 import moment from 'moment-timezone';
@@ -1311,6 +1311,7 @@ const updateBooking = async (req: any, res: any) => {
 // user getBookingsByEmail API
 /**
  * @api {get} /getBookingsByEmail This api will get the bookings of user by email
+ * @apiGroup Booking
 
  * @apiParamExample {json} Request-Example:
  *     {
@@ -1366,6 +1367,7 @@ const getBookingsByEmail = async (req: any, res: any) => {
 // staff getDaysByEmail API
 /**
  * @api {get} /getDaysByEmail This api will get staff by email
+ * @apiGroup Staff
 
  * @apiParamExample {json} Request-Example:
  *     {
@@ -1421,6 +1423,7 @@ const getDaysByEmail = async (req: any, res: any) => {
 // user softDelete API
 /**
  * @api {delete} /softDelete/:id This api will delete user bookings by id
+ * @apiGroup Booking
  
  * @apiParam {Number} id Users unique ID.
 
@@ -1511,6 +1514,7 @@ const softDelete = async (req: any, res: any) => {
 // user DaysSoftDelete API
 /**
  * @api {delete} /DaysSoftDelete/:id This api will delete user staff by id
+ * @apiGroup Staff
  
  * @apiParam {Number} id Users unique ID.
 

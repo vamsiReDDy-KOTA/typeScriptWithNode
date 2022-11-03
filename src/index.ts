@@ -17,7 +17,7 @@ app.use(itemsRouter);
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get("/", (req, res) => {
-  return res.status(200).send(`<html><body><div style="text-align: center;margin-top: 200;"><img src="localhost:4001/api/uploads/others/logo_img.png"><p style="font-family: serif;font-size: 20px;font-weight: bold;">Welcome to cogsworth Application</p><button><a href=${`localhost:4001/apidoc`}>Api Docs</a></button></div></body></html>`);
+  return res.status(200).send(`<html><body><div style="text-align: center;margin-top: 200;"><img src="localhost:4001/api/uploads/others/logo_img.png"><p style="font-family: serif;font-size: 20px;font-weight: bold;">Welcome to cogsworth Application</p><button><a href="C:\Users\TLSPC-052\typeScriptWithNode\src\public\apidoc\assets\index.html">Api Docs</a></button></div></body></html>`);
 });
 
 // global.__basedir = __dirname;
