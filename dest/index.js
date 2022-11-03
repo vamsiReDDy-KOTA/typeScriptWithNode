@@ -17,8 +17,9 @@ app.use((0, cors_1.default)());
 app.use("/", router_1.itemsRouter);
 app.use(router_1.itemsRouter);
 app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
+app.use("/doc", express_1.default.static("./Docs"));
 app.get("/", (req, res) => {
-    return res.status(200).send(`<html><body><div style="text-align: center;margin-top: 200;"><img src="localhost:4001/api/uploads/others/logo_img.png"><p style="font-family: serif;font-size: 20px;font-weight: bold;">Welcome to cogsworth Application</p><button><a href="C:\Users\TLSPC-052\typeScriptWithNode\src\public\apidoc\assets\index.html">Api Docs</a></button></div></body></html>`);
+    return res.status(200).send(`<html><body><div style="text-align: center;margin-top: 200;"><p style="font-family: serif;font-size: 20px;font-weight: bold;">Welcome to cogsworth Application</p><button><a href="http://localhost:4001/doc">Api Docs</a></button></div></body></html>`);
 });
 // global.__basedir = __dirname;
 app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
