@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDaysByEmail = exports.getBookingsByEmail = exports.signin = exports.getallstaffs = exports.deleteuser = exports.logingetuser = exports.updateuser = exports.signup = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.getallusers = exports.updateSlot = exports.updatealluser = exports.GetAppointment = exports.ondays = void 0;
+exports.getDaysByEmail = exports.getBookingsByEmail = exports.signin = exports.getallstaffs = exports.deleteuser = exports.logingetuser = exports.updateuser = exports.signup = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.getallusers = exports.updateSlot = exports.updatealluser = exports.deletealluser = exports.GetAppointment = exports.ondays = void 0;
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 //import { Times } from "../moduls/timesInterface";
 const days_1 = __importDefault(require("../moduls/days"));
@@ -35,7 +35,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
  * @apiSuccessExample {json} Success-Response
  * HTTP/1.1 200 OK
  * {
- *       message: "user successfully regester",
+ *       message: "user successfully register",
  *
  * }
  * @apiErrorExample {json} Error-Response:
@@ -79,7 +79,7 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
         yield newUser.save();
         return res.status(200).json({
-            message: "user successfully regester"
+            message: "user successfully register"
         });
     }
     catch (error) {
@@ -373,7 +373,7 @@ const deleteuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.deleteuser = deleteuser;
 // Staff Days API
 /**
- * @api {post} /Days post staff availability days
+ * @api {post} /Days staff working hours
  * @apiGroup Staff
  * @apiBody (Request body) {String} TimeZone which timezone he is present
  * @apiBody (Request body) {String} email Staff email
@@ -387,6 +387,8 @@ exports.deleteuser = deleteuser;
  * @apiBody (Request body) {Array} [Saturday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Saturday
  * @apiBody (Request body) {Array} [Sunday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Sunday
  *
+ * @apiHeader {String} x-token Users unique access-key
+
  * @apiSuccessExample {json} Success-Response
  * HTTP/1.1 200 OK
  * {
@@ -396,6 +398,10 @@ exports.deleteuser = deleteuser;
  *@apiSampleRequest /Days
  *@apiErrorExample {json} Error-Response:
  *   HTTP/1.1 404 Not Found
+ *    {
+ *      "message":"user is not present pleace signup"
+ *    }
+ *   HTTP/1.1 400
  *     {
  *       "message": "User is already present"
  *     }
@@ -404,9 +410,15 @@ exports.deleteuser = deleteuser;
  */
 const ondays = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        let data = yield signup_1.default.findOne({ email: req.body.email });
+        if (!data) {
+            return res.status(404).json({
+                message: "user is not present pleace signup"
+            });
+        }
         let user = yield days_1.default.findOne({ email: req.body.email });
         if (user) {
-            return res.status(404).json({
+            return res.status(400).json({
                 message: "user is already present"
             });
         }
@@ -1242,7 +1254,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.GetAppointment = GetAppointment;
 // Staff updateSlot API
 /**
- * @api {put} /updateSlot update staff availability time
+ * @api {put} /updateSlot update staff working hours
  * @apiGroup Staff
  * @apiBody (Request body) {String} TimeZone which timezone he is present
  * @apiBody (Request body) {String} email Staff email
@@ -1255,6 +1267,8 @@ exports.GetAppointment = GetAppointment;
  * @apiBody (Request body) {Array} [Friday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Friday
  * @apiBody (Request body) {Array} [Saturday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Saturday
  * @apiBody (Request body) {Array} [Sunday] [startTime][endTime][breakTime] Times that the staff will be avalibul on Sunday
+ * @apiHeader {String} x-token Users unique access-key
+
  *
  * @apiParamExample {json} Request-Example:
  *     {
@@ -1322,9 +1336,9 @@ const updateSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.updateSlot = updateSlot;
-// Staff booking API
+// user booking API
 /**
- * @api {post} /booking It post when the staff is avalbul
+ * @api {post} /booking booking slots
  * @apiGroup Booking
  * @apiBody (Request body) {String} TimeZone which timezone he is present
  * @apiBody (Request body) {String} email user email
@@ -1333,6 +1347,8 @@ exports.updateSlot = updateSlot;
  * @apiBody (Request body) {String} AppointmentDate user date Appointment
  * @apiBody (Request body) {String} name user name
  * @apiBody (Request body) {String} Duerication user Duerication of slot
+ * @apiHeader {String} x-token Users unique access-key
+
  
  * @apiSuccessExample {json} Success-Response
  * HTTP/1.1 200 OK
@@ -1436,7 +1452,7 @@ const bookingSlots = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.bookingSlots = bookingSlots;
 // User updateBooking API
 /**
- * @api {put} /updateBooking This api will update the booking of user
+ * @api {put} /updateBooking update booking details
  * @apiGroup Booking
  * @apiBody (Request body) {String} email user email
  * @apiBody (Request body) {String} SlotsTime user Slot time
@@ -1444,6 +1460,8 @@ exports.bookingSlots = bookingSlots;
  * @apiBody (Request body) {String} AppointmentDate user date Appointment
  * @apiBody (Request body) {String} name user name
  * @apiBody (Request body) {String} Duerication user Duerication of slot
+ *
+ * @apiHeader {String} x-token Users unique access-key
 
  * @apiParamExample {json} Request-Example:
  *     {
@@ -1572,8 +1590,11 @@ const updateBooking = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 exports.updateBooking = updateBooking;
 // user getBookingsByEmail API
 /**
- * @api {get} /getBookingsByEmail This api will get the bookings of user by email
+ * @api {get} /getBookingsByEmail get booking details
  * @apiGroup Booking
+ *
+ * @apiHeader {String} x-token Users unique access-key
+
 
  * @apiParamExample {json} Request-Example:
  *     {
@@ -1627,8 +1648,9 @@ const getBookingsByEmail = (req, res) => __awaiter(void 0, void 0, void 0, funct
 exports.getBookingsByEmail = getBookingsByEmail;
 // staff getDaysByEmail API
 /**
- * @api {get} /getDaysByEmail This api will get staff by email
+ * @api {get} /getDaysByEmail get staff details
  * @apiGroup Staff
+ * @apiHeader {String} x-token Users unique access-key
 
  * @apiParamExample {json} Request-Example:
  *     {
@@ -1682,9 +1704,10 @@ const getDaysByEmail = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.getDaysByEmail = getDaysByEmail;
 // user softDelete API
 /**
- * @api {delete} /softDelete/:id This api will delete user bookings by id
+ * @api {delete} /DeleteBooking/:id delete bookings
  * @apiGroup Booking
- 
+ * @apiHeader {String} x-token Users unique access-key
+
  * @apiParam {Number} id Users unique ID.
 
  * @apiParamExample {json} Request-Example:
@@ -1698,7 +1721,7 @@ exports.getDaysByEmail = getDaysByEmail;
  * {
  *           message: "Your slot was deleted"
  * }
- *@apiSampleRequest /softDelete/:id
+ *@apiSampleRequest /DeleteBooking/:id
  *@apiErrorExample {json} Error-Response:
  *   HTTP/1.1 404 Not Found
  *     {
@@ -1765,8 +1788,9 @@ const softDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.softDelete = softDelete;
 // user DaysSoftDelete API
 /**
- * @api {delete} /DaysSoftDelete/:id This api will delete user staff by id
+ * @api {delete} /DeleteStaff/:id  delete staff
  * @apiGroup Staff
+ * @apiHeader {String} x-token Users unique access-key
  
  * @apiParam {Number} id Users unique ID.
 
@@ -1781,7 +1805,7 @@ exports.softDelete = softDelete;
  * {
  *           message: "Your slot was deleted"
  * }
- *@apiSampleRequest /DaysSoftDelete/:id
+ *@apiSampleRequest /DeleteStaff/:id
  *@apiErrorExample {json} Error-Response:
  *   HTTP/1.1 404 Not Found
  *     {
@@ -1878,6 +1902,7 @@ exports.getallstaffs = getallstaffs;
  * @apiSampleRequest /getallusers
  *
  * @apiHeader {String} x-token Users unique access-key
+ * @apiQuery {String} email the email used for filter
  *
  * @apiSuccessExample {json} Success-Response
  * HTTP/1.1 200 OK
@@ -1899,7 +1924,95 @@ exports.getallstaffs = getallstaffs;
  */
 const getallusers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let user = yield signup_1.default.find({ isDeleted: false });
+        let query;
+        let searchFild = req.query.email;
+        let user = yield signup_1.default.find({ isDeleted: false, $or: [{ email: { $regex: searchFild, $options: '$i' }, firstname: { $regex: searchFild, $options: '$i' } }] });
+        /**
+         try {
+      let query;
+    
+    
+      const searchFild = req.query.username
+    
+      const search = await vamsi.find({
+        $or:[
+        {username:{$regex:searchFild,$options:'$i'}}
+        ]
+      })
+    
+    
+      let uiValues = {
+        filtering: {},
+        sorting: {},
+      };
+    
+      const reqQuery = { ...req.query };
+    
+      const removeFields = ["sort"];
+    
+      removeFields.forEach((val) => delete reqQuery[val]);
+    
+      const filterKeys = Object.keys(reqQuery);
+      const filterValues = Object.values(reqQuery);
+    
+      filterKeys.forEach(
+        (val, idx) => (uiValues.filtering[val] = filterValues[idx])
+      );
+    
+      let queryStr = JSON.stringify(reqQuery);
+    
+      queryStr = queryStr.replace(
+        /\b(gt|gte|lt|lte|in)\b/g,
+        (match) => `$${match}`
+      );
+    
+      query = vamsi.find(JSON.parse(queryStr));
+    
+      if (req.query.sort) {
+        const sortByArr = req.query.sort.split(",");
+    
+        sortByArr.forEach((val) => {
+          let order;
+    
+          if (val[0] === "-") {
+            order = "descending";
+          } else {
+            order = "ascending";
+          }
+    
+          uiValues.sorting[val.replace("-", "")] = order;
+        });
+    
+        const sortByStr = sortByArr.join(" ");
+    
+        query = query.sort(sortByStr);
+      } else {
+        query = query.sort("-fullname");
+      }
+    
+      const bootcamps = await query;
+    
+      const maxPrice = await vamsi.find()
+        .sort({ fullname: -1 })
+        .limit(1)
+        .select("-_id fullname");
+    
+      const minPrice = await vamsi.find()
+        .sort({ fullname: 1 })
+        .limit(1)
+        .select("-_id fullname");
+    
+      uiValues.maxPrice = maxPrice[0].price;
+      uiValues.minPrice = minPrice[0].price;
+    
+        //let allprofiles = await vamsi.find();
+        return res.status(200).json({
+          success: true,
+          data: bootcamps,
+          sea:search,
+          uiValues,
+        });
+         */
         res.status(200).json({
             message: "data",
             result: user
@@ -1917,11 +2030,12 @@ exports.getallusers = getallusers;
 //update all users
 /**
  * @api {put} /updatealluser update user
- * @apiGroup users
+ * @apiGroup Admin
  * @apiBody (Request body) {String} firstname user firstname
  * @apiBody (Request body) {String} lastname user lastname
  * @apiBody (Request body) {String} password user password
  * @apiBody (Request body) {String} confirmPassword user confirmPassword
+ * @apiBody (Request body) {String} role user role
  *
  * @apiSampleRequest /updatealluser
  *
@@ -1936,7 +2050,8 @@ exports.getallusers = getallusers;
  *              "firstname": " ",
  *              "lastname": " ",
  *              "password": " ",
- *              "confirmPassword": " "
+ *              "confirmPassword": " ",
+ *              "role":" ",
  *    }
  *
  * }
@@ -1950,9 +2065,10 @@ exports.getallusers = getallusers;
  *  {
  *    "message":"password and confirmpassword should be same"
  *  }
+ *
  *  HTTP/1.1 500
  * {
- * "message":"Internal Server Error"
+ *    "message":"Internal Server Error"
  * }
  *
  */
@@ -2004,3 +2120,68 @@ const updatealluser = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.updatealluser = updatealluser;
+//delete all user
+/**
+ * @api {delete} /deletealluser/:id delete user by id
+ * @apiGroup Admin
+ 
+ * @apiParam {Number} id Users unique ID.
+ * @apiHeader {String} x-token Users unique access-key
+
+
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "id": " "
+ *     }
+ *
+ 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *           message: "Your slot was deleted"
+ * }
+ *@apiSampleRequest /deletealluser/:id
+ *@apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *        "success":false
+ *       "message":  "Staff dose not present"
+ *     }
+ *
+ * HTTP/1.1 500
+ * {
+ * message:"Internal Server Error",
+ * error : { }
+ * }
+
+ */
+const deletealluser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const users = yield signup_1.default.findById(req.params.id);
+        console.log(users);
+        if (!users) {
+            return res.status(404).json({
+                "success": false,
+                error: "Staff dose not present"
+            });
+        }
+        if (users.isDeleted === true) {
+            return res.status(404).json({
+                "success": false,
+                error: "Staff dose not present"
+            });
+        }
+        const softdelete = yield signup_1.default.findOneAndUpdate({ _id: users._id }, { isDeleted: true });
+        res.status(200).json({
+            message: "deleted success",
+            //data: softdelete
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            message: "Internal Server Error",
+            error: error
+        });
+    }
+});
+exports.deletealluser = deletealluser;

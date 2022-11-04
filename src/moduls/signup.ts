@@ -3,7 +3,7 @@ import mongoose, { model, Schema } from "mongoose";
 
 const SignupSchema : Schema = new Schema(
     {
-        fullname:{
+        firstname:{
             type:String,
             required:true
         },
@@ -25,10 +25,10 @@ const SignupSchema : Schema = new Schema(
             type:String,
             required:true
         },
-        isAdmin: {
-              type:Boolean,
-              default: false,
-        },
+        // isAdmin: {
+        //       type:Boolean,
+        //       default: false,
+        // },
         role: {
             type: String,
             enum : ['user','admin','staff'],

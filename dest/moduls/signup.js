@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const SignupSchema = new mongoose_1.Schema({
-    fullname: {
+    firstname: {
         type: String,
         required: true
     },
@@ -23,10 +23,10 @@ const SignupSchema = new mongoose_1.Schema({
         type: String,
         required: true
     },
-    isAdmin: {
-        type: Boolean,
-        default: false,
-    },
+    // isAdmin: {
+    //       type:Boolean,
+    //       default: false,
+    // },
     role: {
         type: String,
         enum: ['user', 'admin', 'staff'],

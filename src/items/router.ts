@@ -5,7 +5,7 @@ import vtoken from "../mid/token"
 import {isAdmin ,isStaff} from "../mid/roles";
 
 
-import { signup,updatealluser,getallusers,updateuser,logingetuser,deleteuser,getallstaffs,softDelete,DaysSoftDelete ,ondays,getDaysByEmail,GetAppointment,updateSlot ,bookingSlots,updateBooking,getBookingsByEmail, signin} from "./server";
+import { signup,updatealluser,getallusers,updateuser,deletealluser,logingetuser,deleteuser,getallstaffs,softDelete,DaysSoftDelete ,ondays,getDaysByEmail,GetAppointment,updateSlot ,bookingSlots,updateBooking,getBookingsByEmail, signin} from "./server";
 
 export const itemsRouter = express.Router();
 
@@ -21,6 +21,7 @@ itemsRouter.delete('/deleteuser/:id',vtoken,deleteuser)
 itemsRouter.get('/getallstaffs',vtoken,isAdmin,getallstaffs)
 itemsRouter.get('/getallusers',vtoken,isAdmin,getallusers)
 itemsRouter.put('/updatealluser',vtoken,isAdmin,updatealluser)
+itemsRouter.delete('/deletealluser:id', vtoken,isAdmin,deletealluser)
 
 //staff
 itemsRouter.post('/Days',vtoken,isStaff,ondays)
@@ -28,7 +29,7 @@ itemsRouter.put('/updateSlot',vtoken,isStaff,updateSlot)
 itemsRouter.delete('/DeleteStaff/:id',vtoken,isStaff,DaysSoftDelete)
 itemsRouter.get('/getDaysByEmail',vtoken,isStaff,getDaysByEmail)
 
-
+//availabul slots
 itemsRouter.get('/getAppointment',vtoken,GetAppointment)
 
 //booking
