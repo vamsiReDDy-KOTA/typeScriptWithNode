@@ -18,11 +18,43 @@ import jwt from "jsonwebtoken";
 
 //signup api
 
+/**
+ * @api {post} /Signup create a new user
+ * @apiGroup users
+ * @apiBody (Request body) {String} fristname first name of the user
+ * @apiBody (Request body) {String} lastname of the user
+ * @apiBody (Request body) {String} email user email
+ * @apiBody (Request body) {String} password user password
+ * @apiBody (Request body) {String} confirmPassword user name
+ * 
+ * @apiSampleRequest /Signup
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *       message: "user successfully regester",
+ *        
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "User is already present"
+ *     }
+ *
+ *  HTTP/1.1 400 
+ *  {
+ *    "message":"password and confirmpassword should be same"
+ *  }
+ *  HTTP/1.1 500 
+ * {
+ * "message":"Internal Server Error"
+ * }
+ * 
+ */
 
 const signup  = async (req:any, res:any) => {
   try {
     const salt = bcrypt.genSaltSync(10);
-    const { firstname, lastname, email, password, confirmPassword, isAdmin } =
+    const { firstname, lastname, email, password, confirmPassword } =
       req.body;
     //const {image} =  req.file.filename
     const hass = bcrypt.hashSync(password, salt);
@@ -30,13 +62,13 @@ const signup  = async (req:any, res:any) => {
     let exist = await SignupDt.findOne({ email });
 
     if (exist) {
-      return res.status(400).send("email is their");
+      return res.status(404).json({"message":"User is already present"});
     }
 
     if (password !== confirmPassword) {
       return res
         .status(400)
-        .send(" password and confirmpassword should be same");
+        .json({ "message" : " password and confirmpassword should be same"});
     }
     let newUser = new SignupDt({
       firstname,
@@ -44,16 +76,55 @@ const signup  = async (req:any, res:any) => {
       email,
       password: hass,
       confirmPassword: conHass,
-      isAdmin,
+      
     });
 
     await newUser.save();
-    return res.status(200).send("user regested done");
+    return res.status(200).json({
+      message: "user successfully regester"
+    });
   } catch (error) {
     console.log(error);
-    return res.send(500).send("Internal server");
+    return res.send(500).json({
+      message: "internal server error"
+    });
   }
 }
+
+//Signin
+
+/**
+ * @api {post} /Signin signin user
+ * @apiGroup users
+ * @apiBody (Request body) {String} email user email
+ * @apiBody (Request body) {String} password user password
+ * 
+ * @apiSampleRequest /Signin
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *      "token": " ",
+ *      "id": " ",
+ *      "email": "",
+ *      "isAdmin": "",
+ *        
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "user is not present in our Database"
+ *     }
+ *
+ *  HTTP/1.1 400 
+ *  {
+ *    "message":"password went wrong"
+ *  }
+ *  HTTP/1.1 500 
+ * {
+ * "message":"Internal Server Error"
+ * }
+ * 
+ */
 
 const signin = async (req:any, res:any) => {
   try {
@@ -62,7 +133,7 @@ const signin = async (req:any, res:any) => {
     let exist : any = await SignupDt.findOne({ email });
 
     if (!exist) {
-      return res.status(400).send("user is not present in our Database");
+      return res.status(404).json({"Message":"user is not present in our Database"});
     }
 
     const isPasswordCorrect =  bcrypt.compare(password, exist.password);
@@ -70,7 +141,7 @@ const signin = async (req:any, res:any) => {
     //console.log(exist)
 
     if (!isPasswordCorrect) {
-      return res.status(400).send("password went wrong");
+      return res.status(400).json({"message":"password went wrong"});
     }
 
     let payload = {
@@ -98,9 +169,53 @@ const signin = async (req:any, res:any) => {
     //return res.json(exist)
   } catch (error) {
     console.log(error);
-    return res.send(500).send("Internal server");
+    return res.send(500).json({"message":"Internal server"});
   }
 }
+
+//update user
+
+/**
+ * @api {put} /updateuser update user
+ * @apiGroup users
+ * @apiBody (Request body) {String} firstname user firstname
+ * @apiBody (Request body) {String} lastname user lastname
+ * @apiBody (Request body) {String} password user password
+ * @apiBody (Request body) {String} confirmPassword user confirmPassword
+ * 
+ * @apiSampleRequest /updateuser
+ * 
+ * @apiQuery {String} email email is in the string format
+ * @apiHeader {String} x-token Users unique access-key
+ * 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *    "message":"user update sucessfully"
+ *              " result ": {
+ *              "firstname": " ",
+ *              "lastname": " ",
+ *              "password": " ",
+ *              "confirmPassword": " "
+ *    }
+ *        
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "user is not present in our Database"
+ *     }
+ *
+ *  HTTP/1.1 400 
+ *  {
+ *    "message":"password and confirmpassword should be same"
+ *  }
+ *  HTTP/1.1 500 
+ * {
+ * "message":"Internal Server Error"
+ * }
+ * 
+ */
 
 const updateuser =async (req:any,res:any) => {
   try {
@@ -132,11 +247,10 @@ const updateuser =async (req:any,res:any) => {
     const newUserData = {
       
       email: users.email,
-      fullname: req.body.fullname || users.fullname,
+      firstname: req.body.firstname || users.firstname,
       lastname: req.body.lastname || users.lastname,
       password: hass,
-      confirmPassword: conHass,
-      isAdmin: req.body.isAdmin || users.isAdmin
+      confirmPassword: conHass
     };
 
     const user = await SignupDt.findOneAndUpdate({ email: req.query.email }, newUserData, {
@@ -154,11 +268,50 @@ const updateuser =async (req:any,res:any) => {
   }
 }
 
+//logingetuser
+
+/**
+ * @api {get} /logingetuser get user detiles
+ * @apiGroup users
+ * 
+ * @apiSampleRequest /logingetuser
+ * 
+ * @apiQuery {String} email email is in the string format
+ * @apiHeader {String} x-token Users unique access-key
+ * 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *    "message":"data"
+ *     "result ": {
+ *              "id":" ",
+ *              "firstname": " ",
+ *              "lastname": " ",
+ *              "password": " ",
+ *              "confirmPassword": " ",
+ *              "isAdmin":" "
+ *    }
+ *        
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "user is not present"
+ *     }
+ *
+ *  HTTP/1.1 500 
+ * {
+ * "message":"Internal Server Error"
+ * "error":" "
+ * }
+ * 
+ */
+
 const logingetuser =async (req:any,res:any) => {
   try {
     let user = await SignupDt.find({ email: req.query.email, isDeleted: false })
     if (!user) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: "user is not presnt",
       });
@@ -176,6 +329,41 @@ const logingetuser =async (req:any,res:any) => {
     })
   }
 }
+
+/**
+ * @api {delete} /deleteuser/:id delete a user
+ * @apiGroup users
+ * 
+ * @apiSampleRequest /deleteuser/:id
+ * 
+ * @apiParam {Number} id Users unique ID.
+
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "id": " "
+ *     }
+ *
+ * @apiHeader {String} x-token Users unique access-key
+ * 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *    "message":"deleted successfully"
+ *          
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "user is not present"
+ *     }
+ *
+ *  HTTP/1.1 500 
+ * {
+ * "message":"Internal Server Error"
+ * "error":" "
+ * }
+ * 
+ */
 
 const deleteuser =async (req:any,res:any) => {
   try {
@@ -196,7 +384,7 @@ const deleteuser =async (req:any,res:any) => {
     }
     let softdelete = await SignupDt.findOneAndUpdate({ _id: users._id }, { isDeleted: true })
     res.status(200).json({
-      message: "deleted success",
+      message: "deleted successfully",
     
     });
   }
@@ -280,6 +468,7 @@ const ondays = async (req: any, res: any) => {
  * @api {get}/getAppointment availabul slots 
  * @apiGroup Appointment
  * 
+ * @apiHeader {String} x-token Users unique access-key
  * @apiQuery {String} email email is in the string format
  * @apiQuery {String} date data format will be YYYY-MM-DD and it is in string format
  * @apiSuccessExample {json} Success-Response
@@ -1766,16 +1955,38 @@ const DaysSoftDelete = async (req: any, res: any) => {
   }
 };
 
+//getallstaffs
+
+/**
+ * @api {put} /getallstaffs get all staff details
+ * @apiGroup Admin
+ * 
+ * @apiSampleRequest /getallstaffs
+ * 
+ * @apiHeader {String} x-token Users unique access-key
+ * 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *    "message":"data"
+ *    "result" : "get all staff details"
+ *        
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *   
+ *
+ *  HTTP/1.1 403 "Access denied"
+ * 
+ *  HTTP/1.1 500 
+ * {
+ * "message":"Internal Server Error"
+ * }
+ * 
+ */
+
 const getallstaffs =async (req:any,res:any) => {
   try {
     let user = await DaysModel.find({isDeleted: false })
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "user is not presnt",
-      });
-    }
-
     res.status(200).json({
       message: "data",
       result: user
@@ -1783,7 +1994,7 @@ const getallstaffs =async (req:any,res:any) => {
   } catch (error) {
     console.log(error)
     res.status(500).json({
-      message: "internal error",
+      message: "internal server error",
       error: error
     })
   }

@@ -9,7 +9,7 @@ const isAdmin = async function (req:any, res:any, next:any) {
         req.user =await SignupDt.findById(decode.user.id)
     
     //console.log(req.user)
-    if (!req.user.isAdmin) return res.status(403).send('Access denied Admin');
+    if (!req.user.isAdmin) return res.status(403).send('Access denied');
   
     next();
   }

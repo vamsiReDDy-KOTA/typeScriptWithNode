@@ -22,21 +22,53 @@ const nodemailer_1 = __importDefault(require("nodemailer"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 //signup api
+/**
+ * @api {post} /Signup create a new user
+ * @apiGroup users
+ * @apiBody (Request body) {String} fristname first name of the user
+ * @apiBody (Request body) {String} lastname of the user
+ * @apiBody (Request body) {String} email user email
+ * @apiBody (Request body) {String} password user password
+ * @apiBody (Request body) {String} confirmPassword user name
+ *
+ * @apiSampleRequest /Signup
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *       message: "user successfully regester",
+ *
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "User is already present"
+ *     }
+ *
+ *  HTTP/1.1 400
+ *  {
+ *    "message":"password and confirmpassword should be same"
+ *  }
+ *  HTTP/1.1 500
+ * {
+ * "message":"Internal Server Error"
+ * }
+ *
+ */
 const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const salt = bcrypt_1.default.genSaltSync(10);
-        const { firstname, lastname, email, password, confirmPassword, isAdmin } = req.body;
+        const { firstname, lastname, email, password, confirmPassword } = req.body;
         //const {image} =  req.file.filename
         const hass = bcrypt_1.default.hashSync(password, salt);
         const conHass = bcrypt_1.default.hashSync(confirmPassword, salt);
         let exist = yield signup_1.default.findOne({ email });
         if (exist) {
-            return res.status(400).send("email is their");
+            return res.status(404).json({ "message": "User is already present" });
         }
         if (password !== confirmPassword) {
             return res
                 .status(400)
-                .send(" password and confirmpassword should be same");
+                .json({ "message": " password and confirmpassword should be same" });
         }
         let newUser = new signup_1.default({
             firstname,
@@ -44,28 +76,64 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             email,
             password: hass,
             confirmPassword: conHass,
-            isAdmin,
         });
         yield newUser.save();
-        return res.status(200).send("user regested done");
+        return res.status(200).json({
+            message: "user successfully regester"
+        });
     }
     catch (error) {
         console.log(error);
-        return res.send(500).send("Internal server");
+        return res.send(500).json({
+            message: "internal server error"
+        });
     }
 });
 exports.signup = signup;
+//Signin
+/**
+ * @api {post} /Signin signin user
+ * @apiGroup users
+ * @apiBody (Request body) {String} email user email
+ * @apiBody (Request body) {String} password user password
+ *
+ * @apiSampleRequest /Signin
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *      "token": " ",
+ *      "id": " ",
+ *      "email": "",
+ *      "isAdmin": "",
+ *
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "user is not present in our Database"
+ *     }
+ *
+ *  HTTP/1.1 400
+ *  {
+ *    "message":"password went wrong"
+ *  }
+ *  HTTP/1.1 500
+ * {
+ * "message":"Internal Server Error"
+ * }
+ *
+ */
 const signin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
         let exist = yield signup_1.default.findOne({ email });
         if (!exist) {
-            return res.status(400).send("user is not present in our Database");
+            return res.status(404).json({ "Message": "user is not present in our Database" });
         }
         const isPasswordCorrect = bcrypt_1.default.compare(password, exist.password);
         //console.log(exist)
         if (!isPasswordCorrect) {
-            return res.status(400).send("password went wrong");
+            return res.status(400).json({ "message": "password went wrong" });
         }
         let payload = {
             user: {
@@ -87,10 +155,52 @@ const signin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     catch (error) {
         console.log(error);
-        return res.send(500).send("Internal server");
+        return res.send(500).json({ "message": "Internal server" });
     }
 });
 exports.signin = signin;
+//update user
+/**
+ * @api {put} /updateuser update user
+ * @apiGroup users
+ * @apiBody (Request body) {String} firstname user firstname
+ * @apiBody (Request body) {String} lastname user lastname
+ * @apiBody (Request body) {String} password user password
+ * @apiBody (Request body) {String} confirmPassword user confirmPassword
+ *
+ * @apiSampleRequest /updateuser
+ *
+ * @apiQuery {String} email email is in the string format
+ * @apiHeader {String} x-token Users unique access-key
+ *
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *    "message":"user update sucessfully"
+ *              " result ": {
+ *              "firstname": " ",
+ *              "lastname": " ",
+ *              "password": " ",
+ *              "confirmPassword": " "
+ *    }
+ *
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "user is not present in our Database"
+ *     }
+ *
+ *  HTTP/1.1 400
+ *  {
+ *    "message":"password and confirmpassword should be same"
+ *  }
+ *  HTTP/1.1 500
+ * {
+ * "message":"Internal Server Error"
+ * }
+ *
+ */
 const updateuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let users = yield signup_1.default.findOne({ email: req.query.email });
@@ -117,11 +227,10 @@ const updateuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const conHass = bcrypt_1.default.hashSync(confirmPassword, salt);
         const newUserData = {
             email: users.email,
-            fullname: req.body.fullname || users.fullname,
+            firstname: req.body.firstname || users.firstname,
             lastname: req.body.lastname || users.lastname,
             password: hass,
-            confirmPassword: conHass,
-            isAdmin: req.body.isAdmin || users.isAdmin
+            confirmPassword: conHass
         };
         const user = yield signup_1.default.findOneAndUpdate({ email: req.query.email }, newUserData, {
             new: true,
@@ -139,11 +248,48 @@ const updateuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.updateuser = updateuser;
+//logingetuser
+/**
+ * @api {get} /logingetuser get user detiles
+ * @apiGroup users
+ *
+ * @apiSampleRequest /logingetuser
+ *
+ * @apiQuery {String} email email is in the string format
+ * @apiHeader {String} x-token Users unique access-key
+ *
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *    "message":"data"
+ *     "result ": {
+ *              "id":" ",
+ *              "firstname": " ",
+ *              "lastname": " ",
+ *              "password": " ",
+ *              "confirmPassword": " ",
+ *              "isAdmin":" "
+ *    }
+ *
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "user is not present"
+ *     }
+ *
+ *  HTTP/1.1 500
+ * {
+ * "message":"Internal Server Error"
+ * "error":" "
+ * }
+ *
+ */
 const logingetuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let user = yield signup_1.default.find({ email: req.query.email, isDeleted: false });
         if (!user) {
-            return res.status(400).json({
+            return res.status(404).json({
                 success: false,
                 message: "user is not presnt",
             });
@@ -162,6 +308,40 @@ const logingetuser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.logingetuser = logingetuser;
+/**
+ * @api {delete} /deleteuser/:id delete a user
+ * @apiGroup users
+ *
+ * @apiSampleRequest /deleteuser/:id
+ *
+ * @apiParam {Number} id Users unique ID.
+
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "id": " "
+ *     }
+ *
+ * @apiHeader {String} x-token Users unique access-key
+ *
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *    "message":"deleted successfully"
+ *
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "user is not present"
+ *     }
+ *
+ *  HTTP/1.1 500
+ * {
+ * "message":"Internal Server Error"
+ * "error":" "
+ * }
+ *
+ */
 const deleteuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let users = yield signup_1.default.findById(req.params.id);
@@ -180,7 +360,7 @@ const deleteuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         }
         let softdelete = yield signup_1.default.findOneAndUpdate({ _id: users._id }, { isDeleted: true });
         res.status(200).json({
-            message: "deleted success",
+            message: "deleted successfully",
         });
     }
     catch (error) {
@@ -262,6 +442,7 @@ exports.ondays = ondays;
  * @api {get}/getAppointment availabul slots
  * @apiGroup Appointment
  *
+ * @apiHeader {String} x-token Users unique access-key
  * @apiQuery {String} email email is in the string format
  * @apiQuery {String} date data format will be YYYY-MM-DD and it is in string format
  * @apiSuccessExample {json} Success-Response
@@ -1645,15 +1826,36 @@ const DaysSoftDelete = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.DaysSoftDelete = DaysSoftDelete;
+//getallstaffs
+/**
+ * @api {put} /getallstaffs get all staff details
+ * @apiGroup Admin
+ *
+ * @apiSampleRequest /getallstaffs
+ *
+ * @apiHeader {String} x-token Users unique access-key
+ *
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *    "message":"data"
+ *    "result" : "get all staff details"
+ *
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *
+ *
+ *  HTTP/1.1 403 "Access denied"
+ *
+ *  HTTP/1.1 500
+ * {
+ * "message":"Internal Server Error"
+ * }
+ *
+ */
 const getallstaffs = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let user = yield days_1.default.find({ isDeleted: false });
-        if (!user) {
-            return res.status(400).json({
-                success: false,
-                message: "user is not presnt",
-            });
-        }
         res.status(200).json({
             message: "data",
             result: user
@@ -1662,7 +1864,7 @@ const getallstaffs = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     catch (error) {
         console.log(error);
         res.status(500).json({
-            message: "internal error",
+            message: "internal server error",
             error: error
         });
     }

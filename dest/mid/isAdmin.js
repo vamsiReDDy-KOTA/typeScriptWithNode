@@ -24,7 +24,7 @@ const isAdmin = function (req, res, next) {
         req.user = yield signup_1.default.findById(decode.user.id);
         //console.log(req.user)
         if (!req.user.isAdmin)
-            return res.status(403).send('Access denied Admin');
+            return res.status(403).send('Access denied');
         next();
     });
 };

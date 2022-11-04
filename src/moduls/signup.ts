@@ -29,6 +29,10 @@ const SignupSchema : Schema = new Schema(
               type:Boolean,
               default: false,
         },
+        isDeleted:{
+            type:Boolean,
+            default:false
+           }
     
     }
 )

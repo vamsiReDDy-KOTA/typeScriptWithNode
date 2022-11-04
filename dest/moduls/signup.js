@@ -27,5 +27,9 @@ const SignupSchema = new mongoose_1.Schema({
         type: Boolean,
         default: false,
     },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    }
 });
 exports.default = (0, mongoose_1.model)("SignupDt", SignupSchema);
