@@ -7,9 +7,6 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const token = (req, res, next) => {
     try {
         let token = req.header('x-token');
-        if (token) {
-            console.log("hello");
-        }
         if (!token) {
             return res.status(400).send('Token Not Found');
         }

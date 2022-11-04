@@ -1891,6 +1891,7 @@ const softDelete = async (req: any, res: any) => {
 };
 
 // user DaysSoftDelete API
+
 /**
  * @api {delete} /DaysSoftDelete/:id This api will delete user staff by id
  * @apiGroup Staff

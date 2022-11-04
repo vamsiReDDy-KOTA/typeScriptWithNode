@@ -27,6 +27,11 @@ const SignupSchema = new mongoose_1.Schema({
         type: Boolean,
         default: false,
     },
+    role: {
+        type: String,
+        enum: ['user', 'admin', 'staff'],
+        default: 'user'
+    },
     isDeleted: {
         type: Boolean,
         default: false

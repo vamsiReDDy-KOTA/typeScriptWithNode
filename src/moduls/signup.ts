@@ -29,6 +29,11 @@ const SignupSchema : Schema = new Schema(
               type:Boolean,
               default: false,
         },
+        role: {
+            type: String,
+            enum : ['user','admin','staff'],
+            default: 'user'
+        },    
         isDeleted:{
             type:Boolean,
             default:false
