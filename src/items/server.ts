@@ -1959,7 +1959,7 @@ const DaysSoftDelete = async (req: any, res: any) => {
 //getallstaffs
 
 /**
- * @api {put} /getallstaffs get all staff details
+ * @api {get} /getallstaffs get all staff details
  * @apiGroup Admin
  * 
  * @apiSampleRequest /getallstaffs
@@ -2001,4 +2001,147 @@ const getallstaffs =async (req:any,res:any) => {
   }
 }
 
-export { ondays, GetAppointment, updateSlot, DaysSoftDelete, softDelete, bookingSlots, updateBooking,signup,updateuser,logingetuser,deleteuser,getallstaffs ,signin ,getBookingsByEmail, getDaysByEmail }
+//get all users
+
+/**
+ * @api {get} /getallusers get all user details
+ * @apiGroup Admin
+ * 
+ * @apiSampleRequest /getallusers
+ * 
+ * @apiHeader {String} x-token Users unique access-key
+ * 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *    "message":"data"
+ *    "result" : "get all users details"
+ *        
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *   
+ *
+ *  HTTP/1.1 403 "Access denied"
+ * 
+ *  HTTP/1.1 500 
+ * {
+ * "message":"Internal Server Error"
+ * }
+ * 
+ */
+
+const getallusers =async (req:any,res:any) => {
+  try {
+    let user = await SignupDt.find( {isDeleted: false} ) 
+    res.status(200).json({
+      message: "data",
+      result: user
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      message: "internal server error",
+      error: error
+    })
+  }
+}
+
+//update all users
+
+/**
+ * @api {put} /updatealluser update user
+ * @apiGroup users
+ * @apiBody (Request body) {String} firstname user firstname
+ * @apiBody (Request body) {String} lastname user lastname
+ * @apiBody (Request body) {String} password user password
+ * @apiBody (Request body) {String} confirmPassword user confirmPassword
+ * 
+ * @apiSampleRequest /updatealluser
+ * 
+ * @apiQuery {String} email email is in the string format
+ * @apiHeader {String} x-token Users unique access-key
+ * 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *    "message":"user update sucessfully"
+ *              " result ": {
+ *              "firstname": " ",
+ *              "lastname": " ",
+ *              "password": " ",
+ *              "confirmPassword": " "
+ *    }
+ *        
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "user is not present in our Database"
+ *     }
+ *
+ *  HTTP/1.1 400 
+ *  {
+ *    "message":"password and confirmpassword should be same"
+ *  }
+ *  HTTP/1.1 500 
+ * {
+ * "message":"Internal Server Error"
+ * }
+ * 
+ */
+
+ const updatealluser =async (req:any,res:any) => {
+  try {
+    let users: any = await SignupDt.find({email: req.query.email,isDeleted: false});
+    if (!users) {
+      return res.status(404).json({
+        success: false,
+        message: "user is not present",
+      });
+    }
+    if (users?.isDeleted) {
+      return res.status(404).json({
+        message: "user is not present"
+      })
+    }
+    const salt = bcrypt.genSaltSync(10);
+    let password = req.body.password || users.password
+    let confirmPassword = req.body.confirmPassword || users.confirmPassword
+
+    if (password !== confirmPassword) {
+      return res
+        .status(400)
+        .send(" password and confirmpassword should be same");
+    }
+
+    const hass = bcrypt.hashSync(password, salt);
+    const conHass = bcrypt.hashSync(confirmPassword, salt);
+
+    const newUserData = {
+      
+      email: users.email,
+      firstname: req.body.firstname || users.firstname,
+      lastname: req.body.lastname || users.lastname,
+      password: hass,
+      confirmPassword: conHass,
+      role:req.body.role || users.role
+    };
+
+    const user = await SignupDt.findOneAndUpdate({ email: req.query.email }, newUserData, {
+      new: true,
+      runValidators: false,
+      userFindAndModify: true,
+    });
+    return res.status(200).json({
+      message: "user updated sucessfully",
+      result: user
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send("Internal server");
+  }
+}
+
+
+
+export { ondays, GetAppointment, updatealluser ,updateSlot,getallusers, DaysSoftDelete, softDelete, bookingSlots, updateBooking,signup,updateuser,logingetuser,deleteuser,getallstaffs ,signin ,getBookingsByEmail, getDaysByEmail }

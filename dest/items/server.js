@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDaysByEmail = exports.getBookingsByEmail = exports.signin = exports.getallstaffs = exports.deleteuser = exports.logingetuser = exports.updateuser = exports.signup = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.updateSlot = exports.GetAppointment = exports.ondays = void 0;
+exports.getDaysByEmail = exports.getBookingsByEmail = exports.signin = exports.getallstaffs = exports.deleteuser = exports.logingetuser = exports.updateuser = exports.signup = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.getallusers = exports.updateSlot = exports.updatealluser = exports.GetAppointment = exports.ondays = void 0;
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 //import { Times } from "../moduls/timesInterface";
 const days_1 = __importDefault(require("../moduls/days"));
@@ -1828,7 +1828,7 @@ const DaysSoftDelete = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.DaysSoftDelete = DaysSoftDelete;
 //getallstaffs
 /**
- * @api {put} /getallstaffs get all staff details
+ * @api {get} /getallstaffs get all staff details
  * @apiGroup Admin
  *
  * @apiSampleRequest /getallstaffs
@@ -1870,3 +1870,137 @@ const getallstaffs = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.getallstaffs = getallstaffs;
+//get all users
+/**
+ * @api {get} /getallusers get all user details
+ * @apiGroup Admin
+ *
+ * @apiSampleRequest /getallusers
+ *
+ * @apiHeader {String} x-token Users unique access-key
+ *
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *    "message":"data"
+ *    "result" : "get all users details"
+ *
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *
+ *
+ *  HTTP/1.1 403 "Access denied"
+ *
+ *  HTTP/1.1 500
+ * {
+ * "message":"Internal Server Error"
+ * }
+ *
+ */
+const getallusers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let user = yield signup_1.default.find({ isDeleted: false });
+        res.status(200).json({
+            message: "data",
+            result: user
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "internal server error",
+            error: error
+        });
+    }
+});
+exports.getallusers = getallusers;
+//update all users
+/**
+ * @api {put} /updatealluser update user
+ * @apiGroup users
+ * @apiBody (Request body) {String} firstname user firstname
+ * @apiBody (Request body) {String} lastname user lastname
+ * @apiBody (Request body) {String} password user password
+ * @apiBody (Request body) {String} confirmPassword user confirmPassword
+ *
+ * @apiSampleRequest /updatealluser
+ *
+ * @apiQuery {String} email email is in the string format
+ * @apiHeader {String} x-token Users unique access-key
+ *
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *    "message":"user update sucessfully"
+ *              " result ": {
+ *              "firstname": " ",
+ *              "lastname": " ",
+ *              "password": " ",
+ *              "confirmPassword": " "
+ *    }
+ *
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "user is not present in our Database"
+ *     }
+ *
+ *  HTTP/1.1 400
+ *  {
+ *    "message":"password and confirmpassword should be same"
+ *  }
+ *  HTTP/1.1 500
+ * {
+ * "message":"Internal Server Error"
+ * }
+ *
+ */
+const updatealluser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let users = yield signup_1.default.find({ email: req.query.email, isDeleted: false });
+        if (!users) {
+            return res.status(404).json({
+                success: false,
+                message: "user is not present",
+            });
+        }
+        if (users === null || users === void 0 ? void 0 : users.isDeleted) {
+            return res.status(404).json({
+                message: "user is not present"
+            });
+        }
+        const salt = bcrypt_1.default.genSaltSync(10);
+        let password = req.body.password || users.password;
+        let confirmPassword = req.body.confirmPassword || users.confirmPassword;
+        if (password !== confirmPassword) {
+            return res
+                .status(400)
+                .send(" password and confirmpassword should be same");
+        }
+        const hass = bcrypt_1.default.hashSync(password, salt);
+        const conHass = bcrypt_1.default.hashSync(confirmPassword, salt);
+        const newUserData = {
+            email: users.email,
+            firstname: req.body.firstname || users.firstname,
+            lastname: req.body.lastname || users.lastname,
+            password: hass,
+            confirmPassword: conHass,
+            role: req.body.role || users.role
+        };
+        const user = yield signup_1.default.findOneAndUpdate({ email: req.query.email }, newUserData, {
+            new: true,
+            runValidators: false,
+            userFindAndModify: true,
+        });
+        return res.status(200).json({
+            message: "user updated sucessfully",
+            result: user
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).send("Internal server");
+    }
+});
+exports.updatealluser = updatealluser;
