@@ -12,10 +12,11 @@ const SignupSchema : Schema = new Schema(
             required:true
         },
         image:{
-            krishna:String,
-            contentType: String,
+            type:String,
+            default:'null'  
+        } 
             //default:"none"
-        },    
+        ,    
         email:{
             type:String,
             required:true,

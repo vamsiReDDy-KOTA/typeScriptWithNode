@@ -12,9 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDaysByEmail = exports.getBookingsByEmail = exports.signin = exports.getallstaffs = exports.deleteuser = exports.logingetuser = exports.updateuser = exports.signup = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.getallusers = exports.updateSlot = exports.updatealluser = exports.deletealluser = exports.GetAppointment = exports.ondays = void 0;
+exports.profile = exports.getDaysByEmail = exports.getBookingsByEmail = exports.signin = exports.getallstaffs = exports.deleteuser = exports.logingetuser = exports.updateuser = exports.signup = exports.updateBooking = exports.bookingSlots = exports.softDelete = exports.DaysSoftDelete = exports.getallusers = exports.updateSlot = exports.updatealluser = exports.deletealluser = exports.GetAppointment = exports.ondays = void 0;
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
-//import { Times } from "../moduls/timesInterface";
 const days_1 = __importDefault(require("../moduls/days"));
 const joi_1 = __importDefault(require("joi"));
 const signup_1 = __importDefault(require("../moduls/signup"));
@@ -55,27 +54,6 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
  * }
  *
  */
-/**
- *
- *  const schema = Joi.object().keys({
-          email: Joi.string()
-            .lowercase()
-            .trim()
-            .max(320)
-            .email({ minDomainSegments: 2 })
-            .required(),
-          fullName: Joi.string()
-            .trim()
-            .max(70)
-            .required(),
-          password: Joi.string()
-            .trim()
-            .min(8)
-            .max(70)
-            .required(),
-        });
-
- */
 const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const salt = bcrypt_1.default.genSaltSync(10);
@@ -110,7 +88,7 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             req.body = val;
         })).catch(err => {
             console.log('Failed to validate input ' + err.details[0].message);
-            return res.status(400).send('Failed to validate input' + err.details[0].message);
+            var k = err.details[0].message;
         });
         //const {image} =  req.file.filename
         const hass = bcrypt_1.default.hashSync(password, salt);
@@ -131,6 +109,7 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             password: hass,
             confirmPassword: conHass,
         });
+        res.status(400).send(k);
         yield newUser.save();
         return res.status(200).json({
             message: "user successfully register"
@@ -285,7 +264,6 @@ const updateuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             lastname: req.body.lastname || users.lastname,
             password: hass,
             confirmPassword: conHass,
-            image: req.file.filename || users.image
         };
         const user = yield signup_1.default.findOneAndUpdate({ email: req.query.email }, newUserData, {
             new: true,
@@ -1746,7 +1724,7 @@ const getDaysByEmail = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 message: "user is not presnt",
             });
         }
-        res.status(200).json({
+        return res.status(200).json({
             message: "data",
             result: user
         });
@@ -2085,7 +2063,7 @@ const getallusers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.getallusers = getallusers;
-//update all users
+//update all users 
 /**
  * @api {put} /updatealluser update user
  * @apiGroup Admin
@@ -2243,3 +2221,32 @@ const deletealluser = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.deletealluser = deletealluser;
+const profile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let userd = yield signup_1.default.findOne({ email: req.query.email });
+        if (!userd) {
+            return res.status(500).json({
+                success: false,
+                message: "product not found",
+            });
+        }
+        //console.log(req.params.id) 
+        console.log(req.file.filename);
+        //image:req.file.filename
+        const user = yield signup_1.default.findOneAndUpdate({ email: req.query.email }, { image: req.file.filename }, {
+            new: true,
+            runValidators: true,
+            userFindAndModify: false,
+        });
+        res.status(200).send({
+            message: "ok",
+            payload: user,
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            message: "internal error"
+        });
+    }
+});
+exports.profile = profile;

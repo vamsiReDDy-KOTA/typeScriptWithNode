@@ -1,5 +1,6 @@
 import SignupDt from '../moduls/signup';
 import jwt from 'jsonwebtoken'
+import { nextTick } from 'process';
 const isAdmin = async(req:any, res:any, next:any)=> { 
     // 401 Unauthorized
     // 403 Forbidden 
@@ -14,14 +15,14 @@ const isAdmin = async(req:any, res:any, next:any)=> {
     next();
   }
 
-const isStaff =async (req:any,res:any) => {
+const isStaff =async (req:any,res:any,next:any) => {
     let token = req.header('x-token');
         let decode :any = jwt.verify(token,'vamsi')
        // console.log(decode)
         req.user =await SignupDt.findById(decode.user.id)
 
         if (req.user.role != 'staff') return res.status(403).send('Access denied');
-  
+    next();
 }
 
 

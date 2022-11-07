@@ -28,12 +28,13 @@ const isAdmin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     next();
 });
 exports.isAdmin = isAdmin;
-const isStaff = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const isStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     let token = req.header('x-token');
     let decode = jsonwebtoken_1.default.verify(token, 'vamsi');
     // console.log(decode)
     req.user = yield signup_1.default.findById(decode.user.id);
     if (req.user.role != 'staff')
         return res.status(403).send('Access denied');
+    next();
 });
 exports.isStaff = isStaff;

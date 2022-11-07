@@ -11,10 +11,11 @@ const SignupSchema = new mongoose_1.Schema({
         required: true
     },
     image: {
-        krishna: String,
-        contentType: String,
-        //default:"none"
-    },
+        type: String,
+        default: 'null'
+    }
+    //default:"none"
+    ,
     email: {
         type: String,
         required: true,

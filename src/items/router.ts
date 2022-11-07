@@ -6,7 +6,7 @@ import {isAdmin ,isStaff} from "../mid/roles";
 import { upload } from "../mid/profile";
 
 
-import { signup,updatealluser,getallusers,updateuser,deletealluser,logingetuser,deleteuser,getallstaffs,softDelete,DaysSoftDelete ,ondays,getDaysByEmail,GetAppointment,updateSlot ,bookingSlots,updateBooking,getBookingsByEmail, signin} from "./server";
+import { signup,updatealluser,profile,getallusers,updateuser,deletealluser,logingetuser,deleteuser,getallstaffs,softDelete,DaysSoftDelete ,ondays,getDaysByEmail,GetAppointment,updateSlot ,bookingSlots,updateBooking,getBookingsByEmail, signin} from "./server";
 
 export const itemsRouter = express.Router();
 
@@ -14,7 +14,8 @@ export const itemsRouter = express.Router();
 //user
 itemsRouter.post('/Signup',signup) 
 itemsRouter.post('/Signin',signin)
-itemsRouter.put('/updateuser',vtoken,upload,updateuser)
+itemsRouter.put('/updateuser',vtoken,updateuser)
+itemsRouter.put('/profile',vtoken,upload,profile)
 itemsRouter.get('/logingetuser',vtoken,logingetuser)
 itemsRouter.delete('/deleteuser/:id',vtoken,deleteuser)
 

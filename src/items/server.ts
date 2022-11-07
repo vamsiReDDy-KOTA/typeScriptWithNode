@@ -4,6 +4,8 @@ import moment from 'moment-timezone';
 import mongoose from "mongoose";
 import vtoken from "../mid/token"
 //import { Times } from "../moduls/timesInterface";
+import * as fs from 'fs'
+import path from 'path'
 import DaysModel from "../moduls/days"
 import Joi from 'joi';
 import SignupDt from '../moduls/signup';
@@ -52,28 +54,6 @@ import jwt from "jsonwebtoken";
  * 
  */
 
-
-/**
- * 
- *  const schema = Joi.object().keys({
-          email: Joi.string()
-            .lowercase()
-            .trim()
-            .max(320)
-            .email({ minDomainSegments: 2 })
-            .required(),
-          fullName: Joi.string()
-            .trim()
-            .max(70)
-            .required(),
-          password: Joi.string()
-            .trim()
-            .min(8)
-            .max(70)
-            .required(),
-        });
-
- */
 const signup  = async (req:any, res:any) => {
   try {
     const salt = bcrypt.genSaltSync(10);
@@ -110,8 +90,9 @@ const signup  = async (req:any, res:any) => {
       req.body = val;
     }).catch(err => {
       console.log('Failed to validate input ' + err.details[0].message);
-      return res.status(400).send('Failed to validate input'+err.details[0].message);
+      var k:any = err.details[0].message
     })
+
     
     //const {image} =  req.file.filename
     const hass = bcrypt.hashSync(password, salt);
@@ -120,6 +101,7 @@ const signup  = async (req:any, res:any) => {
 
     if (exist) {
       return res.status(404).json({"message":"User is already present"});
+
     }
 
     if (password !== confirmPassword) {
@@ -136,6 +118,7 @@ const signup  = async (req:any, res:any) => {
       confirmPassword: conHass,
       
     });
+    res.status(400).send(k)
    
     await newUser.save();
     
@@ -310,9 +293,9 @@ const updateuser =async (req:any,res:any) => {
       lastname: req.body.lastname || users.lastname,
       password: hass,
       confirmPassword: conHass,
-      image:req.file.filename || users.image
+   
     };
-
+   
     const user = await SignupDt.findOneAndUpdate({ email: req.query.email }, newUserData, {
       new: true,
       runValidators: false,
@@ -1876,7 +1859,7 @@ const getDaysByEmail = async (req: any, res: any) => {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "data",
       result: user
     })
@@ -2234,7 +2217,7 @@ const getallusers =async (req:any,res:any) => {
   }
 }
 
-//update all users
+//update all users 
 
 /**
  * @api {put} /updatealluser update user
@@ -2401,5 +2384,41 @@ const deletealluser =async (req:any , res:any) => {
   }
 }
 
+const profile =  async (req :any, res :any, next:any) => {
 
-export { ondays, GetAppointment, deletealluser ,updatealluser ,updateSlot,getallusers, DaysSoftDelete, softDelete, bookingSlots, updateBooking,signup,updateuser,logingetuser,deleteuser,getallstaffs ,signin ,getBookingsByEmail, getDaysByEmail }
+  try {
+    let userd : any = await SignupDt.findOne({email: req.query.email});
+    
+    if (!userd) {
+      return res.status(500).json({
+        success: false,
+        message: "product not found",
+      });
+    }
+    //console.log(req.params.id) 
+    console.log(req.file.filename)
+    
+      
+      //image:req.file.filename
+      
+    
+    const user = await SignupDt.findOneAndUpdate({email:req.query.email}, {image:req.file.filename}, {
+      new: true,
+      runValidators: true,
+      userFindAndModify: false,
+    });
+    
+    res.status(200).send({
+      message: "ok",
+      payload: user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message:"internal error"
+    })
+  }
+}
+
+
+
+export { ondays, GetAppointment, deletealluser ,updatealluser ,updateSlot,getallusers, DaysSoftDelete, softDelete, bookingSlots, updateBooking,signup,updateuser,logingetuser,deleteuser,getallstaffs ,signin ,getBookingsByEmail, getDaysByEmail,profile }

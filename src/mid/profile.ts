@@ -37,13 +37,13 @@ const storages = multer.diskStorage({
   */
 
 const storage = multer.diskStorage({
-    destination: function (req: Request, _file: any, cb: any) {
-        const dir = './uploads/';
-        filename: (req:Request, file:any, cb:any) => {
-            cb(null, dir)
-        };
+    destination: function (req: Request, file: any, cb: any) {
+    
+        
+            cb(null,'./uploads/')
+        
     },
-    filename: function (_req: Request, file: any, cb: any) {
+    filename: function (req: Request, file: any, cb: any) {
         cb(null, file.originalname)
     }
 });
