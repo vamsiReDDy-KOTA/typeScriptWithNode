@@ -105,13 +105,14 @@ const signup  = async (req:any, res:any) => {
         .required(),
     });
 
-    const { firstname, lastname, email, password, confirmPassword } =
-      req.body;
-      schema.validateAsync({ firstname, lastname, email, password, confirmPassword }).then(val => {
-        req.body = val;
-      }).catch(err => {
-        throw new Error('Failed to validate input ' + err.details[0].message);
-      })
+    const { firstname, lastname, email, password, confirmPassword } =req.body;
+    schema.validateAsync({ firstname, lastname, email, password, confirmPassword }).then(async val => {
+      req.body = val;
+    }).catch(err => {
+      console.log('Failed to validate input ' + err.details[0].message);
+      return res.status(400).send('Failed to validate input'+err.details[0].message);
+    })
+    
     //const {image} =  req.file.filename
     const hass = bcrypt.hashSync(password, salt);
     const conHass = bcrypt.hashSync(confirmPassword, salt);
@@ -126,6 +127,7 @@ const signup  = async (req:any, res:any) => {
         .status(400)
         .json({ "message" : " password and confirmpassword should be same"});
     }
+   
     let newUser = new SignupDt({
       firstname,
       lastname,
@@ -134,8 +136,9 @@ const signup  = async (req:any, res:any) => {
       confirmPassword: conHass,
       
     });
-
+   
     await newUser.save();
+    
     return res.status(200).json({
       message: "user successfully register"
     });

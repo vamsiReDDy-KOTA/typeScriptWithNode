@@ -106,10 +106,11 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 .required(),
         });
         const { firstname, lastname, email, password, confirmPassword } = req.body;
-        schema.validateAsync({ firstname, lastname, email, password, confirmPassword }).then(val => {
+        schema.validateAsync({ firstname, lastname, email, password, confirmPassword }).then((val) => __awaiter(void 0, void 0, void 0, function* () {
             req.body = val;
-        }).catch(err => {
-            throw new Error('Failed to validate input ' + err.details[0].message);
+        })).catch(err => {
+            console.log('Failed to validate input ' + err.details[0].message);
+            return res.status(400).send('Failed to validate input' + err.details[0].message);
         });
         //const {image} =  req.file.filename
         const hass = bcrypt_1.default.hashSync(password, salt);
