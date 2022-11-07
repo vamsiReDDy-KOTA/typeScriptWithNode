@@ -16,6 +16,7 @@ exports.getDaysByEmail = exports.getBookingsByEmail = exports.signin = exports.g
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 //import { Times } from "../moduls/timesInterface";
 const days_1 = __importDefault(require("../moduls/days"));
+const joi_1 = __importDefault(require("joi"));
 const signup_1 = __importDefault(require("../moduls/signup"));
 const bookingModel_1 = __importDefault(require("../moduls/bookingModel"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
@@ -54,10 +55,62 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
  * }
  *
  */
+/**
+ *
+ *  const schema = Joi.object().keys({
+          email: Joi.string()
+            .lowercase()
+            .trim()
+            .max(320)
+            .email({ minDomainSegments: 2 })
+            .required(),
+          fullName: Joi.string()
+            .trim()
+            .max(70)
+            .required(),
+          password: Joi.string()
+            .trim()
+            .min(8)
+            .max(70)
+            .required(),
+        });
+
+ */
 const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const salt = bcrypt_1.default.genSaltSync(10);
+        const schema = joi_1.default.object().keys({
+            email: joi_1.default.string()
+                .lowercase()
+                .trim()
+                .max(320)
+                .email({ minDomainSegments: 2 })
+                .required(),
+            firstname: joi_1.default.string()
+                .trim()
+                .max(70)
+                .required(),
+            lastname: joi_1.default.string()
+                .trim()
+                .max(70)
+                .required(),
+            password: joi_1.default.string()
+                .trim()
+                .min(8)
+                .max(70)
+                .required(),
+            confirmPassword: joi_1.default.string()
+                .trim()
+                .min(8)
+                .max(70)
+                .required(),
+        });
         const { firstname, lastname, email, password, confirmPassword } = req.body;
+        schema.validateAsync({ firstname, lastname, email, password, confirmPassword }).then(val => {
+            req.body = val;
+        }).catch(err => {
+            throw new Error('Failed to validate input ' + err.details[0].message);
+        });
         //const {image} =  req.file.filename
         const hass = bcrypt_1.default.hashSync(password, salt);
         const conHass = bcrypt_1.default.hashSync(confirmPassword, salt);

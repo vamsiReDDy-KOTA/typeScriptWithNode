@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import vtoken from "../mid/token"
 //import { Times } from "../moduls/timesInterface";
 import DaysModel from "../moduls/days"
+import Joi from 'joi';
 import SignupDt from '../moduls/signup';
 import BookingModel from "../moduls/bookingModel"
 import Days from "../moduls/daysInterface"
@@ -51,11 +52,66 @@ import jwt from "jsonwebtoken";
  * 
  */
 
+
+/**
+ * 
+ *  const schema = Joi.object().keys({
+          email: Joi.string()
+            .lowercase()
+            .trim()
+            .max(320)
+            .email({ minDomainSegments: 2 })
+            .required(),
+          fullName: Joi.string()
+            .trim()
+            .max(70)
+            .required(),
+          password: Joi.string()
+            .trim()
+            .min(8)
+            .max(70)
+            .required(),
+        });
+
+ */
 const signup  = async (req:any, res:any) => {
   try {
     const salt = bcrypt.genSaltSync(10);
+
+    const schema = Joi.object().keys({
+      email: Joi.string()
+        .lowercase()
+        .trim()
+        .max(320)
+        .email({ minDomainSegments: 2 })
+        .required(),
+        firstname: Joi.string()
+        .trim()
+        .max(70)
+        .required(),
+        lastname: Joi.string()
+        .trim()
+        .max(70)
+        .required(),
+      password: Joi.string()
+        .trim()
+        .min(8)
+        .max(70)
+        .required(),
+        confirmPassword: Joi.string()
+        .trim()
+        .min(8)
+        .max(70)
+        .required(),
+    });
+
     const { firstname, lastname, email, password, confirmPassword } =
       req.body;
+      schema.validateAsync({ firstname, lastname, email, password, confirmPassword }).then(val => {
+        req.body = val;
+      }).catch(err => {
+        throw new Error('Failed to validate input ' + err.details[0].message);
+      })
     //const {image} =  req.file.filename
     const hass = bcrypt.hashSync(password, salt);
     const conHass = bcrypt.hashSync(confirmPassword, salt);
