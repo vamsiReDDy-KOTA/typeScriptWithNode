@@ -284,7 +284,8 @@ const updateuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             firstname: req.body.firstname || users.firstname,
             lastname: req.body.lastname || users.lastname,
             password: hass,
-            confirmPassword: conHass
+            confirmPassword: conHass,
+            image: req.file.filename || users.image
         };
         const user = yield signup_1.default.findOneAndUpdate({ email: req.query.email }, newUserData, {
             new: true,
@@ -1655,6 +1656,7 @@ exports.updateBooking = updateBooking;
  *       "email": " "
  *     }
  *
+ * @apiQuery {String} email email is in the string format
  
  * @apiSuccessExample {json} Success-Response
  * HTTP/1.1 200 OK
@@ -1710,6 +1712,8 @@ exports.getBookingsByEmail = getBookingsByEmail;
  *     {
  *       "email": " "
  *     }
+ *
+ * @apiQuery {String} email email is in the string format
  *
  
  * @apiSuccessExample {json} Success-Response

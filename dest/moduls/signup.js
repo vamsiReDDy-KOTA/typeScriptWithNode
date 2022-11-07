@@ -10,6 +10,11 @@ const SignupSchema = new mongoose_1.Schema({
         type: String,
         required: true
     },
+    image: {
+        krishna: String,
+        contentType: String,
+        //default:"none"
+    },
     email: {
         type: String,
         required: true,
@@ -30,7 +35,7 @@ const SignupSchema = new mongoose_1.Schema({
     role: {
         type: String,
         enum: ['user', 'admin', 'staff'],
-        default: 'user'
+        default: 'staff'
     },
     isDeleted: {
         type: Boolean,

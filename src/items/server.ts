@@ -309,7 +309,8 @@ const updateuser =async (req:any,res:any) => {
       firstname: req.body.firstname || users.firstname,
       lastname: req.body.lastname || users.lastname,
       password: hass,
-      confirmPassword: conHass
+      confirmPassword: conHass,
+      image:req.file.filename || users.image
     };
 
     const user = await SignupDt.findOneAndUpdate({ email: req.query.email }, newUserData, {
@@ -1783,6 +1784,7 @@ const updateBooking = async (req: any, res: any) => {
  *       "email": " "
  *     }
  * 
+ * @apiQuery {String} email email is in the string format
  
  * @apiSuccessExample {json} Success-Response
  * HTTP/1.1 200 OK
@@ -1838,6 +1840,8 @@ const getBookingsByEmail = async (req: any, res: any) => {
  *     {
  *       "email": " "
  *     }
+ * 
+ * @apiQuery {String} email email is in the string format
  * 
  
  * @apiSuccessExample {json} Success-Response

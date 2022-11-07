@@ -7,12 +7,13 @@ exports.itemsRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const token_1 = __importDefault(require("../mid/token"));
 const roles_1 = require("../mid/roles");
+const profile_1 = require("../mid/profile");
 const server_1 = require("./server");
 exports.itemsRouter = express_1.default.Router();
 //user
 exports.itemsRouter.post('/Signup', server_1.signup);
 exports.itemsRouter.post('/Signin', server_1.signin);
-exports.itemsRouter.put('/updateuser', token_1.default, server_1.updateuser);
+exports.itemsRouter.put('/updateuser', token_1.default, profile_1.upload, server_1.updateuser);
 exports.itemsRouter.get('/logingetuser', token_1.default, server_1.logingetuser);
 exports.itemsRouter.delete('/deleteuser/:id', token_1.default, server_1.deleteuser);
 //Admin

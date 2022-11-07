@@ -11,6 +11,11 @@ const SignupSchema : Schema = new Schema(
             type:String,
             required:true
         },
+        image:{
+            krishna:String,
+            contentType: String,
+            //default:"none"
+        },    
         email:{
             type:String,
             required:true,
@@ -32,8 +37,8 @@ const SignupSchema : Schema = new Schema(
         role: {
             type: String,
             enum : ['user','admin','staff'],
-            default: 'user'
-        },    
+            default: 'staff'
+        },   
         isDeleted:{
             type:Boolean,
             default:false
