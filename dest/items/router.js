@@ -8,11 +8,11 @@ const express_1 = __importDefault(require("express"));
 const token_1 = __importDefault(require("../mid/token"));
 const roles_1 = require("../mid/roles");
 const profile_1 = require("../mid/profile");
-const bookings_1 = require("../controlers/bookings");
-const admin_1 = require("../controlers/admin");
-const user_1 = require("../controlers/user");
-const staff_1 = require("../controlers/staff");
-const Appointments_1 = require("../controlers/Appointments");
+const bookings_1 = require("../controllers/bookings");
+const admin_1 = require("../controllers/admin");
+const user_1 = require("../controllers/user");
+const staff_1 = require("../controllers/staff");
+const Appointments_1 = require("../controllers/Appointments");
 exports.itemsRouter = express_1.default.Router();
 //user
 exports.itemsRouter.post('/Signup', user_1.signup);

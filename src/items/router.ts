@@ -2,14 +2,14 @@ import express, { Request, Response } from "express";
 import vtoken from "../mid/token"
 import {isAdmin ,isStaff} from "../mid/roles";
 import { upload } from "../mid/profile";
-import { softDelete, bookingSlots, updateBooking ,getBookingsByEmail} from "../controlers/bookings";
+import { softDelete, bookingSlots, updateBooking ,getBookingsByEmail} from "../controllers/bookings";
 
-import { deletealluser ,updatealluser ,getallusers,getallstaffs} from "../controlers/admin";
+import { deletealluser ,updatealluser ,getallusers,getallstaffs} from "../controllers/admin";
 
-import {  signup,updateuser,logingetuser,deleteuser ,signin , profile } from "../controlers/user";
+import {  signup,updateuser,logingetuser,deleteuser ,signin , profile } from "../controllers/user";
 
-import { ondays ,updateSlot, DaysSoftDelete, getDaysByEmail  } from "../controlers/staff"
-import { GetAppointment } from "../controlers/Appointments";
+import { ondays ,updateSlot, DaysSoftDelete, getDaysByEmail  } from "../controllers/staff"
+import { GetAppointment } from "../controllers/Appointments";
 
 export const itemsRouter = express.Router();
 
