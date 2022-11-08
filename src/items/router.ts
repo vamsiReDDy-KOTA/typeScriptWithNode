@@ -18,7 +18,7 @@ export const itemsRouter = express.Router();
 itemsRouter.post('/Signup',signup) 
 itemsRouter.post('/Signin',signin)
 itemsRouter.put('/updateuser',vtoken,updateuser)
-itemsRouter.put('/profile',vtoken,upload,profile)
+itemsRouter.put('/profilePic',vtoken,upload,profile)
 itemsRouter.get('/logingetuser',vtoken,logingetuser)
 itemsRouter.delete('/deleteuser/:id',vtoken,deleteuser)
 

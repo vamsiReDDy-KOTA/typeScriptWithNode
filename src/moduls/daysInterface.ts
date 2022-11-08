@@ -5,7 +5,8 @@ TimeZone:string;
 email:string;
 phoneNo:string;
 name:string;
-BookedDate:string;
+StartDate:string;
+repect:string;
 Monday:Array<any>;
 Tuesday	:Array<any>;
 Wednesday:Array<any>;	
@@ -13,7 +14,7 @@ Thursday:Array<any>;
 Friday :Array<any>;
 Saturday : Array<any>;
 Sunday : Array<any>;
-isDeleted:boolean
+isDeleted:boolean;
 }
 
 export default Days

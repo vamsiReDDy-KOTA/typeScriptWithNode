@@ -57,26 +57,43 @@ import jwt from "jsonwebtoken";
  */
 
  const ondays = async (req: any, res: any) => {
+
     try {
       let data = await SignupDt.findOne({ email: req.body.email })
-  
+
+      let ds = moment(req.body.StartDate).add(1, req.body.repect).format("DD-MM-YYYY");
+      let da = moment(req.body.StartDate).format("DD-MM-YYYY");
+      let ts = moment().tz(req.body.TimeZone).format("DD-MM-YYYY");
+
+      let va= ts<=da
+
+      console.log(va)
+
+      if(!va){
+        return res.status(400).send("date should be graterthen or equal to today")
+      }
+      
       if(!data){
         return res.status(404).json({
           message:"user is not present pleace signup"
         })
       }
-  
+      
       let user = await DaysModel.findOne({ email: req.body.email })
       if(user){
         return res.status(400).json({
           message:"user is already present"
         })
       }
+
+      let day = moment()
       const DaysModels: Days = new DaysModel({
         TimeZone: req.body.TimeZone,
         email: req.body.email,
         phoneNo: req.body.phoneNo,
         name: req.body.name,
+        StartDate:req.body.StartDate,
+        repect:req.body.repect,
         Monday: req.body.Monday,
         Tuesday: req.body.Tuesday,
         Wednesday: req.body.Wednesday,

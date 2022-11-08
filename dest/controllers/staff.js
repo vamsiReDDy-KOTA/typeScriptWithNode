@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDaysByEmail = exports.DaysSoftDelete = exports.updateSlot = exports.ondays = void 0;
+const moment_timezone_1 = __importDefault(require("moment-timezone"));
 const days_1 = __importDefault(require("../moduls/days"));
 const signup_1 = __importDefault(require("../moduls/signup"));
 // Staff Days API
@@ -55,6 +56,14 @@ const signup_1 = __importDefault(require("../moduls/signup"));
 const ondays = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let data = yield signup_1.default.findOne({ email: req.body.email });
+        let ds = (0, moment_timezone_1.default)(req.body.StartDate).add(1, req.body.repect).format("DD-MM-YYYY");
+        let da = (0, moment_timezone_1.default)(req.body.StartDate).format("DD-MM-YYYY");
+        let ts = (0, moment_timezone_1.default)().tz(req.body.TimeZone).format("DD-MM-YYYY");
+        let va = ts <= da;
+        console.log(va);
+        if (!va) {
+            return res.status(400).send("date should be graterthen or equal to today");
+        }
         if (!data) {
             return res.status(404).json({
                 message: "user is not present pleace signup"
@@ -66,11 +75,14 @@ const ondays = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 message: "user is already present"
             });
         }
+        let day = (0, moment_timezone_1.default)();
         const DaysModels = new days_1.default({
             TimeZone: req.body.TimeZone,
             email: req.body.email,
             phoneNo: req.body.phoneNo,
             name: req.body.name,
+            StartDate: req.body.StartDate,
+            repect: req.body.repect,
             Monday: req.body.Monday,
             Tuesday: req.body.Tuesday,
             Wednesday: req.body.Wednesday,

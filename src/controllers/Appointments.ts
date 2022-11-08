@@ -50,7 +50,27 @@ import jwt from "jsonwebtoken";
  const GetAppointment = async (req: any, res: any) => {
     try {
       let date = req.query.date
+
+      //let da = await DaysModel.findOne({ email: req.query.email })
+
+
+
+     
+      
       let slots = await DaysModel.findOne({ email: req.query.email })
+      let timeZn: any = slots?.TimeZone
+      let da :any = slots?.repect
+      let va = moment().startOf('isoWeek').add(1, da ).format("DD-MM-YYYY");
+      let ptz = moment(date).format('DD-MM-YYYY')
+      
+      let userDt = moment().tz(timeZn).format("DD-MM-YYYY")
+      console.log(userDt)
+      let userEnteredDt = moment(date).format("YYYY-MM-DD")
+      
+      let userEnteredDay = moment(userEnteredDt).format('dddd')
+      let currentTime = moment().tz(timeZn).format('HH:mm')
+      
+      
       if(!slots){
         return res.status(404).json({
           Message : "user is not present in our database"
@@ -61,16 +81,14 @@ import jwt from "jsonwebtoken";
           message: "user is not present in our database"
         })
       }
-      let timeZn: any = slots?.TimeZone
-  
-      let userDt = moment().tz(timeZn).format("DD-MM-YYYY")
-  
-      let userEnteredDt = moment(date).format("YYYY-MM-DD")
-      let ptz = moment(date).format('DD-MM-YYYY')
-      let userEnteredDay = moment(userEnteredDt).format('dddd')
-      let currentTime = moment().tz(timeZn).format('HH:mm')
-  
+
+      
+     
+     
       if (userDt <= ptz) {
+       
+        if(ptz < va){
+        
         const slot = await BookingModel.find({ AppointmentDate: userEnteredDt, email: req.query.email }, { "SlotsTime": "$SlotsTime" })
         console.log(slot)
         let allslots: any = []
@@ -882,6 +900,13 @@ import jwt from "jsonwebtoken";
         }
   
       }
+      
+      else {
+        return res.status(400).json({
+          message: "slots are not present"
+        })
+      }
+      }
   
       else {
         return res.status(400).json({
@@ -894,4 +919,7 @@ import jwt from "jsonwebtoken";
     }
   }
 
+  
+
   export { GetAppointment }
+

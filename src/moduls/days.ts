@@ -21,11 +21,20 @@ const daysSchema : Schema = new Schema (
         type:String,
         required:true
     },
+    StartDate:{
+        type:String,
+        required:true
+    },
+    repect:{
+        type:String,
+        enum : ['day','week','month','year'],
+        required:true
+    },
     Monday:[
         {   
        startTime:{
            type : Array,
-           required : true
+          required : true
        },
        endTime:{
            type : Array,
@@ -34,7 +43,8 @@ const daysSchema : Schema = new Schema (
        breakTime:{
         type:Array,
         required:true
-       }
+       },
+       available: { type: Boolean, default: false }
    }     
    ],
     Tuesday	:[
@@ -50,7 +60,8 @@ const daysSchema : Schema = new Schema (
        breakTime:{
         type:Array,
         required:true
-       }
+       },
+       available: { type: Boolean, default: false }
    }     
    ],
     Wednesday:[
@@ -66,7 +77,8 @@ const daysSchema : Schema = new Schema (
        breakTime:{
         type:Array,
         required:true
-       }
+       },
+       available: { type: Boolean, default: false }
    }     
    ],	
     Thursday:[
@@ -82,7 +94,8 @@ const daysSchema : Schema = new Schema (
        breakTime:{
         type:Array,
         required:true
-       }
+       },
+       available: { type: Boolean, default: false }
    }     
    ],	
     Friday :[
@@ -98,7 +111,8 @@ const daysSchema : Schema = new Schema (
        breakTime:{
         type:Array,
         required:true
-       }
+       },
+       available: { type: Boolean, default: false }
    }     
    ],
     Saturday : [
@@ -114,7 +128,8 @@ const daysSchema : Schema = new Schema (
        breakTime:{
         type:Array,
         required:true
-       }
+       },
+       available: { type: Boolean, default: false }
    }     
    ],
     Sunday : [
@@ -130,17 +145,14 @@ const daysSchema : Schema = new Schema (
        breakTime:{
         type:Array,
         required:true
-       }
+       },
+       available: { type: Boolean, default: false }
    }     
    ],
    isDeleted:{
     type:Boolean,
-    //enum:[true,false],
     default:false
-    //enum:[true,false]
    }
-   
 }
 )
-
 export default model<Days>("DaysModel", daysSchema);

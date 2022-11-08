@@ -18,7 +18,7 @@ exports.itemsRouter = express_1.default.Router();
 exports.itemsRouter.post('/Signup', user_1.signup);
 exports.itemsRouter.post('/Signin', user_1.signin);
 exports.itemsRouter.put('/updateuser', token_1.default, user_1.updateuser);
-exports.itemsRouter.put('/profile', token_1.default, profile_1.upload, user_1.profile);
+exports.itemsRouter.put('/profilePic', token_1.default, profile_1.upload, user_1.profile);
 exports.itemsRouter.get('/logingetuser', token_1.default, user_1.logingetuser);
 exports.itemsRouter.delete('/deleteuser/:id', token_1.default, user_1.deleteuser);
 //Admin

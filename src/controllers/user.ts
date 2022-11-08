@@ -437,12 +437,12 @@ const deleteuser =async (req:any,res:any) => {
 }
 
 /**
- * @api {put} /profile profilePic
+ * @api {put} /profilePic profilePic
  * @apiGroup users
  * @apiBody (Request body) {file} image user profilePic
  * 
  * 
- * @apiSampleRequest /profile
+ * @apiSampleRequest /profilePic
  * 
  * @apiQuery {String} email email is in the string format
  * @apiHeader {String} x-token Users unique access-key

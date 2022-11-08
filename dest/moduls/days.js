@@ -19,6 +19,15 @@ const daysSchema = new mongoose_1.Schema({
         type: String,
         required: true
     },
+    StartDate: {
+        type: String,
+        required: true
+    },
+    repect: {
+        type: String,
+        enum: ['day', 'week', 'month', 'year'],
+        required: true
+    },
     Monday: [
         {
             startTime: {
@@ -32,7 +41,8 @@ const daysSchema = new mongoose_1.Schema({
             breakTime: {
                 type: Array,
                 required: true
-            }
+            },
+            available: { type: Boolean, default: false }
         }
     ],
     Tuesday: [
@@ -48,7 +58,8 @@ const daysSchema = new mongoose_1.Schema({
             breakTime: {
                 type: Array,
                 required: true
-            }
+            },
+            available: { type: Boolean, default: false }
         }
     ],
     Wednesday: [
@@ -64,7 +75,8 @@ const daysSchema = new mongoose_1.Schema({
             breakTime: {
                 type: Array,
                 required: true
-            }
+            },
+            available: { type: Boolean, default: false }
         }
     ],
     Thursday: [
@@ -80,7 +92,8 @@ const daysSchema = new mongoose_1.Schema({
             breakTime: {
                 type: Array,
                 required: true
-            }
+            },
+            available: { type: Boolean, default: false }
         }
     ],
     Friday: [
@@ -96,7 +109,8 @@ const daysSchema = new mongoose_1.Schema({
             breakTime: {
                 type: Array,
                 required: true
-            }
+            },
+            available: { type: Boolean, default: false }
         }
     ],
     Saturday: [
@@ -112,7 +126,8 @@ const daysSchema = new mongoose_1.Schema({
             breakTime: {
                 type: Array,
                 required: true
-            }
+            },
+            available: { type: Boolean, default: false }
         }
     ],
     Sunday: [
@@ -128,14 +143,13 @@ const daysSchema = new mongoose_1.Schema({
             breakTime: {
                 type: Array,
                 required: true
-            }
+            },
+            available: { type: Boolean, default: false }
         }
     ],
     isDeleted: {
         type: Boolean,
-        //enum:[true,false],
         default: false
-        //enum:[true,false]
     }
 });
 exports.default = (0, mongoose_1.model)("DaysModel", daysSchema);
