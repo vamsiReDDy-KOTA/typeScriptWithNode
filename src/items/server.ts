@@ -19,119 +19,7 @@ import { Signup } from '../moduls/signupinterface';
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 
-//signup api
 
-/**
- * @api {post} /Signup create a new user
- * @apiGroup users
- * @apiBody (Request body) {String} fristname first name of the user
- * @apiBody (Request body) {String} lastname of the user
- * @apiBody (Request body) {String} email user email
- * @apiBody (Request body) {String} password user password
- * @apiBody (Request body) {String} confirmPassword user name
- * 
- * @apiSampleRequest /Signup
- * @apiSuccessExample {json} Success-Response
- * HTTP/1.1 200 OK
- * {
- *       message: "user successfully register",
- *        
- * }
- * @apiErrorExample {json} Error-Response:
- *   HTTP/1.1 404 Not Found
- *     {
- *       "message": "User is already present"
- *     }
- *
- *  HTTP/1.1 400 
- *  {
- *    "message":"password and confirmpassword should be same"
- *  }
- *  HTTP/1.1 500 
- * {
- * "message":"Internal Server Error"
- * }
- * 
- */
-
-const signup  = async (req:any, res:any) => {
-  try {
-    const salt = bcrypt.genSaltSync(10);
-
-    const schema = Joi.object().keys({
-      email: Joi.string()
-        .lowercase()
-        .trim()
-        .max(320)
-        .email({ minDomainSegments: 2 })
-        .required(),
-        firstname: Joi.string()
-        .trim()
-        .max(70)
-        .required(),
-        lastname: Joi.string()
-        .trim()
-        .max(70)
-        .required(),
-      password: Joi.string()
-        .trim()
-        .min(8)
-        .max(70)
-        .required(),
-        confirmPassword: Joi.string()
-        .trim()
-        .min(8)
-        .max(70)
-        .required(),
-    });
-
-    const { firstname, lastname, email, password, confirmPassword } =req.body;
-    schema.validateAsync({ firstname, lastname, email, password, confirmPassword }).then(async val => {
-      req.body = val;
-    }).catch(err => {
-      console.log('Failed to validate input ' + err.details[0].message);
-      var k:any = err.details[0].message
-    })
-
-    
-    //const {image} =  req.file.filename
-    const hass = bcrypt.hashSync(password, salt);
-    const conHass = bcrypt.hashSync(confirmPassword, salt);
-    let exist = await SignupDt.findOne({ email });
-
-    if (exist) {
-      return res.status(404).json({"message":"User is already present"});
-
-    }
-
-    if (password !== confirmPassword) {
-      return res
-        .status(400)
-        .json({ "message" : " password and confirmpassword should be same"});
-    }
-   
-    let newUser = new SignupDt({
-      firstname,
-      lastname,
-      email,
-      password: hass,
-      confirmPassword: conHass,
-      
-    });
-    res.status(400).send(k)
-   
-    await newUser.save();
-    
-    return res.status(200).json({
-      message: "user successfully register"
-    });
-  } catch (error) {
-    console.log(error);
-    return res.send(500).json({
-      message: "internal server error"
-    });
-  }
-}
 
 //Signin
 
@@ -2384,19 +2272,59 @@ const deletealluser =async (req:any , res:any) => {
   }
 }
 
+/**
+ * @api {put} /profile profilePic
+ * @apiGroup users
+ * @apiBody (Request body) {file} image user profilePic
+ * 
+ * 
+ * @apiSampleRequest /profile
+ * 
+ * @apiQuery {String} email email is in the string format
+ * @apiHeader {String} x-token Users unique access-key
+ * 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *    "message":"profile update sucessfully"
+ *              " result ": {
+ *              "id":" ",
+ *              "firstname": " ",
+ *              "lastname": " ",
+ *              "password": " ",
+ *              "confirmPassword": " ",
+ *              "image":" ",
+ *              "role":" "
+ *    }
+ *        
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "user is not present in our Database"
+ *     }
+ *
+ * 
+ *  HTTP/1.1 500 
+ * {
+ * "message":"Internal Server Error"
+ * }
+ * 
+ */
+
 const profile =  async (req :any, res :any, next:any) => {
 
   try {
     let userd : any = await SignupDt.findOne({email: req.query.email});
     
     if (!userd) {
-      return res.status(500).json({
+      return res.status(404).json({
         success: false,
-        message: "product not found",
+        message: "user is not present in our Database",
       });
     }
     //console.log(req.params.id) 
-    console.log(req.file.filename)
+    // console.log(req.file.filename)
     
       
       //image:req.file.filename
@@ -2409,16 +2337,16 @@ const profile =  async (req :any, res :any, next:any) => {
     });
     
     res.status(200).send({
-      message: "ok",
-      payload: user,
+      message: "profile update sucessfully",
+      result : user,
     });
   } catch (error) {
     res.status(500).json({
-      message:"internal error"
+      message:"Internal Server Error"
     })
   }
 }
 
 
 
-export { ondays, GetAppointment, deletealluser ,updatealluser ,updateSlot,getallusers, DaysSoftDelete, softDelete, bookingSlots, updateBooking,signup,updateuser,logingetuser,deleteuser,getallstaffs ,signin ,getBookingsByEmail, getDaysByEmail,profile }
+export { ondays, GetAppointment, deletealluser ,updatealluser ,updateSlot,getallusers, DaysSoftDelete, softDelete, bookingSlots, updateBooking,updateuser,logingetuser,deleteuser,getallstaffs ,signin ,getBookingsByEmail, getDaysByEmail,profile }

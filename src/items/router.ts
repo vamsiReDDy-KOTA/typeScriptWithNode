@@ -1,12 +1,15 @@
 import express, { Request, Response } from "express";
-import { Router } from "express";
-import { Controller, Get, Route } from "tsoa";
 import vtoken from "../mid/token"
 import {isAdmin ,isStaff} from "../mid/roles";
 import { upload } from "../mid/profile";
+import { softDelete, bookingSlots, updateBooking ,getBookingsByEmail} from "../controlers/bookings";
 
+import { deletealluser ,updatealluser ,getallusers,getallstaffs} from "../controlers/admin";
 
-import { signup,updatealluser,profile,getallusers,updateuser,deletealluser,logingetuser,deleteuser,getallstaffs,softDelete,DaysSoftDelete ,ondays,getDaysByEmail,GetAppointment,updateSlot ,bookingSlots,updateBooking,getBookingsByEmail, signin} from "./server";
+import {  signup,updateuser,logingetuser,deleteuser ,signin , profile } from "../controlers/user";
+
+import { ondays ,updateSlot, DaysSoftDelete, getDaysByEmail  } from "../controlers/staff"
+import { GetAppointment } from "../controlers/Appointments";
 
 export const itemsRouter = express.Router();
 
