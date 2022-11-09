@@ -179,13 +179,26 @@ const updateSlot = async (req: any, res: any) => {
     try {
       
       let users: any = await DaysModel.findOne({ email: req.query.email ,StartDate:req.query.StartDate });
+      
+      let datas = users.repectForWeek
+      if(!datas){
+       var ds:any = moment.utc(users.StartDate).add(1, 'week').format("DD-MM-YYYY");
+      }
+      let daya = req.body.StartDate<datas
+      if(!daya){
+        return res.status(400).send("start date is grater then lastWeek")
+      }
+      
       let StartDate =moment.utc(req.body.StartDate).format("dddd");
       // console.log(StartDate)
        if(StartDate !='Sunday'){
          return res.status(400).send("Start Date should be starting day of the week")
        }
-      let ds = moment(req.body.StartDate).add(1, req.body.repect).format("DD-MM-YYYY");
-      let da = moment(req.body.StartDate).format("DD-MM-YYYY");
+      
+
+       console.log(ds)
+      
+      let da = moment.utc(req.body.StartDate).format("DD-MM-YYYY");
       let ts = moment().tz(req.body.TimeZone).format("DD-MM-YYYY");
       let updateDate = req.query.updateDate
       let udDate =  moment(updateDate).tz(req.body.TimeZone).format("DD-MM-YYYY");
@@ -281,7 +294,7 @@ const updateSlot = async (req: any, res: any) => {
 const DaysSoftDelete = async (req: any, res: any) => {
     try {
       //const users: any = await DaysModel.findById(req.params.id);
-      let users: any = await DaysModel.findOne({ email: req.query.email },{ StartDate:req.query.StartDate })
+      let users: any = await DaysModel.findOne({ email: req.query.email ,StartDate:req.query.StartDate })
       console.log(users)
       if (!users) {
         return res.status(404).json({
@@ -349,7 +362,7 @@ const DaysSoftDelete = async (req: any, res: any) => {
 const getDaysByEmail = async (req: any, res: any) => {
     try {
      // let user = await DaysModel.find({ email: req.query.email, isDeleted: false })
-      let users: any = await DaysModel.findOne({ email: req.query.email },{ StartDate:req.query.StartDate },{isDeleted: false })
+      let users: any = await DaysModel.findOne({ email: req.query.email , StartDate:req.query.StartDate },{isDeleted: false })
       if (!users) {
         return res.status(400).json({
           success: false,
