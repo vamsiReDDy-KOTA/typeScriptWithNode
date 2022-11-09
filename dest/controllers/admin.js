@@ -12,10 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getallstaffs = exports.getallusers = exports.updatealluser = exports.deletealluser = void 0;
+exports.updateallstaff = exports.deleteallstaff = exports.getallstaffs = exports.getallusers = exports.updatealluser = exports.deletealluser = void 0;
 const days_1 = __importDefault(require("../moduls/days"));
 const signup_1 = __importDefault(require("../moduls/signup"));
-const bcrypt_1 = __importDefault(require("bcrypt"));
 //getallstaffs
 /**
  * @api {get} /getallstaffs get all staff details
@@ -252,22 +251,10 @@ const updatealluser = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 message: "user is not present"
             });
         }
-        const salt = bcrypt_1.default.genSaltSync(10);
-        let password = req.body.password || users.password;
-        let confirmPassword = req.body.confirmPassword || users.confirmPassword;
-        if (password !== confirmPassword) {
-            return res
-                .status(400)
-                .send(" password and confirmpassword should be same");
-        }
-        const hass = bcrypt_1.default.hashSync(password, salt);
-        const conHass = bcrypt_1.default.hashSync(confirmPassword, salt);
         const newUserData = {
             email: users.email,
             firstname: req.body.firstname || users.firstname,
             lastname: req.body.lastname || users.lastname,
-            password: hass,
-            confirmPassword: conHass,
             role: req.body.role || users.role
         };
         const user = yield signup_1.default.findOneAndUpdate({ email: req.query.email }, newUserData, {
@@ -286,6 +273,51 @@ const updatealluser = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.updatealluser = updatealluser;
+const updateallstaff = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let users = yield days_1.default.find({ email: req.query.email, isDeleted: false });
+        if (!users) {
+            return res.status(404).json({
+                success: false,
+                message: "user is not present",
+            });
+        }
+        if (users === null || users === void 0 ? void 0 : users.isDeleted) {
+            return res.status(404).json({
+                message: "user is not present"
+            });
+        }
+        const newUserData = {
+            TimeZone: req.body.TimeZone || users.TimeZone,
+            email: users.email,
+            phoneNo: req.body.phoneNo || users.phoneNo,
+            name: req.body.name || users.name,
+            StartDate: req.body.StartDate || users.StartDate,
+            repectForWeek: req.body.repect || users.repectForWeek,
+            Monday: req.body.Monday || users.Monday,
+            Tuesday: req.body.Tuesday || users.Tuesday,
+            Wednesday: req.body.Wednesday || users.Wednesday,
+            Thursday: req.body.Thursday || users.Thursday,
+            Friday: req.body.Friday || users.Friday,
+            Saturday: req.body.Saturday || users.Saturday,
+            Sunday: req.body.Sunday || users.Sunday,
+        };
+        const user = yield days_1.default.findOneAndUpdate({ email: req.query.email }, newUserData, {
+            new: true,
+            runValidators: false,
+            userFindAndModify: true,
+        });
+        return res.status(200).json({
+            message: "user updated sucessfully",
+            result: user
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).send("Internal server");
+    }
+});
+exports.updateallstaff = updateallstaff;
 //delete all user
 /**
  * @api {delete} /deletealluser/:id delete user by id
@@ -351,3 +383,33 @@ const deletealluser = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.deletealluser = deletealluser;
+const deleteallstaff = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const users = yield days_1.default.findById(req.params.id);
+        console.log(users);
+        if (!users) {
+            return res.status(404).json({
+                "success": false,
+                error: "Staff dose not present"
+            });
+        }
+        if (users.isDeleted === true) {
+            return res.status(404).json({
+                "success": false,
+                error: "Staff dose not present"
+            });
+        }
+        const softdelete = yield days_1.default.findOneAndUpdate({ _id: users._id }, { isDeleted: true });
+        res.status(200).json({
+            message: "deleted success",
+            //data: softdelete
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            message: "Internal Server Error",
+            error: error
+        });
+    }
+});
+exports.deleteallstaff = deleteallstaff;

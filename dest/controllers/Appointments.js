@@ -49,7 +49,7 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
         //let da = await DaysModel.findOne({ email: req.query.email })
         let slots = yield days_1.default.findOne({ email: req.query.email });
         let timeZn = slots === null || slots === void 0 ? void 0 : slots.TimeZone;
-        let da = slots === null || slots === void 0 ? void 0 : slots.repect;
+        let da = slots === null || slots === void 0 ? void 0 : slots.repectForWeek;
         let va = (0, moment_timezone_1.default)().startOf('isoWeek').add(1, da).format("DD-MM-YYYY");
         let ptz = (0, moment_timezone_1.default)(date).format('DD-MM-YYYY');
         let userDt = (0, moment_timezone_1.default)().tz(timeZn).format("DD-MM-YYYY");

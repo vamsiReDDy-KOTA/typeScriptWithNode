@@ -25,7 +25,9 @@ exports.itemsRouter.delete('/deleteuser/:id', token_1.default, user_1.deleteuser
 exports.itemsRouter.get('/getallstaffs', token_1.default, roles_1.isAdmin, admin_1.getallstaffs);
 exports.itemsRouter.get('/getallusers', token_1.default, roles_1.isAdmin, admin_1.getallusers);
 exports.itemsRouter.put('/updatealluser', token_1.default, roles_1.isAdmin, admin_1.updatealluser);
-exports.itemsRouter.delete('/deletealluser:id', token_1.default, roles_1.isAdmin, admin_1.deletealluser);
+exports.itemsRouter.put('/updateallstaff', token_1.default, roles_1.isAdmin, admin_1.updateallstaff);
+exports.itemsRouter.delete('/deletealluser/:id', token_1.default, roles_1.isAdmin, admin_1.deletealluser);
+exports.itemsRouter.delete('/deleteallstaff/:id', token_1.default, roles_1.isAdmin, admin_1.deleteallstaff);
 //staff
 exports.itemsRouter.post('/StaffWorkingHours', token_1.default, roles_1.isStaff, staff_1.ondays);
 exports.itemsRouter.put('/updateStaff', token_1.default, roles_1.isStaff, staff_1.updateSlot);

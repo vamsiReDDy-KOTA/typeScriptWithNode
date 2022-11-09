@@ -22,13 +22,12 @@ const daysSchema : Schema = new Schema (
         required:true
     },
     StartDate:{
-        type:String,
+        type:Date,
         required:true
     },
-    repect:{
-        type:String,
-        enum : ['day','week','month','year'],
-        required:true
+    repectForWeek:{
+        type:Boolean,
+        default:false
     },
     Monday:[
         {   

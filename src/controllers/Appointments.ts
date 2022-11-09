@@ -44,7 +44,7 @@ import Days from "../moduls/daysInterface"
       
       let slots = await DaysModel.findOne({ email: req.query.email })
       let timeZn: any = slots?.TimeZone
-      let da :any = slots?.repect
+      let da :any = slots?.repectForWeek
       let va = moment().startOf('isoWeek').add(1, da ).format("DD-MM-YYYY");
       let ptz = moment(date).format('DD-MM-YYYY')
       

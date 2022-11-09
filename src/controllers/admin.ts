@@ -266,26 +266,13 @@ import jwt from "jsonwebtoken";
           message: "user is not present"
         })
       }
-      const salt = bcrypt.genSaltSync(10);
-      let password = req.body.password || users.password
-      let confirmPassword = req.body.confirmPassword || users.confirmPassword
-  
-      if (password !== confirmPassword) {
-        return res
-          .status(400)
-          .send(" password and confirmpassword should be same");
-      }
-  
-      const hass = bcrypt.hashSync(password, salt);
-      const conHass = bcrypt.hashSync(confirmPassword, salt);
   
       const newUserData = {
         
         email: users.email,
         firstname: req.body.firstname || users.firstname,
         lastname: req.body.lastname || users.lastname,
-        password: hass,
-        confirmPassword: conHass,
+      
         role:req.body.role || users.role
       };
   
@@ -304,6 +291,52 @@ import jwt from "jsonwebtoken";
     }
   }
   
+  const updateallstaff =async (req:any,res:any) => {
+    try {
+      let users: any = await DaysModel.find({email: req.query.email,isDeleted: false});
+      if (!users) {
+        return res.status(404).json({
+          success: false,
+          message: "user is not present",
+        });
+      }
+      if (users?.isDeleted) {
+        return res.status(404).json({
+          message: "user is not present"
+        })
+      }
+  
+      const newUserData = {
+        
+        TimeZone: req.body.TimeZone || users.TimeZone,
+        email: users.email,
+        phoneNo: req.body.phoneNo || users.phoneNo,
+        name: req.body.name || users.name,
+        StartDate:req.body.StartDate || users.StartDate,
+        repectForWeek : req.body.repect || users.repectForWeek,
+        Monday: req.body.Monday || users.Monday,
+        Tuesday: req.body.Tuesday || users.Tuesday,
+        Wednesday: req.body.Wednesday || users.Wednesday,
+        Thursday: req.body.Thursday || users.Thursday,
+        Friday: req.body.Friday || users.Friday,
+        Saturday: req.body.Saturday || users.Saturday,
+        Sunday: req.body.Sunday || users.Sunday,
+      };
+  
+      const user = await DaysModel.findOneAndUpdate({ email: req.query.email }, newUserData, {
+        new: true,
+        runValidators: false,
+        userFindAndModify: true,
+      });
+      return res.status(200).json({
+        message: "user updated sucessfully",
+        result: user
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send("Internal server");
+    }
+  }
   //delete all user
   
   /**
@@ -352,7 +385,7 @@ import jwt from "jsonwebtoken";
   
         })
       }
-      if (users.isDeleted === true) {
+      if (users.isDeleted === true) { 
         return res.status(404).json({
           "success":false,
           error:  "Staff dose not present"
@@ -372,4 +405,35 @@ import jwt from "jsonwebtoken";
     }
   }
 
-  export {  deletealluser ,updatealluser ,getallusers,getallstaffs }
+  const deleteallstaff =async (req:any , res:any) => {
+    try {
+      const users: any = await DaysModel.findById(req.params.id);
+      console.log(users)
+      if (!users) {
+        return res.status(404).json({
+          "success":false,
+          error: "Staff dose not present"
+  
+        })
+      }
+      if (users.isDeleted === true) { 
+        return res.status(404).json({
+          "success":false,
+          error:  "Staff dose not present"
+        });
+      }
+      const softdelete = await DaysModel.findOneAndUpdate({ _id: users._id }, { isDeleted: true })
+      res.status(200).json({
+        message: "deleted success",
+        //data: softdelete
+      });
+    }
+    catch (error) {
+      res.status(500).json({
+        message:"Internal Server Error",
+        error: error
+      });
+    }
+  }
+
+  export {  deletealluser ,updatealluser ,getallusers,getallstaffs,deleteallstaff ,updateallstaff}

@@ -61,13 +61,29 @@ import jwt from "jsonwebtoken";
     try {
       let data = await SignupDt.findOne({ email: req.body.email })
 
-      let ds = moment(req.body.StartDate).add(1, req.body.repect).format("DD-MM-YYYY");
-      let da = moment(req.body.StartDate).format("DD-MM-YYYY");
+      let StartDate =moment.utc(req.body.StartDate).format("dddd");
+     // console.log(StartDate)
+      if(StartDate !='Sunday'){
+        return res.status(400).send("Start Date should be starting day of the week")
+      }
+      let Start =moment.utc(req.body.StartDate).format();
+      
+      console.log(Start)
+      console.log(StartDate)
+
+      let ds = moment.utc(req.body.StartDate).add(1, 'week').format("DD-MM-YYYY");
+      let da = moment.utc(req.body.StartDate).format("DD-MM-YYYY");
       let ts = moment().tz(req.body.TimeZone).format("DD-MM-YYYY");
+
+      console.log(ds)
 
       let va= ts<=da
 
-      console.log(va)
+      //console.log(va)
+
+      if(da<ts){
+        return res.status(400).send("upgrade the StartDate")
+      }
 
       if(!va){
         return res.status(400).send("date should be graterthen or equal to today")
@@ -86,14 +102,14 @@ import jwt from "jsonwebtoken";
         })
       }
 
-      let day = moment()
+      
       const DaysModels: Days = new DaysModel({
         TimeZone: req.body.TimeZone,
         email: req.body.email,
         phoneNo: req.body.phoneNo,
         name: req.body.name,
         StartDate:req.body.StartDate,
-        repect:req.body.repect,
+        repectForWeek:req.body.repectForWeek,
         Monday: req.body.Monday,
         Tuesday: req.body.Tuesday,
         Wednesday: req.body.Wednesday,
@@ -161,7 +177,28 @@ import jwt from "jsonwebtoken";
 
 const updateSlot = async (req: any, res: any) => {
     try {
-      let users: any = await DaysModel.findOne({ email: req.query.email });
+      
+      let users: any = await DaysModel.findOne({ email: req.query.email ,StartDate:req.query.StartDate });
+      let StartDate =moment.utc(req.body.StartDate).format("dddd");
+      // console.log(StartDate)
+       if(StartDate !='Sunday'){
+         return res.status(400).send("Start Date should be starting day of the week")
+       }
+      let ds = moment(req.body.StartDate).add(1, req.body.repect).format("DD-MM-YYYY");
+      let da = moment(req.body.StartDate).format("DD-MM-YYYY");
+      let ts = moment().tz(req.body.TimeZone).format("DD-MM-YYYY");
+      let updateDate = req.query.updateDate
+      let udDate =  moment(updateDate).tz(req.body.TimeZone).format("DD-MM-YYYY");
+
+      console.log(udDate)
+
+      let va= ts<=da
+
+      console.log(va)
+
+      if(!va){
+        return res.status(400).send("date should be graterthen or equal to today")
+      }
       if (!users) {
         return res.status(404).json({
           success: false,
@@ -178,6 +215,8 @@ const updateSlot = async (req: any, res: any) => {
         email: users.email,
         phoneNo: req.body.phoneNo || users.phoneNo,
         name: req.body.name || users.name,
+        StartDate:req.body.StartDate || users.StartDate,
+        repectForWeek : req.body.repect || users.repectForWeek,
         Monday: req.body.Monday || users.Monday,
         Tuesday: req.body.Tuesday || users.Tuesday,
         Wednesday: req.body.Wednesday || users.Wednesday,
@@ -186,7 +225,8 @@ const updateSlot = async (req: any, res: any) => {
         Saturday: req.body.Saturday || users.Saturday,
         Sunday: req.body.Sunday || users.Sunday,
       };
-  
+
+
       const user = await DaysModel.findOneAndUpdate({ email: req.query.email }, newUserData, {
         new: true,
         runValidators: false,
@@ -240,7 +280,8 @@ const updateSlot = async (req: any, res: any) => {
 
 const DaysSoftDelete = async (req: any, res: any) => {
     try {
-      const users: any = await DaysModel.findById(req.params.id);
+      //const users: any = await DaysModel.findById(req.params.id);
+      let users: any = await DaysModel.findOne({ email: req.query.email },{ StartDate:req.query.StartDate })
       console.log(users)
       if (!users) {
         return res.status(404).json({
@@ -255,7 +296,7 @@ const DaysSoftDelete = async (req: any, res: any) => {
           error:  "Staff dose not present"
         });
       }
-      const softdelete = await DaysModel.findOneAndUpdate({ _id: users._id }, { isDeleted: true })
+      const softdelete = await DaysModel.findOneAndUpdate({  email: req.query.email }, { isDeleted: true })
       res.status(200).json({
         message: "deleted success",
         //data: softdelete
@@ -307,8 +348,9 @@ const DaysSoftDelete = async (req: any, res: any) => {
 
 const getDaysByEmail = async (req: any, res: any) => {
     try {
-      let user = await DaysModel.find({ email: req.query.email, isDeleted: false })
-      if (!user) {
+     // let user = await DaysModel.find({ email: req.query.email, isDeleted: false })
+      let users: any = await DaysModel.findOne({ email: req.query.email },{ StartDate:req.query.StartDate },{isDeleted: false })
+      if (!users) {
         return res.status(400).json({
           success: false,
           message: "user is not presnt",
@@ -317,7 +359,7 @@ const getDaysByEmail = async (req: any, res: any) => {
   
       return res.status(200).json({
         message: "data",
-        result: user
+        result: users
       })
     } catch (error) {
       console.log(error)

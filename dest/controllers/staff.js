@@ -56,11 +56,23 @@ const signup_1 = __importDefault(require("../moduls/signup"));
 const ondays = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let data = yield signup_1.default.findOne({ email: req.body.email });
-        let ds = (0, moment_timezone_1.default)(req.body.StartDate).add(1, req.body.repect).format("DD-MM-YYYY");
-        let da = (0, moment_timezone_1.default)(req.body.StartDate).format("DD-MM-YYYY");
+        let StartDate = moment_timezone_1.default.utc(req.body.StartDate).format("dddd");
+        // console.log(StartDate)
+        if (StartDate != 'Sunday') {
+            return res.status(400).send("Start Date should be starting day of the week");
+        }
+        let Start = moment_timezone_1.default.utc(req.body.StartDate).format();
+        console.log(Start);
+        console.log(StartDate);
+        let ds = moment_timezone_1.default.utc(req.body.StartDate).add(1, 'week').format("DD-MM-YYYY");
+        let da = moment_timezone_1.default.utc(req.body.StartDate).format("DD-MM-YYYY");
         let ts = (0, moment_timezone_1.default)().tz(req.body.TimeZone).format("DD-MM-YYYY");
+        console.log(ds);
         let va = ts <= da;
-        console.log(va);
+        //console.log(va)
+        if (da < ts) {
+            return res.status(400).send("upgrade the StartDate");
+        }
         if (!va) {
             return res.status(400).send("date should be graterthen or equal to today");
         }
@@ -75,14 +87,13 @@ const ondays = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 message: "user is already present"
             });
         }
-        let day = (0, moment_timezone_1.default)();
         const DaysModels = new days_1.default({
             TimeZone: req.body.TimeZone,
             email: req.body.email,
             phoneNo: req.body.phoneNo,
             name: req.body.name,
             StartDate: req.body.StartDate,
-            repect: req.body.repect,
+            repectForWeek: req.body.repectForWeek,
             Monday: req.body.Monday,
             Tuesday: req.body.Tuesday,
             Wednesday: req.body.Wednesday,
@@ -148,7 +159,23 @@ exports.ondays = ondays;
  */
 const updateSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let users = yield days_1.default.findOne({ email: req.query.email });
+        let users = yield days_1.default.findOne({ email: req.query.email, StartDate: req.query.StartDate });
+        let StartDate = moment_timezone_1.default.utc(req.body.StartDate).format("dddd");
+        // console.log(StartDate)
+        if (StartDate != 'Sunday') {
+            return res.status(400).send("Start Date should be starting day of the week");
+        }
+        let ds = (0, moment_timezone_1.default)(req.body.StartDate).add(1, req.body.repect).format("DD-MM-YYYY");
+        let da = (0, moment_timezone_1.default)(req.body.StartDate).format("DD-MM-YYYY");
+        let ts = (0, moment_timezone_1.default)().tz(req.body.TimeZone).format("DD-MM-YYYY");
+        let updateDate = req.query.updateDate;
+        let udDate = (0, moment_timezone_1.default)(updateDate).tz(req.body.TimeZone).format("DD-MM-YYYY");
+        console.log(udDate);
+        let va = ts <= da;
+        console.log(va);
+        if (!va) {
+            return res.status(400).send("date should be graterthen or equal to today");
+        }
         if (!users) {
             return res.status(404).json({
                 success: false,
@@ -165,6 +192,8 @@ const updateSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             email: users.email,
             phoneNo: req.body.phoneNo || users.phoneNo,
             name: req.body.name || users.name,
+            StartDate: req.body.StartDate || users.StartDate,
+            repectForWeek: req.body.repect || users.repectForWeek,
             Monday: req.body.Monday || users.Monday,
             Tuesday: req.body.Tuesday || users.Tuesday,
             Wednesday: req.body.Wednesday || users.Wednesday,
@@ -225,7 +254,8 @@ exports.updateSlot = updateSlot;
  */
 const DaysSoftDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const users = yield days_1.default.findById(req.params.id);
+        //const users: any = await DaysModel.findById(req.params.id);
+        let users = yield days_1.default.findOne({ email: req.query.email }, { StartDate: req.query.StartDate });
         console.log(users);
         if (!users) {
             return res.status(404).json({
@@ -239,7 +269,7 @@ const DaysSoftDelete = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 error: "Staff dose not present"
             });
         }
-        const softdelete = yield days_1.default.findOneAndUpdate({ _id: users._id }, { isDeleted: true });
+        const softdelete = yield days_1.default.findOneAndUpdate({ email: req.query.email }, { isDeleted: true });
         res.status(200).json({
             message: "deleted success",
             //data: softdelete
@@ -290,8 +320,9 @@ exports.DaysSoftDelete = DaysSoftDelete;
  */
 const getDaysByEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let user = yield days_1.default.find({ email: req.query.email, isDeleted: false });
-        if (!user) {
+        // let user = await DaysModel.find({ email: req.query.email, isDeleted: false })
+        let users = yield days_1.default.findOne({ email: req.query.email }, { StartDate: req.query.StartDate }, { isDeleted: false });
+        if (!users) {
             return res.status(400).json({
                 success: false,
                 message: "user is not presnt",
@@ -299,7 +330,7 @@ const getDaysByEmail = (req, res) => __awaiter(void 0, void 0, void 0, function*
         }
         return res.status(200).json({
             message: "data",
-            result: user
+            result: users
         });
     }
     catch (error) {
