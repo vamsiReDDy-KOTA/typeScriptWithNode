@@ -219,8 +219,7 @@ const signin = async (req:any, res:any) => {
  * @apiGroup users
  * @apiBody (Request body) {String} firstname user firstname
  * @apiBody (Request body) {String} lastname user lastname
- * @apiBody (Request body) {String} password user password
- * @apiBody (Request body) {String} confirmPassword user confirmPassword
+ *
  * 
  * @apiSampleRequest /updateuser
  * 
@@ -234,8 +233,7 @@ const signin = async (req:any, res:any) => {
  *              " result ": {
  *              "firstname": " ",
  *              "lastname": " ",
- *              "password": " ",
- *              "confirmPassword": " "
+ *             "email":" "
  *    }
  *        
  * }
@@ -287,9 +285,7 @@ const updateuser =async (req:any,res:any) => {
       
       email: users.email,
       firstname: req.body.firstname || users.firstname,
-      lastname: req.body.lastname || users.lastname,
-      password: hass,
-      confirmPassword: conHass,
+      lastname: req.body.lastname || users.lastname
    
     };
    

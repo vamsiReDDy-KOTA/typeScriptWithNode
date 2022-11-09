@@ -195,8 +195,7 @@ exports.signin = signin;
  * @apiGroup users
  * @apiBody (Request body) {String} firstname user firstname
  * @apiBody (Request body) {String} lastname user lastname
- * @apiBody (Request body) {String} password user password
- * @apiBody (Request body) {String} confirmPassword user confirmPassword
+ *
  *
  * @apiSampleRequest /updateuser
  *
@@ -210,8 +209,7 @@ exports.signin = signin;
  *              " result ": {
  *              "firstname": " ",
  *              "lastname": " ",
- *              "password": " ",
- *              "confirmPassword": " "
+ *             "email":" "
  *    }
  *
  * }
@@ -258,9 +256,7 @@ const updateuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const newUserData = {
             email: users.email,
             firstname: req.body.firstname || users.firstname,
-            lastname: req.body.lastname || users.lastname,
-            password: hass,
-            confirmPassword: conHass,
+            lastname: req.body.lastname || users.lastname
         };
         const user = yield signup_1.default.findOneAndUpdate({ email: req.query.email }, newUserData, {
             new: true,

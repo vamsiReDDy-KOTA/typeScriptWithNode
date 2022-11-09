@@ -29,10 +29,10 @@ itemsRouter.put('/updatealluser',vtoken,isAdmin,updatealluser)
 itemsRouter.delete('/deletealluser:id', vtoken,isAdmin,deletealluser)
 
 //staff
-itemsRouter.post('/Days',vtoken,isStaff,ondays)
-itemsRouter.put('/updateSlot',vtoken,isStaff,updateSlot)
+itemsRouter.post('/StaffWorkingHours',vtoken,isStaff,ondays)
+itemsRouter.put('/updateStaff',vtoken,isStaff,updateSlot)
 itemsRouter.delete('/DeleteStaff/:id',vtoken,isStaff,DaysSoftDelete)
-itemsRouter.get('/getDaysByEmail',vtoken,isStaff,getDaysByEmail)
+itemsRouter.get('/getStaff',vtoken,isStaff,getDaysByEmail)
 
 //availabul slots
 itemsRouter.get('/getAppointment',vtoken,GetAppointment)

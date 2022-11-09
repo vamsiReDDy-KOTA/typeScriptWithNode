@@ -20,7 +20,7 @@ import jwt from "jsonwebtoken";
 
 // Staff Days API
 /**
- * @api {post} /Days staff working hours
+ * @api {post} /StaffWorkingHours staff working hours
  * @apiGroup Staff
  * @apiBody (Request body) {String} TimeZone which timezone he is present
  * @apiBody (Request body) {String} email Staff email
@@ -42,7 +42,7 @@ import jwt from "jsonwebtoken";
  *       message: "successfully posted",
  *        result: { }
  * }
- *@apiSampleRequest /Days
+ *@apiSampleRequest /StaffWorkingHours
  *@apiErrorExample {json} Error-Response:
  *   HTTP/1.1 404 Not Found
  *    {

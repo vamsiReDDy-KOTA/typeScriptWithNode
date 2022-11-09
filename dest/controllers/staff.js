@@ -18,7 +18,7 @@ const days_1 = __importDefault(require("../moduls/days"));
 const signup_1 = __importDefault(require("../moduls/signup"));
 // Staff Days API
 /**
- * @api {post} /Days staff working hours
+ * @api {post} /StaffWorkingHours staff working hours
  * @apiGroup Staff
  * @apiBody (Request body) {String} TimeZone which timezone he is present
  * @apiBody (Request body) {String} email Staff email
@@ -40,7 +40,7 @@ const signup_1 = __importDefault(require("../moduls/signup"));
  *       message: "successfully posted",
  *        result: { }
  * }
- *@apiSampleRequest /Days
+ *@apiSampleRequest /StaffWorkingHours
  *@apiErrorExample {json} Error-Response:
  *   HTTP/1.1 404 Not Found
  *    {

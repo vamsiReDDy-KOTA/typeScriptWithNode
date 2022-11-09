@@ -1,22 +1,11 @@
 import moment from 'moment-timezone';
-//import moments from 'moment'
-import mongoose from "mongoose";
-import vtoken from "../mid/token"
-//import { Times } from "../moduls/timesInterface";
-import * as fs from 'fs'
-import path from 'path'
+import Moments from 'moment'
+
 import DaysModel from "../moduls/days"
 import Joi from 'joi';
 import SignupDt from '../moduls/signup';
 import BookingModel from "../moduls/bookingModel"
 import Days from "../moduls/daysInterface"
-import days from "../moduls/days";
-import { AnyNsRecord } from "dns";
-import Booking from "../moduls/bookingModelInterface";
-import nodemailer from "nodemailer"
-import { Signup } from '../moduls/signupinterface';
-import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken";
 
 // Staff getAppointment API
 
@@ -52,10 +41,6 @@ import jwt from "jsonwebtoken";
       let date = req.query.date
 
       //let da = await DaysModel.findOne({ email: req.query.email })
-
-
-
-     
       
       let slots = await DaysModel.findOne({ email: req.query.email })
       let timeZn: any = slots?.TimeZone
@@ -82,9 +67,6 @@ import jwt from "jsonwebtoken";
         })
       }
 
-      
-     
-     
       if (userDt <= ptz) {
        
         if(ptz < va){

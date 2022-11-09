@@ -27,10 +27,10 @@ exports.itemsRouter.get('/getallusers', token_1.default, roles_1.isAdmin, admin_
 exports.itemsRouter.put('/updatealluser', token_1.default, roles_1.isAdmin, admin_1.updatealluser);
 exports.itemsRouter.delete('/deletealluser:id', token_1.default, roles_1.isAdmin, admin_1.deletealluser);
 //staff
-exports.itemsRouter.post('/Days', token_1.default, roles_1.isStaff, staff_1.ondays);
-exports.itemsRouter.put('/updateSlot', token_1.default, roles_1.isStaff, staff_1.updateSlot);
+exports.itemsRouter.post('/StaffWorkingHours', token_1.default, roles_1.isStaff, staff_1.ondays);
+exports.itemsRouter.put('/updateStaff', token_1.default, roles_1.isStaff, staff_1.updateSlot);
 exports.itemsRouter.delete('/DeleteStaff/:id', token_1.default, roles_1.isStaff, staff_1.DaysSoftDelete);
-exports.itemsRouter.get('/getDaysByEmail', token_1.default, roles_1.isStaff, staff_1.getDaysByEmail);
+exports.itemsRouter.get('/getStaff', token_1.default, roles_1.isStaff, staff_1.getDaysByEmail);
 //availabul slots
 exports.itemsRouter.get('/getAppointment', token_1.default, Appointments_1.GetAppointment);
 //booking
