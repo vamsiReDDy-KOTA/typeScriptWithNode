@@ -153,7 +153,7 @@ import Days from "../moduls/daysInterface"
                 if (hii.length === 0) {
                   return res.status(400).json({
                     status: false,
-                    message: "slots are not present"
+                    message: "slots are not present" 
                   })
                 }
                 return res.status(200).json({
