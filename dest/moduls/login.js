@@ -20,15 +20,15 @@ const SigninSchema = new mongoose_1.Schema({
         enum: ['user', 'admin', 'staff'],
         default: 'staff'
     },
-    tokens: {
-        accessToken: {
-            type: String,
-            required: false
-        },
-        refreshToken: {
-            type: String,
-            required: false
-        }
-    }
+    tokens: [{
+            accessToken: {
+                type: String,
+                required: false
+            },
+            refreshToken: {
+                type: String,
+                required: false
+            }
+        }]
 });
 exports.default = (0, mongoose_1.model)("SigninDt", SigninSchema);

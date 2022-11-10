@@ -41,16 +41,6 @@ const SignupSchema = new mongoose_1.Schema({
     isDeleted: {
         type: Boolean,
         default: false
-    },
-    tokens: {
-        accessToken: {
-            type: String,
-            required: false
-        },
-        refreshToken: {
-            type: String,
-            required: false
-        }
     }
 });
 exports.default = (0, mongoose_1.model)("SignupDt", SignupSchema);

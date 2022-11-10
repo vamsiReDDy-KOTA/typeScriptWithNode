@@ -15,6 +15,8 @@ const token = (req, res, next) => {
         }
         const decode = jsonwebtoken_1.default.verify(token, 'vamsi');
         req.user = decode.user;
+        console.log(decode.user);
+        console.log(req.user);
         next();
     }
     catch (error) {

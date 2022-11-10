@@ -16,6 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.profile = exports.signin = exports.deleteuser = exports.logingetuser = exports.updateuser = exports.signup = void 0;
+const tokenT_1 = __importDefault(require("../moduls/tokenT"));
 const joi_1 = __importDefault(require("joi"));
 const signup_1 = __importDefault(require("../moduls/signup"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -62,30 +63,19 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             .max(320)
             .email({ minDomainSegments: 2 })
             .required(),
-        firstname: joi_1.default.string()
-            .trim()
-            .max(70)
-            .required(),
-        lastname: joi_1.default.string()
-            .trim()
-            .max(70)
-            .required(),
-        password: joi_1.default.string()
-            .trim()
-            .min(8)
-            .max(70)
-            .required(),
-        confirmPassword: joi_1.default.string()
-            .trim()
-            .min(8)
-            .max(70)
-            .required(),
+        firstname: joi_1.default.string().trim().max(70).required(),
+        lastname: joi_1.default.string().trim().max(70).required(),
+        password: joi_1.default.string().trim().min(8).max(70).required(),
+        confirmPassword: joi_1.default.string().trim().min(8).max(70).required(),
     });
     const { firstname, lastname, email, password, confirmPassword } = req.body;
-    schema.validateAsync({ firstname, lastname, email, password, confirmPassword }).then((val) => __awaiter(void 0, void 0, void 0, function* () {
+    schema
+        .validateAsync({ firstname, lastname, email, password, confirmPassword })
+        .then((val) => __awaiter(void 0, void 0, void 0, function* () {
         req.body = val;
-    })).catch(err => {
-        console.log('Failed to validate input ' + err.details[0].message);
+    }))
+        .catch((err) => {
+        console.log("Failed to validate input " + err.details[0].message);
         const k = err.details[0].message;
         return res.status(400).send(k);
     });
@@ -95,12 +85,12 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const conHass = bcrypt_1.default.hashSync(confirmPassword, salt);
         const exist = yield signup_1.default.findOne({ email });
         if (exist) {
-            return res.status(404).json({ "message": "User is already present" });
+            return res.status(404).json({ message: "User is already present" });
         }
         if (password !== confirmPassword) {
             return res
                 .status(400)
-                .json({ "message": " password and confirmpassword should be same" });
+                .json({ message: " password and confirmpassword should be same" });
         }
         const newUser = new signup_1.default({
             firstname,
@@ -112,13 +102,13 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         // res.status(400).send(k)
         yield newUser.save();
         return res.status(200).json({
-            message: "user successfully register"
+            message: "user successfully register",
         });
     }
     catch (error) {
         console.log(error);
         return res.send(500).json({
-            message: "internal server error"
+            message: "internal server error",
         });
     }
 });
@@ -160,13 +150,16 @@ const signin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
         const exist = yield signup_1.default.findOne({ email });
+        const token = yield tokenT_1.default.findOneAndUpdate({ userId: exist.id }, { status: 'D' }, { sort: { _id: -1 } });
         if (!exist) {
-            return res.status(404).json({ "Message": "user is not present in our Database" });
+            return res
+                .status(404)
+                .json({ Message: "user is not present in our Database" });
         }
-        const isPasswordCorrect = bcrypt_1.default.compare(password, exist.password);
+        const isPasswordCorrect = yield bcrypt_1.default.compare(password, exist.password);
         //console.log(exist)
         if (!isPasswordCorrect) {
-            return res.status(400).json({ "message": "password went wrong" });
+            return res.status(400).json({ message: "password went wrong" });
         }
         const payload = {
             user: {
@@ -177,22 +170,20 @@ const signin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             if (err) {
                 console.log(err);
             }
-            const newUser = new signup_1.default({
-                token
-            });
-            yield newUser.save();
+            const user = yield tokenT_1.default.create({ token: token, userId: exist._id });
             return yield res.json({
                 token: token,
                 id: exist._id,
                 email: exist.email,
                 role: exist.role,
+                data: user
             });
         }));
         //return res.json(exist)
     }
     catch (error) {
         console.log(error);
-        return res.send(500).json({ "message": "Internal server" });
+        return res.send(500).json({ message: "Internal server" });
     }
 });
 exports.signin = signin;
@@ -247,7 +238,7 @@ const updateuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         }
         if (users === null || users === void 0 ? void 0 : users.isDeleted) {
             return res.status(404).json({
-                message: "user is not present"
+                message: "user is not present",
             });
         }
         const salt = bcrypt_1.default.genSaltSync(10);
@@ -263,7 +254,7 @@ const updateuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const newUserData = {
             email: users.email,
             firstname: req.body.firstname || users.firstname,
-            lastname: req.body.lastname || users.lastname
+            lastname: req.body.lastname || users.lastname,
         };
         const user = yield signup_1.default.findOneAndUpdate({ email: req.query.email }, newUserData, {
             new: true,
@@ -272,7 +263,7 @@ const updateuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         });
         return res.status(200).json({
             message: "user updated sucessfully",
-            result: user
+            result: user,
         });
     }
     catch (error) {
@@ -320,7 +311,10 @@ exports.updateuser = updateuser;
  */
 const logingetuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield signup_1.default.find({ email: req.query.email, isDeleted: false });
+        const user = yield signup_1.default.find({
+            email: req.query.email,
+            isDeleted: false,
+        });
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -329,14 +323,14 @@ const logingetuser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         }
         res.status(200).json({
             message: "data",
-            result: user
+            result: user,
         });
     }
     catch (error) {
         console.log(error);
         res.status(500).json({
             message: "internal error",
-            error: error
+            error: error,
         });
     }
 });
@@ -381,14 +375,14 @@ const deleteuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         console.log(users);
         if (!users) {
             return res.status(404).json({
-                "success": false,
-                error: "user not present"
+                success: false,
+                error: "user not present",
             });
         }
         if (users.isDeleted === true) {
             return res.status(404).json({
-                "success": false,
-                error: "user not present"
+                success: false,
+                error: "user not present",
             });
         }
         const softdelete = yield signup_1.default.findOneAndUpdate({ _id: users._id }, { isDeleted: true });
@@ -399,7 +393,7 @@ const deleteuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     catch (error) {
         res.status(500).json({
             message: "Internal Server Error",
-            error: error
+            error: error,
         });
     }
 });
@@ -452,7 +446,7 @@ const profile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
                 message: "user is not present in our Database",
             });
         }
-        //console.log(req.params.id) 
+        //console.log(req.params.id)
         // console.log(req.file.filename)
         //image:req.file.filename
         const user = yield signup_1.default.findOneAndUpdate({ email: req.query.email }, { image: req.file.filename }, {
@@ -467,7 +461,7 @@ const profile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     }
     catch (error) {
         res.status(500).json({
-            message: "Internal Server Error"
+            message: "Internal Server Error",
         });
     }
 });

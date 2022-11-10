@@ -12,6 +12,8 @@ const token =(req:any,res:any,next:any)=>{
         }
         const decode :any = jwt.verify(token,'vamsi')
         req.user = decode.user
+        console.log(decode.user)
+        console.log(req.user)
         next()
     } catch (error) {
         console.log(error)

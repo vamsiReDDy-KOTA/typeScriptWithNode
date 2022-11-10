@@ -44,17 +44,7 @@ const SignupSchema : Schema = new Schema(
         isDeleted:{
             type:Boolean,
             default:false
-           },
-        tokens: {
-            accessToken: {
-                type: String,
-                required: false
-            },
-            refreshToken: {
-                type: String,
-                required: false
-            }
-        }
+           }
     
     }
 )

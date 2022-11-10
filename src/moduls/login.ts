@@ -22,7 +22,7 @@ const SigninSchema : Schema = new Schema(
             enum : ['user','admin','staff'],
             default: 'staff'
         }, 
-        tokens: {
+        tokens: [{
             accessToken: {
                 type: String,
                 required: false
@@ -31,7 +31,7 @@ const SigninSchema : Schema = new Schema(
                 type: String,
                 required: false
             }
-        }
+    }]
     
     }
 )

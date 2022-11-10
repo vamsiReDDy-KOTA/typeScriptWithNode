@@ -35,7 +35,7 @@ const uri = "mongodb+srv://vamsiReddyk:vamsi22@cluster0.auer7qa.mongodb.net/time
 //let connectionString = `mongodb://localhost:27017/crud`
 mongoose_1.default
     .connect(uri)
-    .then(() => app.listen(4000, () => console.log(`Server running on http://localhost 4000`)))
+    .then(() => app.listen(5005, () => console.log(`Server running on http://localhost 5005`)))
     .catch((error) => {
     throw error;
 });
