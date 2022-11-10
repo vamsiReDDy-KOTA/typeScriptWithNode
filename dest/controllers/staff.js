@@ -13,6 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDaysByEmail = exports.DaysSoftDelete = exports.updateSlot = exports.ondays = void 0;
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-console */
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 const days_1 = __importDefault(require("../moduls/days"));
 const signup_1 = __importDefault(require("../moduls/signup"));
@@ -55,20 +58,20 @@ const signup_1 = __importDefault(require("../moduls/signup"));
  */
 const ondays = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let data = yield signup_1.default.findOne({ email: req.body.email });
-        let StartDate = moment_timezone_1.default.utc(req.body.StartDate).format("dddd");
+        const data = yield signup_1.default.findOne({ email: req.body.email });
+        const StartDate = moment_timezone_1.default.utc(req.body.StartDate).format("dddd");
         // console.log(StartDate)
         if (StartDate != 'Sunday') {
             return res.status(400).send("Start Date should be starting day of the week");
         }
-        let Start = moment_timezone_1.default.utc(req.body.StartDate).format();
+        const Start = moment_timezone_1.default.utc(req.body.StartDate).format();
         console.log(Start);
         console.log(StartDate);
-        let ds = moment_timezone_1.default.utc(req.body.StartDate).add(1, 'week').format("DD-MM-YYYY");
-        let da = moment_timezone_1.default.utc(req.body.StartDate).format("DD-MM-YYYY");
-        let ts = (0, moment_timezone_1.default)().tz(req.body.TimeZone).format("DD-MM-YYYY");
+        const ds = moment_timezone_1.default.utc(req.body.StartDate).add(1, 'week').format("DD-MM-YYYY");
+        const da = moment_timezone_1.default.utc(req.body.StartDate).format("DD-MM-YYYY");
+        const ts = (0, moment_timezone_1.default)().tz(req.body.TimeZone).format("DD-MM-YYYY");
         console.log(ds);
-        let va = ts <= da;
+        const va = ts <= da;
         //console.log(va)
         if (da < ts) {
             return res.status(400).send("upgrade the StartDate");
@@ -81,7 +84,7 @@ const ondays = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 message: "user is not present pleace signup"
             });
         }
-        let user = yield days_1.default.findOne({ email: req.body.email });
+        const user = yield days_1.default.findOne({ email: req.body.email });
         if (user) {
             return res.status(400).json({
                 message: "user is already present"
@@ -159,30 +162,33 @@ exports.ondays = ondays;
  */
 const updateSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let users = yield days_1.default.findOne({ email: req.query.email, StartDate: req.query.StartDate });
+        const users = yield days_1.default.findOne({ email: req.query.email, StartDate: req.query.StartDate });
         //console.log(users)
-        let datas = users === null || users === void 0 ? void 0 : users.repectForWeek;
+        const datas = users === null || users === void 0 ? void 0 : users.repectForWeek;
         console.log(datas);
         if (!datas) {
+            // eslint-disable-next-line no-var
             var ds = moment_timezone_1.default.utc(users.StartDate).add(1, 'week').format("DD-MM-YYYY");
         }
         console.log(ds);
-        let daya = req.body.StartDate > ds;
+        const daya = req.body.StartDate > ds;
+        const day = req.body.StartDate === ds;
+        console.log(day);
         console.log(daya);
         if (!daya) {
             return res.status(400).send("start date is grater then lastWeek");
         }
-        let StartDate = moment_timezone_1.default.utc(req.body.StartDate).format("dddd");
+        const StartDate = moment_timezone_1.default.utc(req.body.StartDate).format("dddd");
         // console.log(StartDate)
         if (StartDate != 'Sunday') {
             return res.status(400).send("Start Date should be starting day of the week");
         }
-        let da = moment_timezone_1.default.utc(req.body.StartDate).format("DD-MM-YYYY");
-        let ts = moment_timezone_1.default.utc().tz(req.body.TimeZone).format("DD-MM-YYYY");
-        let updateDate = req.query.updateDate;
-        let udDate = (0, moment_timezone_1.default)(updateDate).tz(req.body.TimeZone).format("DD-MM-YYYY");
+        const da = moment_timezone_1.default.utc(req.body.StartDate).format("DD-MM-YYYY");
+        const ts = moment_timezone_1.default.utc().tz(req.body.TimeZone).format("DD-MM-YYYY");
+        const updateDate = req.query.updateDate;
+        const udDate = (0, moment_timezone_1.default)(updateDate).tz(req.body.TimeZone).format("DD-MM-YYYY");
         console.log(udDate);
-        let va = ts <= da;
+        const va = ts <= da;
         console.log(va);
         if (!va) {
             return res.status(400).send("date should be graterthen or equal to today");
@@ -266,7 +272,7 @@ exports.updateSlot = updateSlot;
 const DaysSoftDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         //const users: any = await DaysModel.findById(req.params.id);
-        let users = yield days_1.default.findOne({ email: req.query.email, StartDate: req.query.StartDate });
+        const users = yield days_1.default.findOne({ email: req.query.email, StartDate: req.query.StartDate });
         console.log(users);
         if (!users) {
             return res.status(404).json({
@@ -332,7 +338,7 @@ exports.DaysSoftDelete = DaysSoftDelete;
 const getDaysByEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // let user = await DaysModel.find({ email: req.query.email, isDeleted: false })
-        let users = yield days_1.default.findOne({ email: req.query.email, StartDate: req.query.StartDate }, { isDeleted: false });
+        const users = yield days_1.default.findOne({ email: req.query.email, StartDate: req.query.StartDate }, { isDeleted: false });
         if (!users) {
             return res.status(400).json({
                 success: false,

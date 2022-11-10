@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import express, { Request, Response } from "express";
 import vtoken from "../mid/token"
 import {isAdmin ,isStaff} from "../mid/roles";
