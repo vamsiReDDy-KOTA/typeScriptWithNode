@@ -177,6 +177,10 @@ const signin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             if (err) {
                 console.log(err);
             }
+            const newUser = new signup_1.default({
+                token
+            });
+            yield newUser.save();
             return yield res.json({
                 token: token,
                 id: exist._id,

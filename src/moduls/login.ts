@@ -1,50 +1,27 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Signup } from "./signupinterface";
+import { Signin } from "./loginintrtface";
 import mongoose, { model, Schema } from "mongoose";
 
-const SignupSchema : Schema = new Schema(
+const SigninSchema : Schema = new Schema(
     {
-        firstname:{
-            type:String,
-            required:true
-        },
-        lastname:{
-            type:String,
-            required:true
-        },
         image:{
             type:String,
             default:'null'  
-        } 
-            //default:"none"
-        ,    
+        },    
         email:{
             type:String,
             required:true,
             unique:true
         },
-        
         password:{
             type:String,
             required:true
         },
-        confirmPassword:{
-            type:String,
-            required:true
-        },
-        // isAdmin: {
-        //       type:Boolean,
-        //       default: false,
-        // },
         role: {
             type: String,
             enum : ['user','admin','staff'],
             default: 'staff'
-        },   
-        isDeleted:{
-            type:Boolean,
-            default:false
-           },
+        }, 
         tokens: {
             accessToken: {
                 type: String,
@@ -59,5 +36,4 @@ const SignupSchema : Schema = new Schema(
     }
 )
 
-export default model<Signup>("SignupDt", SignupSchema);
-
+export default model<Signin>("SigninDt", SigninSchema);

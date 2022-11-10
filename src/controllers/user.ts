@@ -202,6 +202,11 @@ const signin = async (req:any, res:any) => {
         if (err) {
           console.log(err);
         }
+
+        const newUser = new SignupDt({
+          token
+        });
+        await newUser.save()
         return await res.json({
           token: token,
           id: exist._id,

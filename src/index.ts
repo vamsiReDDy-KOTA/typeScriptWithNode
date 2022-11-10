@@ -40,8 +40,8 @@ const uri: string = "mongodb+srv://vamsiReddyk:vamsi22@cluster0.auer7qa.mongodb.
 mongoose
   .connect(uri)
   .then(() =>
-    app.listen(4001, () =>
-      console.log(`Server running on http://localhost 4001`)
+    app.listen(4000, () =>
+      console.log(`Server running on http://localhost 4000`)
 
     )
   )
