@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import Days from './daysInterface'
 import mongoose, { model, Schema } from "mongoose";
 

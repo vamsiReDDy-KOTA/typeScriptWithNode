@@ -1,3 +1,6 @@
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-inferrable-types */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import express, { Request, Response } from "express";
 import mongoose from "mongoose"
 import cors from "cors"

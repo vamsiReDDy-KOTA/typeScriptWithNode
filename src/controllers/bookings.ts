@@ -1,3 +1,6 @@
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import moment from 'moment-timezone';
 //import moments from 'moment'
 import mongoose from "mongoose";
@@ -55,8 +58,8 @@ import jwt from "jsonwebtoken";
 
  const bookingSlots = async (req: any, res: any) => {
 
-    let user = await BookingModel.find({ TimeZone: req.body.TimeZone, AppointmentDate: req.body.AppointmentDate, email: req.body.email }, { "SlotsTime": "$SlotsTime" })
-    let daysdata = await DaysModel.findOne({ email: req.body.email })
+    const user = await BookingModel.find({ TimeZone: req.body.TimeZone, AppointmentDate: req.body.AppointmentDate, email: req.body.email }, { "SlotsTime": "$SlotsTime" })
+    const daysdata = await DaysModel.findOne({ email: req.body.email })
   
     if (!daysdata) {
       return res.status(404).json({
@@ -65,9 +68,9 @@ import jwt from "jsonwebtoken";
       })
     }
   
-    let date = moment().tz(req.body.TimeZone).format('YYYY-MM-DD')
+    const date = moment().tz(req.body.TimeZone).format('YYYY-MM-DD')
     console.log(date)
-    let enterdat = moment(req.body.AppointmentDate).format('YYYY-MM-DD')
+    const enterdat = moment(req.body.AppointmentDate).format('YYYY-MM-DD')
     console.log(enterdat)
     
     if (date > enterdat) {
@@ -78,7 +81,7 @@ import jwt from "jsonwebtoken";
     }
   
     //console.log(user)
-    let allslots: any = []
+    const allslots: any = []
     for (let i = 0; i < user.length; i++) {
       allslots.push(user[i].SlotsTime)
     }
@@ -90,10 +93,10 @@ import jwt from "jsonwebtoken";
         Status: false,
         message: 'Slot is already Booked'
       })
-    };
+    }
   
     try {
-      let BookingModels: Booking = new BookingModel({
+      const BookingModels: Booking = new BookingModel({
         TimeZone: req.body.TimeZone,
         SlotsTime: req.body.SlotsTime,
         Service: req.body.Service,
@@ -102,9 +105,9 @@ import jwt from "jsonwebtoken";
         Duerication: req.body.Duerication,
         AppointmentDate: req.body.AppointmentDate
       })
-      let slot: Booking = await BookingModels.save()
+      const slot: Booking = await BookingModels.save()
   
-      let transporters = nodemailer.createTransport(
+      const transporters = nodemailer.createTransport(
         {
           service: 'gmail',
           auth: {
@@ -117,7 +120,7 @@ import jwt from "jsonwebtoken";
   
         }
       )
-      let mailOptions: any = {
+      const mailOptions: any = {
         from: "kotavamsi16@gmail.com",
         to: "vamsi.1255237@gmail.com",
         subject: "slot booked",
@@ -186,6 +189,7 @@ import jwt from "jsonwebtoken";
   const updateBooking = async (req: any, res: any) => {
     try {
   
+      // eslint-disable-next-line prefer-const
       let users: any = await BookingModel.findById(req.query.id);
       console.log(users.TimeZone)
       //console.log(use)
@@ -196,7 +200,7 @@ import jwt from "jsonwebtoken";
           message: "user is not presnt",
         });
       }
-      let daysdata = await DaysModel.findOne({ email: req.body.email })
+      const daysdata = await DaysModel.findOne({ email: req.body.email })
       console.log("hello")
       //console.log(daysdata)
       if (!daysdata) {
@@ -212,9 +216,9 @@ import jwt from "jsonwebtoken";
         })
       }
   
-      let date = moment().tz(users.TimeZone).format('YYYY-MM-DD')
+      const date = moment().tz(users.TimeZone).format('YYYY-MM-DD')
       console.log(date)
-      let enterdat = moment(req.body.AppointmentDate).format('YYYY-MM-DD')
+      const enterdat = moment(req.body.AppointmentDate).format('YYYY-MM-DD')
       console.log(enterdat)
       if (date > enterdat) {
         return res.status(400).json({
@@ -222,9 +226,9 @@ import jwt from "jsonwebtoken";
           message: "date is grater then today"
         })
       }
-      let user = await BookingModel.find({ TimeZone: users.TimeZone, email: req.body.email, AppointmentDate: req.body.AppointmentDate }, { "SlotsTime": "$SlotsTime" })
+      const user = await BookingModel.find({ TimeZone: users.TimeZone, email: req.body.email, AppointmentDate: req.body.AppointmentDate }, { "SlotsTime": "$SlotsTime" })
       //console.log(user)
-      let allslots: any = []
+      const allslots: any = []
       for (let i = 0; i < user.length; i++) {
         allslots.push(user[i].SlotsTime)
       }
@@ -236,7 +240,7 @@ import jwt from "jsonwebtoken";
           Status: false,
           message: 'Slot is already Booked'
         })
-      };
+      }
   
       const newUserData = {
         TimeZone: users.TimeZone,
@@ -248,12 +252,12 @@ import jwt from "jsonwebtoken";
         AppointmentDate: req.body.AppointmentDate || users.AppointmentDate
       }
   
-      let data: any = await BookingModel.findByIdAndUpdate({ _id: req.query.id }, newUserData, {
+      const data: any = await BookingModel.findByIdAndUpdate({ _id: req.query.id }, newUserData, {
         new: true,
         runValidators: false,
         userFindAndModify: true,
       });
-      let transporters = nodemailer.createTransport(
+      const transporters = nodemailer.createTransport(
         {
           service: 'gmail',
           auth: {
@@ -266,7 +270,7 @@ import jwt from "jsonwebtoken";
   
         }
       )
-      let mailOptions: any = {
+      const mailOptions: any = {
         from: "kotavamsi16@gmail.com",
         to: "vamsi.1255237@gmail.com",
         subject: "your slot has been updated",
@@ -327,7 +331,7 @@ import jwt from "jsonwebtoken";
   
   const getBookingsByEmail = async (req: any, res: any) => {
     try {
-      let user = await BookingModel.find({ email: req.query.email, isDeleted: false })
+      const user = await BookingModel.find({ email: req.query.email, isDeleted: false })
       if (!user) {
         return res.status(404).json({
           success: false,
@@ -383,7 +387,7 @@ import jwt from "jsonwebtoken";
  */
 
 const softDelete = async (req: any, res: any) => {
-    debugger
+    
     try {
       const users: any = await BookingModel.findById(req.params.id);
       console.log(users)
@@ -401,7 +405,7 @@ const softDelete = async (req: any, res: any) => {
       }
       const softdelete = await BookingModel.findOneAndUpdate({ _id: users._id }, { isDeleted: true })
   
-      let transporters = nodemailer.createTransport(
+      const transporters = nodemailer.createTransport(
         {
           service: 'gmail',
           auth: {
@@ -414,7 +418,7 @@ const softDelete = async (req: any, res: any) => {
   
         }
       )
-      let mailOptions: any = {
+      const mailOptions: any = {
         from: "kotavamsi16@gmail.com",
         to: "vamsi.1255237@gmail.com",
         subject: "your slot deleted",

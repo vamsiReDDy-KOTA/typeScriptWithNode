@@ -1,4 +1,7 @@
 "use strict";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-console */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -44,7 +47,7 @@ const signup_1 = __importDefault(require("../moduls/signup"));
  */
 const getallstaffs = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let user = yield days_1.default.find({ isDeleted: false });
+        const user = yield days_1.default.find({ isDeleted: false });
         res.status(200).json({
             message: "data",
             result: user
@@ -90,8 +93,8 @@ exports.getallstaffs = getallstaffs;
 const getallusers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let query;
-        let searchFild = req.query.email;
-        let user = yield signup_1.default.find({ isDeleted: false, $or: [{ email: { $regex: searchFild, $options: '$i' }, firstname: { $regex: searchFild, $options: '$i' } }] });
+        const searchFild = req.query.email;
+        const user = yield signup_1.default.find({ isDeleted: false, $or: [{ email: { $regex: searchFild, $options: '$i' }, firstname: { $regex: searchFild, $options: '$i' } }] });
         /**
          try {
       let query;
@@ -239,7 +242,7 @@ exports.getallusers = getallusers;
  */
 const updatealluser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let users = yield signup_1.default.find({ email: req.query.email, isDeleted: false });
+        const users = yield signup_1.default.find({ email: req.query.email, isDeleted: false });
         if (!users) {
             return res.status(404).json({
                 success: false,
@@ -275,7 +278,7 @@ const updatealluser = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 exports.updatealluser = updatealluser;
 const updateallstaff = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let users = yield days_1.default.find({ email: req.query.email, isDeleted: false });
+        const users = yield days_1.default.find({ email: req.query.email, isDeleted: false });
         if (!users) {
             return res.status(404).json({
                 success: false,

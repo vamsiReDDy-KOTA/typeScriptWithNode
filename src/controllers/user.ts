@@ -1,3 +1,6 @@
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 //import { Times } from "../moduls/timesInterface";
 import * as fs from 'fs'
@@ -86,7 +89,9 @@ import jwt from "jsonwebtoken";
       req.body = val;
     }).catch(err => {
       console.log('Failed to validate input ' + err.details[0].message);
-      var k:any = err.details[0].message
+      
+     
+      const k:any = err.details[0].message
       return res.status(400).send(k)
     })
 
@@ -94,7 +99,7 @@ import jwt from "jsonwebtoken";
     //const {image} =  req.file.filename
     const hass = bcrypt.hashSync(password, salt);
     const conHass = bcrypt.hashSync(confirmPassword, salt);
-    let exist = await SignupDt.findOne({ email });
+    const exist = await SignupDt.findOne({ email });
 
     if (exist) {
       return res.status(404).json({"message":"User is already present"});
@@ -107,7 +112,7 @@ import jwt from "jsonwebtoken";
         .json({ "message" : " password and confirmpassword should be same"});
     }
    
-    let newUser = new SignupDt({
+    const newUser = new SignupDt({
       firstname,
       lastname,
       email,
@@ -169,7 +174,7 @@ const signin = async (req:any, res:any) => {
   try {
     const { email, password } = req.body;
 
-    let exist : any = await SignupDt.findOne({ email });
+    const exist : any = await SignupDt.findOne({ email });
 
     if (!exist) {
       return res.status(404).json({"Message":"user is not present in our Database"});
@@ -183,7 +188,7 @@ const signin = async (req:any, res:any) => {
       return res.status(400).json({"message":"password went wrong"});
     }
 
-    let payload = {
+    const payload = {
       user: {
         id: exist.id,
       },
@@ -201,7 +206,7 @@ const signin = async (req:any, res:any) => {
           token: token,
           id: exist._id,
           email: exist.email,
-          isAdmin: exist.isAdmin,
+          role: exist.role,
         });
       }
     );
@@ -256,7 +261,7 @@ const signin = async (req:any, res:any) => {
 
 const updateuser =async (req:any,res:any) => {
   try {
-    let users: any = await SignupDt.findOne({ email: req.query.email });
+    const users: any = await SignupDt.findOne({ email: req.query.email });
     if (!users) {
       return res.status(404).json({
         success: false,
@@ -269,8 +274,8 @@ const updateuser =async (req:any,res:any) => {
       })
     }
     const salt = bcrypt.genSaltSync(10);
-    let password = req.body.password || users.password
-    let confirmPassword = req.body.confirmPassword || users.confirmPassword
+    const password = req.body.password || users.password
+    const confirmPassword = req.body.confirmPassword || users.confirmPassword
 
     if (password !== confirmPassword) {
       return res
@@ -345,7 +350,7 @@ const updateuser =async (req:any,res:any) => {
 
 const logingetuser =async (req:any,res:any) => {
   try {
-    let user = await SignupDt.find({ email: req.query.email, isDeleted: false })
+    const user = await SignupDt.find({ email: req.query.email, isDeleted: false })
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -403,7 +408,7 @@ const logingetuser =async (req:any,res:any) => {
 
 const deleteuser =async (req:any,res:any) => {
   try {
-    let users: any = await SignupDt.findById(req.params.id);
+    const users: any = await SignupDt.findById(req.params.id);
     console.log(users)
     if (!users) {
       return res.status(404).json({
@@ -418,7 +423,7 @@ const deleteuser =async (req:any,res:any) => {
         error:  "user not present"
       });
     }
-    let softdelete = await SignupDt.findOneAndUpdate({ _id: users._id }, { isDeleted: true })
+    const softdelete = await SignupDt.findOneAndUpdate({ _id: users._id }, { isDeleted: true })
     res.status(200).json({
       message: "deleted successfully",
     
@@ -475,7 +480,7 @@ const deleteuser =async (req:any,res:any) => {
  const profile =  async (req :any, res :any, next:any) => {
 
     try {
-      let userd : any = await SignupDt.findOne({email: req.query.email});
+      const userd : any = await SignupDt.findOne({email: req.query.email});
       
       if (!userd) {
         return res.status(404).json({

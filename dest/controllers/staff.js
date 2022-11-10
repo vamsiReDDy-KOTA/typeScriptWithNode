@@ -160,11 +160,15 @@ exports.ondays = ondays;
 const updateSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let users = yield days_1.default.findOne({ email: req.query.email, StartDate: req.query.StartDate });
-        let datas = users.repectForWeek;
+        //console.log(users)
+        let datas = users === null || users === void 0 ? void 0 : users.repectForWeek;
+        console.log(datas);
         if (!datas) {
             var ds = moment_timezone_1.default.utc(users.StartDate).add(1, 'week').format("DD-MM-YYYY");
         }
-        let daya = req.body.StartDate < datas;
+        console.log(ds);
+        let daya = req.body.StartDate > ds;
+        console.log(daya);
         if (!daya) {
             return res.status(400).send("start date is grater then lastWeek");
         }
@@ -173,9 +177,8 @@ const updateSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         if (StartDate != 'Sunday') {
             return res.status(400).send("Start Date should be starting day of the week");
         }
-        console.log(ds);
         let da = moment_timezone_1.default.utc(req.body.StartDate).format("DD-MM-YYYY");
-        let ts = (0, moment_timezone_1.default)().tz(req.body.TimeZone).format("DD-MM-YYYY");
+        let ts = moment_timezone_1.default.utc().tz(req.body.TimeZone).format("DD-MM-YYYY");
         let updateDate = req.query.updateDate;
         let udDate = (0, moment_timezone_1.default)(updateDate).tz(req.body.TimeZone).format("DD-MM-YYYY");
         console.log(udDate);

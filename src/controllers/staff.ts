@@ -178,13 +178,16 @@ import jwt from "jsonwebtoken";
 const updateSlot = async (req: any, res: any) => {
     try {
       
-      let users: any = await DaysModel.findOne({ email: req.query.email ,StartDate:req.query.StartDate });
-      
-      let datas = users.repectForWeek
-      if(!datas){
+      let users: any = await DaysModel.findOne({ email: req.query.email,StartDate:req.query.StartDate});
+      //console.log(users)
+      let datas = users?.repectForWeek
+      console.log(datas)
+      if(!datas){ 
        var ds:any = moment.utc(users.StartDate).add(1, 'week').format("DD-MM-YYYY");
-      }
-      let daya = req.body.StartDate<datas
+      } 
+      console.log(ds)
+      let daya = req.body.StartDate>ds
+      console.log(daya)
       if(!daya){
         return res.status(400).send("start date is grater then lastWeek")
       }
@@ -194,12 +197,11 @@ const updateSlot = async (req: any, res: any) => {
        if(StartDate !='Sunday'){
          return res.status(400).send("Start Date should be starting day of the week")
        }
-      
-
-       console.log(ds)
+        
+       
       
       let da = moment.utc(req.body.StartDate).format("DD-MM-YYYY");
-      let ts = moment().tz(req.body.TimeZone).format("DD-MM-YYYY");
+      let ts = moment.utc().tz(req.body.TimeZone).format("DD-MM-YYYY");
       let updateDate = req.query.updateDate
       let udDate =  moment(updateDate).tz(req.body.TimeZone).format("DD-MM-YYYY");
 

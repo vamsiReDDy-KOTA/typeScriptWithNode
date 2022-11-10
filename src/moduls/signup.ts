@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Signup } from "./signupinterface";
 import mongoose, { model, Schema } from "mongoose";
 

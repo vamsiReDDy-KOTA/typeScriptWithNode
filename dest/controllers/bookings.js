@@ -13,6 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getBookingsByEmail = exports.updateBooking = exports.bookingSlots = exports.softDelete = void 0;
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 const days_1 = __importDefault(require("../moduls/days"));
 const bookingModel_1 = __importDefault(require("../moduls/bookingModel"));
@@ -52,17 +55,17 @@ const nodemailer_1 = __importDefault(require("nodemailer"));
  * HTTP/1.1 500 Internal Server Error
  */
 const bookingSlots = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let user = yield bookingModel_1.default.find({ TimeZone: req.body.TimeZone, AppointmentDate: req.body.AppointmentDate, email: req.body.email }, { "SlotsTime": "$SlotsTime" });
-    let daysdata = yield days_1.default.findOne({ email: req.body.email });
+    const user = yield bookingModel_1.default.find({ TimeZone: req.body.TimeZone, AppointmentDate: req.body.AppointmentDate, email: req.body.email }, { "SlotsTime": "$SlotsTime" });
+    const daysdata = yield days_1.default.findOne({ email: req.body.email });
     if (!daysdata) {
         return res.status(404).json({
             status: false,
             message: "user is not present"
         });
     }
-    let date = (0, moment_timezone_1.default)().tz(req.body.TimeZone).format('YYYY-MM-DD');
+    const date = (0, moment_timezone_1.default)().tz(req.body.TimeZone).format('YYYY-MM-DD');
     console.log(date);
-    let enterdat = (0, moment_timezone_1.default)(req.body.AppointmentDate).format('YYYY-MM-DD');
+    const enterdat = (0, moment_timezone_1.default)(req.body.AppointmentDate).format('YYYY-MM-DD');
     console.log(enterdat);
     if (date > enterdat) {
         return res.status(400).json({
@@ -71,7 +74,7 @@ const bookingSlots = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         });
     }
     //console.log(user)
-    let allslots = [];
+    const allslots = [];
     for (let i = 0; i < user.length; i++) {
         allslots.push(user[i].SlotsTime);
     }
@@ -84,9 +87,8 @@ const bookingSlots = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             message: 'Slot is already Booked'
         });
     }
-    ;
     try {
-        let BookingModels = new bookingModel_1.default({
+        const BookingModels = new bookingModel_1.default({
             TimeZone: req.body.TimeZone,
             SlotsTime: req.body.SlotsTime,
             Service: req.body.Service,
@@ -95,8 +97,8 @@ const bookingSlots = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             Duerication: req.body.Duerication,
             AppointmentDate: req.body.AppointmentDate
         });
-        let slot = yield BookingModels.save();
-        let transporters = nodemailer_1.default.createTransport({
+        const slot = yield BookingModels.save();
+        const transporters = nodemailer_1.default.createTransport({
             service: 'gmail',
             auth: {
                 user: "kotavamsi16@gmail.com",
@@ -106,7 +108,7 @@ const bookingSlots = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 rejectUnauthorized: true,
             },
         });
-        let mailOptions = {
+        const mailOptions = {
             from: "kotavamsi16@gmail.com",
             to: "vamsi.1255237@gmail.com",
             subject: "slot booked",
@@ -172,6 +174,7 @@ exports.bookingSlots = bookingSlots;
  */
 const updateBooking = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        // eslint-disable-next-line prefer-const
         let users = yield bookingModel_1.default.findById(req.query.id);
         console.log(users.TimeZone);
         //console.log(use)
@@ -182,7 +185,7 @@ const updateBooking = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 message: "user is not presnt",
             });
         }
-        let daysdata = yield days_1.default.findOne({ email: req.body.email });
+        const daysdata = yield days_1.default.findOne({ email: req.body.email });
         console.log("hello");
         //console.log(daysdata)
         if (!daysdata) {
@@ -196,9 +199,9 @@ const updateBooking = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 message: " user is not present "
             });
         }
-        let date = (0, moment_timezone_1.default)().tz(users.TimeZone).format('YYYY-MM-DD');
+        const date = (0, moment_timezone_1.default)().tz(users.TimeZone).format('YYYY-MM-DD');
         console.log(date);
-        let enterdat = (0, moment_timezone_1.default)(req.body.AppointmentDate).format('YYYY-MM-DD');
+        const enterdat = (0, moment_timezone_1.default)(req.body.AppointmentDate).format('YYYY-MM-DD');
         console.log(enterdat);
         if (date > enterdat) {
             return res.status(400).json({
@@ -206,9 +209,9 @@ const updateBooking = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 message: "date is grater then today"
             });
         }
-        let user = yield bookingModel_1.default.find({ TimeZone: users.TimeZone, email: req.body.email, AppointmentDate: req.body.AppointmentDate }, { "SlotsTime": "$SlotsTime" });
+        const user = yield bookingModel_1.default.find({ TimeZone: users.TimeZone, email: req.body.email, AppointmentDate: req.body.AppointmentDate }, { "SlotsTime": "$SlotsTime" });
         //console.log(user)
-        let allslots = [];
+        const allslots = [];
         for (let i = 0; i < user.length; i++) {
             allslots.push(user[i].SlotsTime);
         }
@@ -221,7 +224,6 @@ const updateBooking = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 message: 'Slot is already Booked'
             });
         }
-        ;
         const newUserData = {
             TimeZone: users.TimeZone,
             SlotsTime: req.body.SlotsTime || users.SlotsTime,
@@ -231,12 +233,12 @@ const updateBooking = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             Duerication: req.body.Duerication || users.Duerication,
             AppointmentDate: req.body.AppointmentDate || users.AppointmentDate
         };
-        let data = yield bookingModel_1.default.findByIdAndUpdate({ _id: req.query.id }, newUserData, {
+        const data = yield bookingModel_1.default.findByIdAndUpdate({ _id: req.query.id }, newUserData, {
             new: true,
             runValidators: false,
             userFindAndModify: true,
         });
-        let transporters = nodemailer_1.default.createTransport({
+        const transporters = nodemailer_1.default.createTransport({
             service: 'gmail',
             auth: {
                 user: "kotavamsi16@gmail.com",
@@ -246,7 +248,7 @@ const updateBooking = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 rejectUnauthorized: true,
             },
         });
-        let mailOptions = {
+        const mailOptions = {
             from: "kotavamsi16@gmail.com",
             to: "vamsi.1255237@gmail.com",
             subject: "your slot has been updated",
@@ -307,7 +309,7 @@ exports.updateBooking = updateBooking;
  */
 const getBookingsByEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let user = yield bookingModel_1.default.find({ email: req.query.email, isDeleted: false });
+        const user = yield bookingModel_1.default.find({ email: req.query.email, isDeleted: false });
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -363,7 +365,6 @@ exports.getBookingsByEmail = getBookingsByEmail;
 
  */
 const softDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    debugger;
     try {
         const users = yield bookingModel_1.default.findById(req.params.id);
         console.log(users);
@@ -378,7 +379,7 @@ const softDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             });
         }
         const softdelete = yield bookingModel_1.default.findOneAndUpdate({ _id: users._id }, { isDeleted: true });
-        let transporters = nodemailer_1.default.createTransport({
+        const transporters = nodemailer_1.default.createTransport({
             service: 'gmail',
             auth: {
                 user: "kotavamsi16@gmail.com",
@@ -388,7 +389,7 @@ const softDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 rejectUnauthorized: true,
             },
         });
-        let mailOptions = {
+        const mailOptions = {
             from: "kotavamsi16@gmail.com",
             to: "vamsi.1255237@gmail.com",
             subject: "your slot deleted",

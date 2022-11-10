@@ -1,3 +1,7 @@
+/* eslint-disable no-case-declarations */
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import moment from 'moment-timezone';
 import Moments from 'moment'
 
@@ -38,22 +42,22 @@ import Days from "../moduls/daysInterface"
 
  const GetAppointment = async (req: any, res: any) => {
     try {
-      let date = req.query.date
+      const date = req.query.date
 
       //let da = await DaysModel.findOne({ email: req.query.email })
       
-      let slots = await DaysModel.findOne({ email: req.query.email })
-      let timeZn: any = slots?.TimeZone
-      let da :any = slots?.repectForWeek
-      let va = moment().startOf('isoWeek').add(1, da ).format("DD-MM-YYYY");
-      let ptz = moment(date).format('DD-MM-YYYY')
+      const slots = await DaysModel.findOne({ email: req.query.email })
+      const timeZn: any = slots?.TimeZone
+      const da :any = slots?.repectForWeek
+      const va = moment().startOf('isoWeek').add(1, da ).format("DD-MM-YYYY");
+      const ptz = moment(date).format('DD-MM-YYYY')
       
-      let userDt = moment().tz(timeZn).format("DD-MM-YYYY")
+      const userDt = moment().tz(timeZn).format("DD-MM-YYYY")
       console.log(userDt)
-      let userEnteredDt = moment(date).format("YYYY-MM-DD")
+      const userEnteredDt = moment(date).format("YYYY-MM-DD")
       
-      let userEnteredDay = moment(userEnteredDt).format('dddd')
-      let currentTime = moment().tz(timeZn).format('HH:mm')
+      const userEnteredDay = moment(userEnteredDt).format('dddd')
+      const currentTime = moment().tz(timeZn).format('HH:mm')
       
       
       if(!slots){
@@ -73,7 +77,7 @@ import Days from "../moduls/daysInterface"
         
         const slot = await BookingModel.find({ AppointmentDate: userEnteredDt, email: req.query.email }, { "SlotsTime": "$SlotsTime" })
         console.log(slot)
-        let allslots: any = []
+        const allslots: any = []
         for (let i = 0; i < slot.length; i++) {
           allslots.push(slot[i].SlotsTime)
         }
@@ -83,33 +87,33 @@ import Days from "../moduls/daysInterface"
             if (!slots?.Monday[0]) {
               return res.status(400).send("slots are not there")
             }
-            let MbreakTime = slots?.Monday[0].breakTime
-            let MStartbreakTime = MbreakTime.filter((_: any, i: any) => !(i % 2));
-            let MEndbreakTime = MbreakTime.filter((_: any, i: any) => (i % 2));
-            let MstartTime: any = slots?.Monday[0].startTime
-            let MendTime: any = slots?.Monday[0].endTime
-            let MallTime: any[] = [];
-            let MallendTime: any = []
-            let Mstartti = slots?.Monday[0].startTime[0]
+            const MbreakTime = slots?.Monday[0].breakTime
+            const MStartbreakTime = MbreakTime.filter((_: any, i: any) => !(i % 2));
+            const MEndbreakTime = MbreakTime.filter((_: any, i: any) => (i % 2));
+            const MstartTime: any = slots?.Monday[0].startTime
+            const MendTime: any = slots?.Monday[0].endTime
+            const MallTime: any[] = [];
+            const MallendTime: any = []
+            const Mstartti = slots?.Monday[0].startTime[0]
             let Mall: any = []
             for (let i = 0; i < MstartTime.length; i++) {
-              let startt = moment(MstartTime[i], "HH:mm");
-              let endt = moment(MendTime[i], "HH:mm");
+              const startt = moment(MstartTime[i], "HH:mm");
+              const endt = moment(MendTime[i], "HH:mm");
               while (startt < endt) {
                 Mall.push(startt.format("hh:mm A"));
                 startt.add(30, 'minutes');
               }
             }
             for (let i = 0; i < MStartbreakTime.length; i++) {
-              let startt = moment(MStartbreakTime[i], "HH:mm");
-              let endt = moment(MEndbreakTime[i], "HH:mm");
+              const startt = moment(MStartbreakTime[i], "HH:mm");
+              const endt = moment(MEndbreakTime[i], "HH:mm");
               while (startt < endt) {
                 MallendTime.push(startt.format("hh:mm A DD-MM-YYYY" ));
                 startt.add(30, 'minutes');
               }
             }
             //console.log(allendTime)
-            let Mremovingslots = MallendTime.concat(allslots.flat())
+            const Mremovingslots = MallendTime.concat(allslots.flat())
   
             Mall = Mall.filter((v: any) => !Mremovingslots.includes(v))
   
@@ -118,13 +122,13 @@ import Days from "../moduls/daysInterface"
               if (currentTime > Mstartti) {
                 console.log("first")
                 for (let i = 0; i < MstartTime.length; i++) {
-                  let startt = moment(MstartTime[i], "HH:mm")
-                  let endt = moment(MendTime[i], "HH:mm");
+                  const startt = moment(MstartTime[i], "HH:mm")
+                  const endt = moment(MendTime[i], "HH:mm");
                   while (startt < endt) {
                     MallTime.push(startt.add(30,'m').format("hh:mm A"));
                   }
                 }
-                let h = moment(currentTime, 'HH:mm').format('HH')
+                const h = moment(currentTime, 'HH:mm').format('HH')
                 let m = moment(currentTime, 'HH:mm').format('mm')
                 if (m >= '1' && m <= '29') {
                   m = '00'
@@ -132,17 +136,17 @@ import Days from "../moduls/daysInterface"
                 else if (m >= '31' && m <= '59') {
                   m = '30'
                 }
-                let ti = `${h}:${m}`
-                let st = moment(ti, 'HH:mm')
-                let startt = moment(Mstartti, "HH:mm")
+                const ti = `${h}:${m}`
+                const st = moment(ti, 'HH:mm')
+                const startt = moment(Mstartti, "HH:mm")
                 console.log(startt)
-                let hello :any[] = []
+                const hello :any[] = []
              
                 while (startt < st) {
                   hello.push(startt.add(30, 'minutes').format('hh:mm A'));
                 }
                 let hii = MallTime.filter((k:any)=>!hello.includes(k))
-                let removingslots = MallendTime.concat(allslots.flat())
+                const removingslots = MallendTime.concat(allslots.flat())
         
                 hii = hii.filter((v: any) => !removingslots.includes(v))
   
@@ -192,19 +196,19 @@ import Days from "../moduls/daysInterface"
             if (!slots?.Tuesday[0]) {
               return res.status(400).send("slots are not there")
             }
-            let TubreakTime = slots?.Tuesday[0].breakTime
-            let TuStartbreakTime = TubreakTime.filter((_: any, i: any) => !(i % 2));
-            let TuEndbreakTime = TubreakTime.filter((_: any, i: any) => (i % 2));
-            let TustartTime: any = slots?.Tuesday[0].startTime
-            let TuendTime: any = slots?.Tuesday[0].endTime
-            let TuallTime: any[] = [];
-            let TuallendTime: any = []
-            let Tustartti = slots?.Tuesday[0].startTime[0]
+            const TubreakTime = slots?.Tuesday[0].breakTime
+            const TuStartbreakTime = TubreakTime.filter((_: any, i: any) => !(i % 2));
+            const TuEndbreakTime = TubreakTime.filter((_: any, i: any) => (i % 2));
+            const TustartTime: any = slots?.Tuesday[0].startTime
+            const TuendTime: any = slots?.Tuesday[0].endTime
+            const TuallTime: any[] = [];
+            const TuallendTime: any = []
+            const Tustartti = slots?.Tuesday[0].startTime[0]
   
             let Tuall: any = []
             for (let i = 0; i < TustartTime.length; i++) {
-              let startt = moment(TustartTime[i], "HH:mm");
-              let endt = moment(TuendTime[i], "HH:mm");
+              const startt = moment(TustartTime[i], "HH:mm");
+              const endt = moment(TuendTime[i], "HH:mm");
               while (startt < endt) {
                 Tuall.push(startt.format("hh:mm A"));
                 startt.add(30, 'minutes');
@@ -212,15 +216,15 @@ import Days from "../moduls/daysInterface"
             }
   
             for (let i = 0; i < TuStartbreakTime.length; i++) {
-              let startt = moment(TuStartbreakTime[i], "HH:mm");
-              let endt = moment(TuEndbreakTime[i], "HH:mm");
+              const startt = moment(TuStartbreakTime[i], "HH:mm");
+              const endt = moment(TuEndbreakTime[i], "HH:mm");
               while (startt < endt) {
                 TuallendTime.push(startt.format("hh:mm A"));
                 startt.add(30, 'minutes');
               }
             }
             // console.log(TuallendTime)
-            let Turemovingslots = TuallendTime.concat(allslots.flat())
+            const Turemovingslots = TuallendTime.concat(allslots.flat())
             Tuall = Tuall.filter((v: any) => !Turemovingslots.includes(v))
   
             if (userDt === ptz) {
@@ -228,14 +232,14 @@ import Days from "../moduls/daysInterface"
               if (currentTime > Tustartti) {
                 console.log("first")
                 for (let i = 0; i < TustartTime.length; i++) {
-                  let startt = moment(TustartTime[i], "HH:mm");
-                  let endt = moment(TuendTime[i], "HH:mm");
+                  const startt = moment(TustartTime[i], "HH:mm");
+                  const endt = moment(TuendTime[i], "HH:mm");
                    while (startt < endt) {
                     TuallTime.push(startt.add(30,'m').format("hh:mm A"));
                               }
                 }
                 // let AFallTime = TuallTime.filter(v => !Tuall.includes(v))
-                let h = moment(currentTime, 'HH:mm').format('HH')
+                const h = moment(currentTime, 'HH:mm').format('HH')
                 let m = moment(currentTime, 'HH:mm').format('mm')
                 if (m >= '1' && m <= '29') {
                   m = '00'
@@ -243,17 +247,17 @@ import Days from "../moduls/daysInterface"
                 else if (m >= '31' && m <= '59') {
                   m = '30'
                 }
-                let ti = `${h}:${m}`
-                let st = moment(ti, 'HH:mm')
-                let startt = moment(Tustartti, "HH:mm")
+                const ti = `${h}:${m}`
+                const st = moment(ti, 'HH:mm')
+                const startt = moment(Tustartti, "HH:mm")
                 console.log(startt)
-                let hello :any[] = []
+                const hello :any[] = []
              
                 while (startt < st) {
                   hello.push(startt.add(30, 'minutes').format('hh:mm A'));
                 }
                 let hii = TuallTime.filter((k:any)=>!hello.includes(k))
-                let removingslots = TuallendTime.concat(allslots.flat())
+                const removingslots = TuallendTime.concat(allslots.flat())
                 console.log(removingslots)
                 hii = hii.filter((v: any) => !removingslots.includes(v))
                 hii.shift()
@@ -304,20 +308,20 @@ import Days from "../moduls/daysInterface"
             if (!slots?.Wednesday[0]) {
               return res.status(400).send("slots are not there")
             }
-            let WbreakTime:any = slots?.Wednesday[0].breakTime
-            let WStartbreakTime = WbreakTime.filter((_: any, i: any) => !(i % 2));
-            let WEndbreakTime = WbreakTime.filter((_: any, i: any) => (i % 2));
-            let WstartTime: any = slots?.Wednesday[0].startTime
-            let WendTime: any = slots?.Wednesday[0].endTime
-            let WallTime: any[] = [];
-            let WallendTime: any = []
-            let Wstartti = slots?.Wednesday[0].startTime[0]
+            const WbreakTime:any = slots?.Wednesday[0].breakTime
+            const WStartbreakTime = WbreakTime.filter((_: any, i: any) => !(i % 2));
+            const WEndbreakTime = WbreakTime.filter((_: any, i: any) => (i % 2));
+            const WstartTime: any = slots?.Wednesday[0].startTime
+            const WendTime: any = slots?.Wednesday[0].endTime
+            const WallTime: any[] = [];
+            const WallendTime: any = []
+            const Wstartti = slots?.Wednesday[0].startTime[0]
             console.log(Wstartti)
   
             let Wall: any = []
             for (let i = 0; i < WstartTime.length; i++) {
-              let startt = moment(WstartTime[i], "HH:mm");
-              let endt = moment(WendTime[i], "HH:mm");
+              const startt = moment(WstartTime[i], "HH:mm");
+              const endt = moment(WendTime[i], "HH:mm");
                   while (startt < endt) {
                             Wall.push(startt.format("hh:mm A"));
                 startt.add(30, 'minutes');
@@ -325,15 +329,15 @@ import Days from "../moduls/daysInterface"
             }
   
             for (let i = 0; i < WStartbreakTime.length; i++) {
-              let startt = moment(WStartbreakTime[i], "HH:mm");
-              let endt = moment(WEndbreakTime[i], "HH:mm");
+              const startt = moment(WStartbreakTime[i], "HH:mm");
+              const endt = moment(WEndbreakTime[i], "HH:mm");
               while (startt < endt) {
                 WallendTime.push(startt.format("hh:mm A"));
                 startt.add(30, 'minutes');
               }
             }
             //console.log(Wall)
-            let removingslots = WallendTime.concat(allslots.flat())
+            const removingslots = WallendTime.concat(allslots.flat())
             Wall = Wall.filter((v: any) => !removingslots.includes(v))
   
             if (userDt === ptz) {
@@ -342,13 +346,13 @@ import Days from "../moduls/daysInterface"
               if (currentTime > Wstartti) {
                 console.log("first")
                 for (let i = 0; i < WstartTime.length; i++) {
-                  let startt = moment(WstartTime[i], "HH:mm")
-                  let endt = moment(WendTime[i], "HH:mm");
+                  const startt = moment(WstartTime[i], "HH:mm")
+                  const endt = moment(WendTime[i], "HH:mm");
                   while (startt < endt) {
                     WallTime.push(startt.add(30, 'minutes').format('hh:mm A'));
                   }
                 }
-                  let h = moment(currentTime, 'HH:mm').format('HH')
+                  const h = moment(currentTime, 'HH:mm').format('HH')
                   let m = moment(currentTime, 'HH:mm').format('mm')
                   if (m >= '1' && m <= '29') {
                     m = '00'
@@ -356,17 +360,17 @@ import Days from "../moduls/daysInterface"
                   else if (m >= '31' && m <= '59') {
                     m = '30'
                   }
-                  let ti = `${h}:${m}`
-                  let st = moment(ti, 'HH:mm')
-                  let startt = moment(Wstartti, "HH:mm")
+                  const ti = `${h}:${m}`
+                  const st = moment(ti, 'HH:mm')
+                  const startt = moment(Wstartti, "HH:mm")
                   console.log(startt)
-                  let hello :any[] = []
+                  const hello :any[] = []
                
                   while (startt < st) {
                     hello.push(startt.add(30, 'minutes').format('hh:mm A'));
                   }
                   let hii = WallTime.filter((k:any)=>!hello.includes(k))
-                let removingslots = WallendTime.concat(allslots.flat())
+                const removingslots = WallendTime.concat(allslots.flat())
                 hii = hii.filter((v: any) => !removingslots.includes(v))
                 
                 if (hii.length === 0) {
@@ -418,19 +422,19 @@ import Days from "../moduls/daysInterface"
             if (!slots?.Thursday[0]) {
               return res.status(400).send("slots are not there")
             }
-            let breakTime = slots?.Thursday[0].breakTime
-            let StartbreakTime = breakTime.filter((_: any, i: any) => !(i % 2));
-            let EndbreakTime = breakTime.filter((_: any, i: any) => (i % 2));
-            let startTime: any = slots?.Thursday[0].startTime
-            let endTime: any = slots?.Thursday[0].endTime
-            let allTime: any[] = [];
-            let allendTime: any = []
-            let startti = slots?.Thursday[0].startTime[0]
+            const breakTime = slots?.Thursday[0].breakTime
+            const StartbreakTime = breakTime.filter((_: any, i: any) => !(i % 2));
+            const EndbreakTime = breakTime.filter((_: any, i: any) => (i % 2));
+            const startTime: any = slots?.Thursday[0].startTime
+            const endTime: any = slots?.Thursday[0].endTime
+            const allTime: any[] = [];
+            const allendTime: any = []
+            const startti = slots?.Thursday[0].startTime[0]
   
             let Tall: any = []
             for (let i = 0; i < startTime.length; i++) {
-              let startt = moment(startTime[i], "HH:mm");
-              let endt = moment(endTime[i], "HH:mm");
+              const startt = moment(startTime[i], "HH:mm");
+              const endt = moment(endTime[i], "HH:mm");
               while (startt < endt) {
                 Tall.push(startt.format("hh:mm A"));
                 startt.add(30, 'minutes');
@@ -439,28 +443,28 @@ import Days from "../moduls/daysInterface"
   
   
             for (let i = 0; i < StartbreakTime.length; i++) {
-              let startt = moment(StartbreakTime[i], "HH:mm");
-              let endt = moment(EndbreakTime[i], "HH:mm");
+              const startt = moment(StartbreakTime[i], "HH:mm");
+              const endt = moment(EndbreakTime[i], "HH:mm");
               while (startt < endt) {
                 allendTime.push(startt.format("hh:mm A"));
                 startt.add(30, 'minutes');
               }
             }
             //console.log(allendTime)
-            let thremovingslots = allendTime.concat(allslots.flat())
+            const thremovingslots = allendTime.concat(allslots.flat())
             Tall = Tall.filter((v: any) => !thremovingslots.includes(v))
   
             if (userDt === ptz) {
               if (currentTime > startti) {
                 console.log("first")
                 for (let i = 0; i < startTime.length; i++) {
-                  let startt: any = moment(startTime[i], "HH:mm");
-                  let endt = moment(endTime[i], "HH:mm");
+                  const startt: any = moment(startTime[i], "HH:mm");
+                  const endt = moment(endTime[i], "HH:mm");
                   while (startt < endt) {
                     allTime.push(startt.add(30,'m').format("hh:mm A"));
                     }
                 }
-                let h = moment(currentTime, 'HH:mm').format('HH')
+                const h = moment(currentTime, 'HH:mm').format('HH')
                 let m = moment(currentTime, 'HH:mm').format('mm')
                 if (m >= '1' && m <= '29') {
                   m = '00'
@@ -468,17 +472,17 @@ import Days from "../moduls/daysInterface"
                 else if (m >= '31' && m <= '59') {
                   m = '30'
                 }
-                let ti = `${h}:${m}`
-                let st = moment(ti, 'HH:mm')
-                let startt = moment(startti, "HH:mm")
+                const ti = `${h}:${m}`
+                const st = moment(ti, 'HH:mm')
+                const startt = moment(startti, "HH:mm")
                 console.log(startt)
-                let hello :any[] = []
+                const hello :any[] = []
              
                 while (startt < st) {
                   hello.push(startt.add(30, 'minutes').format('hh:mm A'));
                 }
                 let hii = allTime.filter((k:any)=>!hello.includes(k))
-                let removingslots  = allendTime.concat(allslots.flat(), EndbreakTime.flat())
+                const removingslots  = allendTime.concat(allslots.flat(), EndbreakTime.flat())
                 //console.log(removingslots)
                 hii = hii.filter((v: any) => !removingslots.includes(v))
                 hii.shift()
@@ -533,20 +537,20 @@ import Days from "../moduls/daysInterface"
               return res.status(400).send("slots are not there")
             }
   
-            let FbreakTime = slots?.Friday[0].breakTime
-            let FStartbreakTime = FbreakTime.filter((_: any, i: any) => !(i % 2));
-            let FEndbreakTime = FbreakTime.filter((_: any, i: any) => (i % 2));
-            let FstartTime: any = slots?.Friday[0].startTime
-            let FendTime: any = slots?.Friday[0].endTime
-            let FallTime: any[] = [];
-            let FallendTime: any = []
-            let Fstartti = slots?.Friday[0].startTime[0]
+            const FbreakTime = slots?.Friday[0].breakTime
+            const FStartbreakTime = FbreakTime.filter((_: any, i: any) => !(i % 2));
+            const FEndbreakTime = FbreakTime.filter((_: any, i: any) => (i % 2));
+            const FstartTime: any = slots?.Friday[0].startTime
+            const FendTime: any = slots?.Friday[0].endTime
+            const FallTime: any[] = [];
+            const FallendTime: any = []
+            const Fstartti = slots?.Friday[0].startTime[0]
             console.log(Fstartti)
   
             let all: any = []
             for (let i = 0; i < FstartTime.length; i++) {
-              let startt = moment(FstartTime[i], "HH:mm");
-              let endt = moment(FendTime[i], "HH:mm");
+              const startt = moment(FstartTime[i], "HH:mm");
+              const endt = moment(FendTime[i], "HH:mm");
               while (startt < endt) {
                 all.push(startt.format("hh:mm A"));
                 startt.add(30, 'minutes');
@@ -554,15 +558,15 @@ import Days from "../moduls/daysInterface"
             }
   
             for (let i = 0; i < FStartbreakTime.length; i++) {
-              let startt = moment(FStartbreakTime[i], "HH:mm");
-              let endt = moment(FEndbreakTime[i], "HH:mm");
+              const startt = moment(FStartbreakTime[i], "HH:mm");
+              const endt = moment(FEndbreakTime[i], "HH:mm");
               while (startt < endt) {
                 FallendTime.push(startt.format("hh:mm A"));
                 startt.add(30, 'minutes');
               }
             }
             //console.log(allendTime)
-            let Faremovingslots = FallendTime.concat(allslots.flat())
+            const Faremovingslots = FallendTime.concat(allslots.flat())
             //console.log(removingslots)
             all = all.filter((v: any) => !Faremovingslots.includes(v))
   
@@ -571,15 +575,15 @@ import Days from "../moduls/daysInterface"
               if (currentTime > Fstartti) {
                 console.log("first")
                 for (let i = 0; i < FstartTime.length; i++) {
-                  let startt = moment(FstartTime[i], "HH:mm")
-                  let endt = moment(FendTime[i], "HH:mm");
+                  const startt = moment(FstartTime[i], "HH:mm")
+                  const endt = moment(FendTime[i], "HH:mm");
                  while (startt < endt) {
                     FallTime.push(startt.format("hh:mm A"));
                     startt.add(30, 'm');
                   }
                 }
   
-                let h = moment(currentTime, 'HH:mm').format('HH')
+                const h = moment(currentTime, 'HH:mm').format('HH')
                 let m = moment(currentTime, 'HH:mm').format('mm')
                 if (m >= '1' && m <= '29') {
                   m = '00'
@@ -587,11 +591,11 @@ import Days from "../moduls/daysInterface"
                 else if (m >= '31' && m <= '59') {
                   m = '30'
                 }
-                let ti = `${h}:${m}`
-                let st = moment(ti, 'HH:mm')
-                let startt = moment(Fstartti, "HH:mm")
+                const ti = `${h}:${m}`
+                const st = moment(ti, 'HH:mm')
+                const startt = moment(Fstartti, "HH:mm")
                 console.log(startt)
-                let hello :any[] = []
+                const hello :any[] = []
              
                 while (startt < st) {
                   hello.push(startt.add(30, 'minutes').format('hh:mm A'));
@@ -599,7 +603,7 @@ import Days from "../moduls/daysInterface"
                 let hii = FallTime.filter((k:any)=>!hello.includes(k))
                 // let AFallTime = FallTime.filter(v => !all.includes(v))
   
-                let removingslots = FallendTime.concat(allslots.flat())
+                const removingslots = FallendTime.concat(allslots.flat())
                 //console.log(removingslots)
                 hii = hii.filter((v: any) => !removingslots.includes(v))
                 hii.shift()
@@ -651,21 +655,21 @@ import Days from "../moduls/daysInterface"
             if (!slots?.Saturday[0]) {
               return res.status(400).send("slots are not there")
             }
-            let SbreakTime = slots?.Saturday[0].breakTime
-            let SStartbreakTime = SbreakTime.filter((_: any, i: any) => !(i % 2));
+            const SbreakTime = slots?.Saturday[0].breakTime
+            const SStartbreakTime = SbreakTime.filter((_: any, i: any) => !(i % 2));
             console.log("rii")
-            let SEndbreakTime = SbreakTime.filter((_: any, i: any) => (i % 2));
-            let SstartTime: any = slots?.Saturday[0].startTime
-            let SendTime: any = slots?.Saturday[0].endTime
-            let SallTime: any[] = [];
-            let SallendTime: any = []
-            let Sstartti = slots?.Saturday[0].startTime[0]
+            const SEndbreakTime = SbreakTime.filter((_: any, i: any) => (i % 2));
+            const SstartTime: any = slots?.Saturday[0].startTime
+            const SendTime: any = slots?.Saturday[0].endTime
+            const SallTime: any[] = [];
+            const SallendTime: any = []
+            const Sstartti = slots?.Saturday[0].startTime[0]
             console.log(Sstartti)
   
             let Sall: any = []
             for (let i = 0; i < SstartTime.length; i++) {
-              let startt = moment(SstartTime[i], "HH:mm");
-              let endt = moment(SendTime[i], "HH:mm");
+              const startt = moment(SstartTime[i], "HH:mm");
+              const endt = moment(SendTime[i], "HH:mm");
               while (startt < endt) {
                 Sall.push(startt.format("hh:mm A"));
                 startt.add(30, 'minutes');
@@ -673,15 +677,15 @@ import Days from "../moduls/daysInterface"
             }
   
             for (let i = 0; i < SStartbreakTime.length; i++) {
-              let startt = moment(SStartbreakTime[i], "HH:mm");
-              let endt = moment(SEndbreakTime[i], "HH:mm");
+              const startt = moment(SStartbreakTime[i], "HH:mm");
+              const endt = moment(SEndbreakTime[i], "HH:mm");
               while (startt < endt) {
                 SallendTime.push(startt.format("hh:mm A"));
                 startt.add(30, 'minutes');
               }
             }
             //console.log(allendTime)
-            let saremovingslots = SallendTime.concat(allslots.flat())
+            const saremovingslots = SallendTime.concat(allslots.flat())
             console.log(removingslots)
             Sall = Sall.filter((v: any) => !saremovingslots.includes(v))
   
@@ -690,14 +694,14 @@ import Days from "../moduls/daysInterface"
               if (currentTime > Sstartti) {
                 console.log("first")
                 for (let i = 0; i < SstartTime.length; i++) {
-                  let startt = moment(SstartTime[i], "HH:mm");
-                  let endt = moment(SendTime[i], "HH:mm");
+                  const startt = moment(SstartTime[i], "HH:mm");
+                  const endt = moment(SendTime[i], "HH:mm");
                   while (startt < endt) {
                     SallTime.push(startt.format("hh:mm A"));
                     startt.add(30, 'minutes');
                   }
                 }
-                let h = moment(currentTime, 'HH:mm').format('HH')
+                const h = moment(currentTime, 'HH:mm').format('HH')
                 let m = moment(currentTime, 'HH:mm').format('mm')
                 if (m >= '1' && m <= '29') {
                   m = '00'
@@ -705,18 +709,18 @@ import Days from "../moduls/daysInterface"
                 else if (m >= '31' && m <= '59') {
                   m = '30'
                 }
-                let ti = `${h}:${m}`
-                let st = moment(ti, 'HH:mm')
-                let startt = moment(Sstartti, "HH:mm")
+                const ti = `${h}:${m}`
+                const st = moment(ti, 'HH:mm')
+                const startt = moment(Sstartti, "HH:mm")
                 console.log(startt)
-                let hello :any[] = []
+                const hello :any[] = []
              
                 while (startt < st) {
                   hello.push(startt.add(30, 'minutes').format('hh:mm A'));
                 }
                 let hii = SallTime.filter((k:any)=>!hello.includes(k))
   
-                let removingslots = FallendTime.concat(allslots.flat())
+                const removingslots = FallendTime.concat(allslots.flat())
                 //console.log(removingslots)
                 hii = hii.filter((v: any) => !removingslots.includes(v))
                 hii.shift()
@@ -767,20 +771,20 @@ import Days from "../moduls/daysInterface"
             if (!slots?.Sunday[0]) {
               return res.status(400).send("slots are not there")
             }
-            let SnbreakTime = slots?.Sunday[0].breakTime
-            let SnStartbreakTime = SnbreakTime.filter((_: any, i: any) => !(i % 2));
+            const SnbreakTime = slots?.Sunday[0].breakTime
+            const SnStartbreakTime = SnbreakTime.filter((_: any, i: any) => !(i % 2));
             console.log("rii")
-            let SnEndbreakTime = SnbreakTime.filter((_: any, i: any) => (i % 2));
-            let SnstartTime: any = slots?.Saturday[0].startTime
-            let SnendTime: any = slots?.Saturday[0].endTime
-            let SnallTime: any[] = [];
-            let SnallendTime: any = []
-            let Snstartti = slots?.Saturday[0].startTime[0]
+            const SnEndbreakTime = SnbreakTime.filter((_: any, i: any) => (i % 2));
+            const SnstartTime: any = slots?.Saturday[0].startTime
+            const SnendTime: any = slots?.Saturday[0].endTime
+            const SnallTime: any[] = [];
+            const SnallendTime: any = []
+            const Snstartti = slots?.Saturday[0].startTime[0]
             console.log(Sstartti)
             let Snall: any = []
             for (let i = 0; i < SnstartTime.length; i++) {
-              let startt = moment(SnstartTime[i], "HH:mm");
-              let endt = moment(SnendTime[i], "HH:mm");
+              const startt = moment(SnstartTime[i], "HH:mm");
+              const endt = moment(SnendTime[i], "HH:mm");
               while (startt < endt) {
                 Snall.push(startt.format("hh:mm A"));
                 startt.add(30, 'minutes');
@@ -788,28 +792,28 @@ import Days from "../moduls/daysInterface"
             }
   
             for (let i = 0; i < SnStartbreakTime.length; i++) {
-              let startt = moment(SnStartbreakTime[i], "HH:mm");
-              let endt = moment(SnEndbreakTime[i], "HH:mm");
+              const startt = moment(SnStartbreakTime[i], "HH:mm");
+              const endt = moment(SnEndbreakTime[i], "HH:mm");
               while (startt < endt) {
                 SnallendTime.push(startt.format("hh:mm A"));
                 startt.add(30, 'minutes');
               }
             }
             //console.log(allendTime)
-            let Snremovingslots = SnallendTime.concat(allslots.flat())
+            const Snremovingslots = SnallendTime.concat(allslots.flat())
             Snall = Snall.filter((v: any) => !Snremovingslots.includes(v))
             if (userDt === ptz) {
               if (currentTime > Snstartti) {
                 console.log("first")
                 for (let i = 0; i < SnstartTime.length; i++) {
-                  let startt = moment(SnstartTime[i], "HH:mm")
-                  let endt = moment(SnendTime[i], "HH:mm");
+                  const startt = moment(SnstartTime[i], "HH:mm")
+                  const endt = moment(SnendTime[i], "HH:mm");
                   while (startt < endt) {
                     SnallTime.push(startt.format("hh:mm A"));
                     startt.add(30, 'minutes');
                   }
                 }
-                let h = moment(currentTime, 'HH:mm').format('HH')
+                const h = moment(currentTime, 'HH:mm').format('HH')
                 let m = moment(currentTime, 'HH:mm').format('mm')
                 if (m >= '1' && m <= '29') {
                   m = '00'
@@ -817,11 +821,11 @@ import Days from "../moduls/daysInterface"
                 else if (m >= '31' && m <= '59') {
                   m = '30'
                 }
-                let ti = `${h}:${m}`
-                let st = moment(ti, 'HH:mm')
-                let startt = moment(Snstartti, "HH:mm")
+                const ti = `${h}:${m}`
+                const st = moment(ti, 'HH:mm')
+                const startt = moment(Snstartti, "HH:mm")
                 console.log(startt)
-                let hello :any[] = []
+                const hello :any[] = []
              
                 while (startt < st) {
                   hello.push(startt.add(30, 'minutes').format('hh:mm A'));
@@ -830,7 +834,7 @@ import Days from "../moduls/daysInterface"
                 // console.log(SnallTime)
                 // let AFallTime = SnallTime.filter(v => !all.includes(v))
                 // console.log(AFallTime)
-                let removingslots = SnallendTime.concat(allslots.flat())
+                const removingslots = SnallendTime.concat(allslots.flat())
                 //console.log(removingslots)
                 hii = hii.filter(v => !removingslots.includes(v))
                 hii.shift()

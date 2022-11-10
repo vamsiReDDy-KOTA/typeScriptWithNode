@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import Booking from "./bookingModelInterface";
 import mongoose, { model, Schema } from "mongoose";
 

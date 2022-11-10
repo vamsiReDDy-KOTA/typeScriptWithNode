@@ -1,11 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import SignupDt from '../moduls/signup';
 import jwt from 'jsonwebtoken'
-import { nextTick } from 'process';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isAdmin = async(req:any, res:any, next:any)=> { 
     // 401 Unauthorized
     // 403 Forbidden 
-    let token = req.header('x-token');
-        let decode :any = jwt.verify(token,'vamsi')
+    const token = req.header('x-token');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const decode :any = jwt.verify(token,'vamsi')
        // console.log(decode)
         req.user =await SignupDt.findById(decode.user.id)
     
@@ -16,8 +19,8 @@ const isAdmin = async(req:any, res:any, next:any)=> {
   }
 
 const isStaff =async (req:any,res:any,next:any) => {
-    let token = req.header('x-token');
-        let decode :any = jwt.verify(token,'vamsi')
+    const token = req.header('x-token');
+        const decode :any = jwt.verify(token,'vamsi')
        // console.log(decode)
         req.user =await SignupDt.findById(decode.user.id)
 

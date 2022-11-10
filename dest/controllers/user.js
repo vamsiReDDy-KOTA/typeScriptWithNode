@@ -1,4 +1,7 @@
 "use strict";
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -83,14 +86,14 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         req.body = val;
     })).catch(err => {
         console.log('Failed to validate input ' + err.details[0].message);
-        var k = err.details[0].message;
+        const k = err.details[0].message;
         return res.status(400).send(k);
     });
     try {
         //const {image} =  req.file.filename
         const hass = bcrypt_1.default.hashSync(password, salt);
         const conHass = bcrypt_1.default.hashSync(confirmPassword, salt);
-        let exist = yield signup_1.default.findOne({ email });
+        const exist = yield signup_1.default.findOne({ email });
         if (exist) {
             return res.status(404).json({ "message": "User is already present" });
         }
@@ -99,7 +102,7 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 .status(400)
                 .json({ "message": " password and confirmpassword should be same" });
         }
-        let newUser = new signup_1.default({
+        const newUser = new signup_1.default({
             firstname,
             lastname,
             email,
@@ -156,7 +159,7 @@ exports.signup = signup;
 const signin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
-        let exist = yield signup_1.default.findOne({ email });
+        const exist = yield signup_1.default.findOne({ email });
         if (!exist) {
             return res.status(404).json({ "Message": "user is not present in our Database" });
         }
@@ -165,7 +168,7 @@ const signin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (!isPasswordCorrect) {
             return res.status(400).json({ "message": "password went wrong" });
         }
-        let payload = {
+        const payload = {
             user: {
                 id: exist.id,
             },
@@ -178,7 +181,7 @@ const signin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 token: token,
                 id: exist._id,
                 email: exist.email,
-                isAdmin: exist.isAdmin,
+                role: exist.role,
             });
         }));
         //return res.json(exist)
@@ -231,7 +234,7 @@ exports.signin = signin;
  */
 const updateuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let users = yield signup_1.default.findOne({ email: req.query.email });
+        const users = yield signup_1.default.findOne({ email: req.query.email });
         if (!users) {
             return res.status(404).json({
                 success: false,
@@ -244,8 +247,8 @@ const updateuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             });
         }
         const salt = bcrypt_1.default.genSaltSync(10);
-        let password = req.body.password || users.password;
-        let confirmPassword = req.body.confirmPassword || users.confirmPassword;
+        const password = req.body.password || users.password;
+        const confirmPassword = req.body.confirmPassword || users.confirmPassword;
         if (password !== confirmPassword) {
             return res
                 .status(400)
@@ -313,7 +316,7 @@ exports.updateuser = updateuser;
  */
 const logingetuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let user = yield signup_1.default.find({ email: req.query.email, isDeleted: false });
+        const user = yield signup_1.default.find({ email: req.query.email, isDeleted: false });
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -370,7 +373,7 @@ exports.logingetuser = logingetuser;
  */
 const deleteuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let users = yield signup_1.default.findById(req.params.id);
+        const users = yield signup_1.default.findById(req.params.id);
         console.log(users);
         if (!users) {
             return res.status(404).json({
@@ -384,7 +387,7 @@ const deleteuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 error: "user not present"
             });
         }
-        let softdelete = yield signup_1.default.findOneAndUpdate({ _id: users._id }, { isDeleted: true });
+        const softdelete = yield signup_1.default.findOneAndUpdate({ _id: users._id }, { isDeleted: true });
         res.status(200).json({
             message: "deleted successfully",
         });
@@ -438,7 +441,7 @@ exports.deleteuser = deleteuser;
  */
 const profile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let userd = yield signup_1.default.findOne({ email: req.query.email });
+        const userd = yield signup_1.default.findOne({ email: req.query.email });
         if (!userd) {
             return res.status(404).json({
                 success: false,

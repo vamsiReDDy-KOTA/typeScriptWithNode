@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-console */
 
 import moment from 'moment-timezone';
 //import moments from 'moment'
@@ -50,7 +53,7 @@ import jwt from "jsonwebtoken";
 
  const getallstaffs =async (req:any,res:any) => {
     try {
-      let user = await DaysModel.find({isDeleted: false })
+      const user = await DaysModel.find({isDeleted: false })
       res.status(200).json({
         message: "data",
         result: user
@@ -99,9 +102,10 @@ import jwt from "jsonwebtoken";
   
       let query
   
-      let searchFild = req.query.email
+     
+      const searchFild = req.query.email
   
-      let user = await SignupDt.find({isDeleted: false , $or:[ {email:{$regex:searchFild,$options:'$i'},firstname:{$regex:searchFild,$options:'$i'}} ]  } ) 
+      const user = await SignupDt.find({isDeleted: false , $or:[ {email:{$regex:searchFild,$options:'$i'},firstname:{$regex:searchFild,$options:'$i'}} ]  } ) 
   
   
   
@@ -254,7 +258,7 @@ import jwt from "jsonwebtoken";
   
    const updatealluser =async (req:any,res:any) => {
     try {
-      let users: any = await SignupDt.find({email: req.query.email,isDeleted: false});
+      const users: any = await SignupDt.find({email: req.query.email,isDeleted: false});
       if (!users) {
         return res.status(404).json({
           success: false,
@@ -293,7 +297,7 @@ import jwt from "jsonwebtoken";
   
   const updateallstaff =async (req:any,res:any) => {
     try {
-      let users: any = await DaysModel.find({email: req.query.email,isDeleted: false});
+      const users: any = await DaysModel.find({email: req.query.email,isDeleted: false});
       if (!users) {
         return res.status(404).json({
           success: false,
