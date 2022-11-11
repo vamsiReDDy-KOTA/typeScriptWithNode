@@ -165,14 +165,13 @@ const updateSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const users = yield days_1.default.findOne({ email: req.query.email, StartDate: req.query.StartDate });
         //console.log(users)
         const datas = users === null || users === void 0 ? void 0 : users.repectForWeek;
-        console.log(datas);
         if (!datas) {
             // eslint-disable-next-line no-var
             var ds = moment_timezone_1.default.utc(users.StartDate).add(1, 'week').format("DD-MM-YYYY");
         }
         console.log(ds);
-        const daya = req.body.StartDate > ds;
-        const day = req.body.StartDate === ds;
+        const daya = req.body.StartDate <= ds;
+        const day = req.body.StartDate == ds;
         console.log(day);
         console.log(daya);
         if (!daya) {

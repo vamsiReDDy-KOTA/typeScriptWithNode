@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import SignupDt from '../moduls/signup';
 import SigninDt from '../moduls/login'
@@ -23,7 +24,7 @@ const isStaff =async (req:any,res:any,next:any) => {
     const token = req.header('x-token');
         const decode :any = jwt.verify(token,'vamsi')
        // console.log(decode)
-        req.user =await SigninDt.findById(decode.user.id)
+        req.user =await SignupDt.findById(decode.user.id)
         
         if (req.user.role != 'staff') return res.status(403).send('Access denied');
     next();

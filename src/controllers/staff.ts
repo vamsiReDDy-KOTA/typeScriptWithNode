@@ -184,14 +184,14 @@ const updateSlot = async (req: any, res: any) => {
       const users: any = await DaysModel.findOne({ email: req.query.email,StartDate:req.query.StartDate});
       //console.log(users)
       const datas = users?.repectForWeek
-      console.log(datas)
+      
       if(!datas){ 
        // eslint-disable-next-line no-var
        var ds:any = moment.utc(users.StartDate).add(1, 'week').format("DD-MM-YYYY");
       } 
       console.log(ds)
-      const daya = req.body.StartDate>ds
-      const day = req.body.StartDate===ds
+      const daya = req.body.StartDate<=ds
+      const day = req.body.StartDate==ds
       console.log(day)
       console.log(daya)
       if(!daya){
@@ -203,8 +203,7 @@ const updateSlot = async (req: any, res: any) => {
        if(StartDate !='Sunday'){
          return res.status(400).send("Start Date should be starting day of the week")
        }
-        
-       
+         
       
       const da = moment.utc(req.body.StartDate).format("DD-MM-YYYY");
       const ts = moment.utc().tz(req.body.TimeZone).format("DD-MM-YYYY");

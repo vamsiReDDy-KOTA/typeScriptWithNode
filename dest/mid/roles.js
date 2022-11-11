@@ -13,9 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isStaff = exports.isAdmin = void 0;
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const signup_1 = __importDefault(require("../moduls/signup"));
-const login_1 = __importDefault(require("../moduls/login"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isAdmin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -36,7 +36,7 @@ const isStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     const token = req.header('x-token');
     const decode = jsonwebtoken_1.default.verify(token, 'vamsi');
     // console.log(decode)
-    req.user = yield login_1.default.findById(decode.user.id);
+    req.user = yield signup_1.default.findById(decode.user.id);
     if (req.user.role != 'staff')
         return res.status(403).send('Access denied');
     next();
