@@ -310,8 +310,6 @@ const updateuser = async (req: any, res: any) => {
   }
 };
 
-//logingetuser
-
 //logOut
 
 /**
@@ -350,6 +348,8 @@ const logout =async (req:any,res:any) => {
    })
  }
 }
+
+//logingetuser
 
 /**
  * @api {get} /logingetuser get user detiles

@@ -308,7 +308,6 @@ const DaysSoftDelete = async (req: any, res: any) => {
         return res.status(404).json({
           "success":false,
           error: "Staff dose not present"
-  
         })
       }
       if (users.isDeleted === true) {

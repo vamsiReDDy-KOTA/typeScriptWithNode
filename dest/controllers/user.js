@@ -273,7 +273,6 @@ const updateuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.updateuser = updateuser;
-//logingetuser
 //logOut
 /**
  * @api {delete} /logout user logout
@@ -311,6 +310,7 @@ const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.logout = logout;
+//logingetuser
 /**
  * @api {get} /logingetuser get user detiles
  * @apiGroup users
