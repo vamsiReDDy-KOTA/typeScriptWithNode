@@ -7,7 +7,7 @@ import { softDelete, bookingSlots, updateBooking ,getBookingsByEmail} from "../c
 
 import { deletealluser ,updatealluser ,getallusers,getallstaffs,deleteallstaff,updateallstaff} from "../controllers/admin";
 
-import {  signup,updateuser,logingetuser,deleteuser ,signin , profile } from "../controllers/user";
+import {  signup,updateuser,logingetuser,deleteuser ,signin , profile, logout } from "../controllers/user";
 
 import { ondays ,updateSlot, DaysSoftDelete, getDaysByEmail  } from "../controllers/staff"
 import { GetAppointment } from "../controllers/Appointments";
@@ -18,6 +18,7 @@ export const itemsRouter = express.Router();
 itemsRouter.post('/Signup',signup) 
 itemsRouter.post('/Signin',signin)
 itemsRouter.put('/updateuser',vtoken,updateuser)
+itemsRouter.delete('/logout',vtoken,logout)
 itemsRouter.put('/profilePic',vtoken,upload,profile)
 itemsRouter.get('/logingetuser',vtoken,logingetuser)
 itemsRouter.delete('/deleteuser/:id',vtoken,deleteuser)

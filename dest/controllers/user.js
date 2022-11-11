@@ -15,17 +15,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.profile = exports.signin = exports.deleteuser = exports.logingetuser = exports.updateuser = exports.signup = void 0;
+exports.profile = exports.logout = exports.signin = exports.deleteuser = exports.logingetuser = exports.updateuser = exports.signup = void 0;
 const tokenT_1 = __importDefault(require("../moduls/tokenT"));
 const joi_1 = __importDefault(require("joi"));
 const signup_1 = __importDefault(require("../moduls/signup"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const tokenT_2 = __importDefault(require("../moduls/tokenT"));
 //signup api
 /**
  * @api {post} /Signup create a new user
  * @apiGroup users
- * @apiBody (Request body) {String} fristname first name of the user
+ * @apiBody (Request body) {String} firstname first name of the user
  * @apiBody (Request body) {String} lastname of the user
  * @apiBody (Request body) {String} email user email
  * @apiBody (Request body) {String} password user password
@@ -73,12 +74,12 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         .validateAsync({ firstname, lastname, email, password, confirmPassword })
         .then((val) => __awaiter(void 0, void 0, void 0, function* () {
         req.body = val;
-    }))
-        .catch((err) => {
-        console.log("Failed to validate input " + err.details[0].message);
-        const k = err.details[0].message;
-        return res.status(400).send(k);
-    });
+    }));
+    // .catch((err) => {
+    //   console.log("Failed to validate input " + err.details[0].message);
+    //   const k: any = err.details[0].message;
+    //   return res.status(400).send(k); 
+    // });
     try {
         //const {image} =  req.file.filename
         const hass = bcrypt_1.default.hashSync(password, salt);
@@ -150,12 +151,12 @@ const signin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
         const exist = yield signup_1.default.findOne({ email });
-        const token = yield tokenT_1.default.findOneAndUpdate({ userId: exist.id }, { status: 'D' }, { sort: { _id: -1 } });
         if (!exist) {
             return res
                 .status(404)
                 .json({ Message: "user is not present in our Database" });
         }
+        const token = yield tokenT_1.default.findOneAndUpdate({ userId: exist.id }, { status: 'D' }, { sort: { _id: -1 } });
         const isPasswordCorrect = yield bcrypt_1.default.compare(password, exist.password);
         //console.log(exist)
         if (!isPasswordCorrect) {
@@ -273,6 +274,43 @@ const updateuser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.updateuser = updateuser;
 //logingetuser
+//logOut
+/**
+ * @api {delete} /logout user logout
+ * @apiGroup users
+ *
+ * @apiSampleRequest /logout
+ *
+ * @apiHeader {String} x-token Users unique access-key
+ *
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *    "message":"deleted successfully"
+ *
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *
+ *  HTTP/1.1 500
+ * {
+ * "message":"Internal Server Error"
+ * }
+ *
+ */
+const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield tokenT_2.default.findOneAndDelete({ token: req.header('x-token') });
+        return yield res.status(200).json({
+            message: "deleted successfully"
+        });
+    }
+    catch (error) {
+        return yield res.status(500).json({
+            error: "internal server error"
+        });
+    }
+});
+exports.logout = logout;
 /**
  * @api {get} /logingetuser get user detiles
  * @apiGroup users

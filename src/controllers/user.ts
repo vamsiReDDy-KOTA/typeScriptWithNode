@@ -19,19 +19,20 @@ import nodemailer from "nodemailer";
 import { Signup } from "../moduls/signupinterface";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import tokenT from "../moduls/tokenT";
 
 //signup api
 
 /**
  * @api {post} /Signup create a new user
  * @apiGroup users
- * @apiBody (Request body) {String} fristname first name of the user
+ * @apiBody (Request body) {String} firstname first name of the user
  * @apiBody (Request body) {String} lastname of the user
  * @apiBody (Request body) {String} email user email
  * @apiBody (Request body) {String} password user password
  * @apiBody (Request body) {String} confirmPassword user name
  *
- * @apiSampleRequest /Signup
+ * @apiSampleRequest /Signup 
  * @apiSuccessExample {json} Success-Response
  * HTTP/1.1 200 OK
  * {
@@ -77,12 +78,12 @@ const signup = async (req: any, res: any) => {
     .then(async (val) => {
       req.body = val;
     })
-    .catch((err) => {
-      console.log("Failed to validate input " + err.details[0].message);
+    // .catch((err) => {
+    //   console.log("Failed to validate input " + err.details[0].message);
 
-      const k: any = err.details[0].message;
-      return res.status(400).send(k);
-    });
+    //   const k: any = err.details[0].message;
+    //   return res.status(400).send(k); 
+    // });
 
   try {
     //const {image} =  req.file.filename
@@ -161,14 +162,15 @@ const signin = async (req: any, res: any) => {
   try {
     const { email, password } = req.body;
 
-    const exist: any = await SignupDt.findOne({ email });
-    const token:any = await TokenDt.findOneAndUpdate({userId:exist.id},{status:'D'},{ sort: { _id: -1 } })
-
+    const exist: any =await SignupDt.findOne({ email });
+   
+    
     if (!exist) {
       return res
-        .status(404)
+        .status(404) 
         .json({ Message: "user is not present in our Database" });
     }
+    const token:any = await TokenDt.findOneAndUpdate({userId:exist.id},{status:'D'},{ sort: { _id: -1 } })
 
     const isPasswordCorrect = await bcrypt.compare(password, exist.password);
 
@@ -309,6 +311,45 @@ const updateuser = async (req: any, res: any) => {
 };
 
 //logingetuser
+
+//logOut
+
+/**
+ * @api {delete} /logout user logout 
+ * @apiGroup users
+ * 
+ * @apiSampleRequest /logout
+ * 
+ * @apiHeader {String} x-token Users unique access-key
+ * 
+ * @apiSuccessExample {json} Success-Response
+ * HTTP/1.1 200 OK
+ * {
+ *    "message":"deleted successfully"
+ *          
+ * }
+ * @apiErrorExample {json} Error-Response:
+ *
+ *  HTTP/1.1 500 
+ * {
+ * "message":"Internal Server Error"
+ * }
+ * 
+ */
+
+
+const logout =async (req:any,res:any) => {
+ try {
+  const user = await tokenT.findOneAndDelete({token:req.header('x-token')})
+  return await res.status(200).json({ 
+    message:"deleted successfully" 
+   })
+ } catch (error) {
+  return await res.status(500).json({ 
+    error : "internal server error"
+   })
+ }
+}
 
 /**
  * @api {get} /logingetuser get user detiles
@@ -515,4 +556,4 @@ const profile = async (req: any, res: any, next: any) => {
   }
 };
 
-export { signup, updateuser, logingetuser, deleteuser, signin, profile };
+export { signup, updateuser, logingetuser, deleteuser, signin, logout ,profile };
