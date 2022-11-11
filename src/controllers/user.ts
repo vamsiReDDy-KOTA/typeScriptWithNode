@@ -4,7 +4,7 @@
 
 //import { Times } from "../moduls/timesInterface";
 import * as fs from "fs";
-import TokenDt from "../moduls/tokenT";
+import TokenDt from "../moduls/tokent";
 import path from "path";
 import SigninDt from "../moduls/login";
 import DaysModel from "../moduls/days";
@@ -19,7 +19,7 @@ import nodemailer from "nodemailer";
 import { Signup } from "../moduls/signupinterface";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import tokenT from "../moduls/tokenT";
+import tokenT from "../moduls/tokent";
 
 //signup api
 

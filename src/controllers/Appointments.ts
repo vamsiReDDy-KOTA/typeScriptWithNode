@@ -50,14 +50,14 @@ import Days from "../moduls/daysInterface"
       const timeZn: any = slots?.TimeZone
       const da :any = slots?.repectForWeek
       const va = moment().startOf('isoWeek').add(1, da ).format("DD-MM-YYYY");
-      const ptz = moment(date).format('DD-MM-YYYY')
+      const ptz = moment.utc(date).format('DD-MM-YYYY')
       
-      const userDt = moment().tz(timeZn).format("DD-MM-YYYY")
+      const userDt = moment.utc().format("DD-MM-YYYY")
       console.log(userDt)
-      const userEnteredDt = moment(date).format("YYYY-MM-DD")
+      const userEnteredDt = moment.utc(date).format("YYYY-MM-DD")
       
-      const userEnteredDay = moment(userEnteredDt).format('dddd')
-      const currentTime = moment().tz(timeZn).format('HH:mm')
+      const userEnteredDay = moment.utc(userEnteredDt).format('dddd')
+      const currentTime = moment.utc().format('HH:mm')
       
       
       if(!slots){
@@ -97,16 +97,16 @@ import Days from "../moduls/daysInterface"
             const Mstartti = slots?.Monday[0].startTime[0]
             let Mall: any = []
             for (let i = 0; i < MstartTime.length; i++) {
-              const startt = moment(MstartTime[i], "HH:mm");
-              const endt = moment(MendTime[i], "HH:mm");
+              const startt = moment.utc(MstartTime[i], "HH:mm");
+              const endt = moment.utc(MendTime[i], "HH:mm");
               while (startt < endt) {
                 Mall.push(startt.format("hh:mm A"));
                 startt.add(30, 'minutes');
               }
             }
             for (let i = 0; i < MStartbreakTime.length; i++) {
-              const startt = moment(MStartbreakTime[i], "HH:mm");
-              const endt = moment(MEndbreakTime[i], "HH:mm");
+              const startt = moment.utc(MStartbreakTime[i], "HH:mm");
+              const endt = moment.utc(MEndbreakTime[i], "HH:mm");
               while (startt < endt) {
                 MallendTime.push(startt.format("hh:mm A DD-MM-YYYY" ));
                 startt.add(30, 'minutes');

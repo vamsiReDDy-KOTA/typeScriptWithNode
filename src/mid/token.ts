@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import jwt from 'jsonwebtoken'
-import tokenT from '../moduls/tokenT';
+import tokenT from '../moduls/tokent';
 //import SignupDt from '../moduls/signup';
 
 

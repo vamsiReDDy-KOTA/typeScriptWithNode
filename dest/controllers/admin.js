@@ -94,7 +94,7 @@ const getallusers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         let query;
         const searchFild = req.query.email;
-        const user = yield signup_1.default.find({ isDeleted: false, $or: [{ email: { $regex: searchFild, $options: '$i' }, firstname: { $regex: searchFild, $options: '$i' } }] });
+        const user = yield signup_1.default.find({ isDeleted: false, $or: [{ email: { $regex: searchFild, $options: '$i' } }] });
         /**
          try {
       let query;

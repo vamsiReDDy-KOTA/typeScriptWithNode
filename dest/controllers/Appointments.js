@@ -55,12 +55,12 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
         const timeZn = slots === null || slots === void 0 ? void 0 : slots.TimeZone;
         const da = slots === null || slots === void 0 ? void 0 : slots.repectForWeek;
         const va = (0, moment_timezone_1.default)().startOf('isoWeek').add(1, da).format("DD-MM-YYYY");
-        const ptz = (0, moment_timezone_1.default)(date).format('DD-MM-YYYY');
-        const userDt = (0, moment_timezone_1.default)().tz(timeZn).format("DD-MM-YYYY");
+        const ptz = moment_timezone_1.default.utc(date).format('DD-MM-YYYY');
+        const userDt = moment_timezone_1.default.utc().format("DD-MM-YYYY");
         console.log(userDt);
-        const userEnteredDt = (0, moment_timezone_1.default)(date).format("YYYY-MM-DD");
-        const userEnteredDay = (0, moment_timezone_1.default)(userEnteredDt).format('dddd');
-        const currentTime = (0, moment_timezone_1.default)().tz(timeZn).format('HH:mm');
+        const userEnteredDt = moment_timezone_1.default.utc(date).format("YYYY-MM-DD");
+        const userEnteredDay = moment_timezone_1.default.utc(userEnteredDt).format('dddd');
+        const currentTime = moment_timezone_1.default.utc().format('HH:mm');
         if (!slots) {
             return res.status(404).json({
                 Message: "user is not present in our database"
@@ -94,16 +94,16 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                         const Mstartti = slots === null || slots === void 0 ? void 0 : slots.Monday[0].startTime[0];
                         let Mall = [];
                         for (let i = 0; i < MstartTime.length; i++) {
-                            const startt = (0, moment_timezone_1.default)(MstartTime[i], "HH:mm");
-                            const endt = (0, moment_timezone_1.default)(MendTime[i], "HH:mm");
+                            const startt = moment_timezone_1.default.utc(MstartTime[i], "HH:mm");
+                            const endt = moment_timezone_1.default.utc(MendTime[i], "HH:mm");
                             while (startt < endt) {
                                 Mall.push(startt.format("hh:mm A"));
                                 startt.add(30, 'minutes');
                             }
                         }
                         for (let i = 0; i < MStartbreakTime.length; i++) {
-                            const startt = (0, moment_timezone_1.default)(MStartbreakTime[i], "HH:mm");
-                            const endt = (0, moment_timezone_1.default)(MEndbreakTime[i], "HH:mm");
+                            const startt = moment_timezone_1.default.utc(MStartbreakTime[i], "HH:mm");
+                            const endt = moment_timezone_1.default.utc(MEndbreakTime[i], "HH:mm");
                             while (startt < endt) {
                                 MallendTime.push(startt.format("hh:mm A DD-MM-YYYY"));
                                 startt.add(30, 'minutes');

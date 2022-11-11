@@ -170,16 +170,20 @@ const updateSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             var ds = moment_timezone_1.default.utc(users.StartDate).add(1, 'week').format("DD-MM-YYYY");
         }
         console.log(ds);
-        const daya = req.body.StartDate <= ds;
-        const day = req.body.StartDate == ds;
+        const Startdates = moment_timezone_1.default.utc(req.body.StartDate).format("DD-MM-YYYY");
+        console.log(Startdates);
+        const daya = Startdates < ds;
+        const day = Startdates == ds;
         console.log(day);
         console.log(daya);
-        if (!daya) {
+        if (!day) {
             return res.status(400).send("start date is grater then lastWeek");
         }
         const StartDate = moment_timezone_1.default.utc(req.body.StartDate).format("dddd");
-        // console.log(StartDate)
-        if (StartDate != 'Sunday') {
+        console.log(StartDate);
+        const daa = StartDate == 'Sunday';
+        console.log(daa);
+        if (!daa) {
             return res.status(400).send("Start Date should be starting day of the week");
         }
         const da = moment_timezone_1.default.utc(req.body.StartDate).format("DD-MM-YYYY");
@@ -187,11 +191,11 @@ const updateSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const updateDate = req.query.updateDate;
         const udDate = (0, moment_timezone_1.default)(updateDate).tz(req.body.TimeZone).format("DD-MM-YYYY");
         console.log(udDate);
-        const va = ts <= da;
-        console.log(va);
-        if (!va) {
-            return res.status(400).send("date should be graterthen or equal to today");
-        }
+        // const va= ts<=da
+        // console.log(va)
+        // if(!va){
+        //   return res.status(400).send("date should be graterthen or equal to today")
+        // }
         if (!users) {
             return res.status(404).json({
                 success: false,

@@ -16,12 +16,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.profile = exports.logout = exports.signin = exports.deleteuser = exports.logingetuser = exports.updateuser = exports.signup = void 0;
-const tokenT_1 = __importDefault(require("../moduls/tokenT"));
+const tokent_1 = __importDefault(require("../moduls/tokent"));
 const joi_1 = __importDefault(require("joi"));
 const signup_1 = __importDefault(require("../moduls/signup"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const tokenT_2 = __importDefault(require("../moduls/tokenT"));
+const tokent_2 = __importDefault(require("../moduls/tokent"));
 //signup api
 /**
  * @api {post} /Signup create a new user
@@ -156,7 +156,7 @@ const signin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 .status(404)
                 .json({ Message: "user is not present in our Database" });
         }
-        const token = yield tokenT_1.default.findOneAndUpdate({ userId: exist.id }, { status: 'D' }, { sort: { _id: -1 } });
+        const token = yield tokent_1.default.findOneAndUpdate({ userId: exist.id }, { status: 'D' }, { sort: { _id: -1 } });
         const isPasswordCorrect = yield bcrypt_1.default.compare(password, exist.password);
         //console.log(exist)
         if (!isPasswordCorrect) {
@@ -171,7 +171,7 @@ const signin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             if (err) {
                 console.log(err);
             }
-            const user = yield tokenT_1.default.create({ token: token, userId: exist._id });
+            const user = yield tokent_1.default.create({ token: token, userId: exist._id });
             return yield res.json({
                 token: token,
                 id: exist._id,
@@ -298,7 +298,7 @@ exports.updateuser = updateuser;
  */
 const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield tokenT_2.default.findOneAndDelete({ token: req.header('x-token') });
+        const user = yield tokent_2.default.findOneAndDelete({ token: req.header('x-token') });
         return yield res.status(200).json({
             message: "deleted successfully"
         });

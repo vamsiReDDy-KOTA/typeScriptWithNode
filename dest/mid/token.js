@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const tokenT_1 = __importDefault(require("../moduls/tokenT"));
+const tokent_1 = __importDefault(require("../moduls/tokent"));
 //import SignupDt from '../moduls/signup';
 const token = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -23,7 +23,7 @@ const token = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
         if (!token) {
             return res.status(400).send('Token Not Found');
         }
-        const user = yield tokenT_1.default.findOne({ token: req.header('x-token') }, { status: 'A' });
+        const user = yield tokent_1.default.findOne({ token: req.header('x-token') }, { status: 'A' });
         if (!user) {
             res.status(401).send('your acount is not in Active pleace login');
         }

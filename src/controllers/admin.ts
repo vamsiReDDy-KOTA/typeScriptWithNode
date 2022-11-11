@@ -105,9 +105,7 @@ import jwt from "jsonwebtoken";
      
       const searchFild = req.query.email
   
-      const user = await SignupDt.find({isDeleted: false , $or:[ {email:{$regex:searchFild,$options:'$i'},firstname:{$regex:searchFild,$options:'$i'}} ]  } ) 
-  
-  
+      const user = await SignupDt.find({isDeleted: false , $or:[ {email:{$regex:searchFild,$options:'$i'}} ]  } )
   
       /**
        try {

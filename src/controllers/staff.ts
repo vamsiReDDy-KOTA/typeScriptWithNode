@@ -190,17 +190,21 @@ const updateSlot = async (req: any, res: any) => {
        var ds:any = moment.utc(users.StartDate).add(1, 'week').format("DD-MM-YYYY");
       } 
       console.log(ds)
-      const daya = req.body.StartDate<=ds
-      const day = req.body.StartDate==ds
+      const Startdates = moment.utc(req.body.StartDate).format("DD-MM-YYYY")
+      console.log(Startdates)
+      const daya = Startdates<ds
+      const day = Startdates==ds
       console.log(day)
       console.log(daya)
-      if(!daya){
+      if(!day){
         return res.status(400).send("start date is grater then lastWeek")
       }
       
       const StartDate =moment.utc(req.body.StartDate).format("dddd");
-      // console.log(StartDate)
-       if(StartDate !='Sunday'){
+      console.log(StartDate)
+      const daa = StartDate =='Sunday'
+      console.log(daa)
+       if(!daa){
          return res.status(400).send("Start Date should be starting day of the week")
        }
          
@@ -212,13 +216,13 @@ const updateSlot = async (req: any, res: any) => {
 
       console.log(udDate)
 
-      const va= ts<=da
+      // const va= ts<=da
 
-      console.log(va)
+      // console.log(va)
 
-      if(!va){
-        return res.status(400).send("date should be graterthen or equal to today")
-      }
+      // if(!va){
+      //   return res.status(400).send("date should be graterthen or equal to today")
+      // }
       if (!users) {
         return res.status(404).json({
           success: false,
