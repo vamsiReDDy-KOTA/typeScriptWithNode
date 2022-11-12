@@ -29,7 +29,6 @@ const token = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
         }
         const decode = jsonwebtoken_1.default.verify(token, 'vamsi');
         req.user = decode.user;
-        console.log("hello");
         next();
     }
     catch (error) {

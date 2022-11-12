@@ -17,7 +17,6 @@ const token =async (req:any,res:any,next:any)=>{
         }
         const decode :any = jwt.verify(token,'vamsi')
         req.user = decode.user
-       console.log("hello")
         next()
     } catch (error) {
         console.log(error)

@@ -54,10 +54,12 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
         const slots = yield days_1.default.findOne({ email: req.query.email });
         const timeZn = slots === null || slots === void 0 ? void 0 : slots.TimeZone;
         const da = slots === null || slots === void 0 ? void 0 : slots.repectForWeek;
-        const va = (0, moment_timezone_1.default)().startOf('isoWeek').add(1, da).format("DD-MM-YYYY");
+        const startdat = slots === null || slots === void 0 ? void 0 : slots.StartDate;
+        const va = moment_timezone_1.default.utc(startdat).format("DD-MM-YYYY");
+        console.log(va);
+        console.log("hello");
         const ptz = moment_timezone_1.default.utc(date).format('DD-MM-YYYY');
         const userDt = moment_timezone_1.default.utc().format("DD-MM-YYYY");
-        console.log(userDt);
         const userEnteredDt = moment_timezone_1.default.utc(date).format("YYYY-MM-DD");
         const userEnteredDay = moment_timezone_1.default.utc(userEnteredDt).format('dddd');
         const currentTime = moment_timezone_1.default.utc().format('HH:mm');
@@ -71,6 +73,8 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 message: "user is not present in our database"
             });
         }
+        console.log(userDt);
+        console.log(ptz);
         if (userDt <= ptz) {
             if (ptz < va) {
                 const slot = yield bookingModel_1.default.find({ AppointmentDate: userEnteredDt, email: req.query.email }, { "SlotsTime": "$SlotsTime" });

@@ -49,11 +49,14 @@ import Days from "../moduls/daysInterface"
       const slots = await DaysModel.findOne({ email: req.query.email })
       const timeZn: any = slots?.TimeZone
       const da :any = slots?.repectForWeek
-      const va = moment().startOf('isoWeek').add(1, da ).format("DD-MM-YYYY");
+      const startdat = slots?.StartDate      
+      const va =  moment.utc(startdat).format("DD-MM-YYYY");
+
+      console.log(va)
+      console.log("hello")
       const ptz = moment.utc(date).format('DD-MM-YYYY')
       
       const userDt = moment.utc().format("DD-MM-YYYY")
-      console.log(userDt)
       const userEnteredDt = moment.utc(date).format("YYYY-MM-DD")
       
       const userEnteredDay = moment.utc(userEnteredDt).format('dddd')
@@ -70,13 +73,19 @@ import Days from "../moduls/daysInterface"
           message: "user is not present in our database"
         })
       }
+     
+      console.log(userDt)
+      console.log(ptz)
+      
 
       if (userDt <= ptz) {
-       
+
         if(ptz < va){
         
         const slot = await BookingModel.find({ AppointmentDate: userEnteredDt, email: req.query.email }, { "SlotsTime": "$SlotsTime" })
+
         console.log(slot)
+
         const allslots: any = []
         for (let i = 0; i < slot.length; i++) {
           allslots.push(slot[i].SlotsTime)
