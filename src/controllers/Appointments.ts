@@ -460,21 +460,20 @@ import Days from "../moduls/daysInterface"
   
             let Tall: any = []
             for (let i = 0; i < startTime.length; i++) {
-              const startt = moment(startTime[i], "HH:mm");
-              const endt = moment(endTime[i], "HH:mm");
+              const startt = moment.utc(startTime[i], "HH:mm");
+              const endt = moment.utc(endTime[i], "HH:mm");
               while (startt < endt) {
-                Tall.push(startt.format("hh:mm A"));
-                startt.add(30, 'minutes');
+                Tall.push(startt.format("HH:mm"));
+                startt.utc().add(30, 'minutes');
               }
             }
   
-  
             for (let i = 0; i < StartbreakTime.length; i++) {
-              const startt = moment(StartbreakTime[i], "HH:mm");
-              const endt = moment(EndbreakTime[i], "HH:mm");
+              const startt = moment.utc(StartbreakTime[i], "HH:mm");
+              const endt = moment.utc(EndbreakTime[i], "HH:mm");
               while (startt < endt) {
-                allendTime.push(startt.format("hh:mm A"));
-                startt.add(30, 'minutes');
+                allendTime.push(startt.format("HH:mm"));
+                startt.utc().add(30, 'minutes');
               }
             }
             //console.log(allendTime)
@@ -485,14 +484,14 @@ import Days from "../moduls/daysInterface"
               if (currentTime > startti) {
                 console.log("first")
                 for (let i = 0; i < startTime.length; i++) {
-                  const startt: any = moment(startTime[i], "HH:mm");
-                  const endt = moment(endTime[i], "HH:mm");
+                  const startt: any = moment.utc(startTime[i], "HH:mm");
+                  const endt = moment.utc(endTime[i], "HH:mm");
                   while (startt < endt) {
-                    allTime.push(startt.add(30,'m').format("hh:mm A"));
+                    allTime.push(startt.add(30,'m').format("HH:mm"));
                     }
                 }
-                const h = moment(currentTime, 'HH:mm').format('HH')
-                let m = moment(currentTime, 'HH:mm').format('mm')
+                const h = moment.utc(currentTime, 'HH:mm').format('HH')
+                let m = moment.utc(currentTime, 'HH:mm').format('mm')
                 if (m >= '1' && m <= '29') {
                   m = '00'
                 }
@@ -500,13 +499,13 @@ import Days from "../moduls/daysInterface"
                   m = '30'
                 }
                 const ti = `${h}:${m}`
-                const st = moment(ti, 'HH:mm')
-                const startt = moment(startti, "HH:mm")
+                const st = moment.utc(ti, 'HH:mm')
+                const startt = moment.utc(startti, "HH:mm")
                 console.log(startt)
                 const hello :any[] = []
-             
+              
                 while (startt < st) {
-                  hello.push(startt.add(30, 'minutes').format('hh:mm A'));
+                  hello.push(startt.add(30, 'minutes').format('hh:mm'));
                 }
                 let hii = allTime.filter((k:any)=>!hello.includes(k))
                 const removingslots  = allendTime.concat(allslots.flat(), EndbreakTime.flat())

@@ -421,19 +421,19 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                             const startti = slots === null || slots === void 0 ? void 0 : slots.Thursday[0].startTime[0];
                             let Tall = [];
                             for (let i = 0; i < startTime.length; i++) {
-                                const startt = (0, moment_timezone_1.default)(startTime[i], "HH:mm");
-                                const endt = (0, moment_timezone_1.default)(endTime[i], "HH:mm");
+                                const startt = moment_timezone_1.default.utc(startTime[i], "HH:mm");
+                                const endt = moment_timezone_1.default.utc(endTime[i], "HH:mm");
                                 while (startt < endt) {
-                                    Tall.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
+                                    Tall.push(startt.format("HH:mm"));
+                                    startt.utc().add(30, 'minutes');
                                 }
                             }
                             for (let i = 0; i < StartbreakTime.length; i++) {
-                                const startt = (0, moment_timezone_1.default)(StartbreakTime[i], "HH:mm");
-                                const endt = (0, moment_timezone_1.default)(EndbreakTime[i], "HH:mm");
+                                const startt = moment_timezone_1.default.utc(StartbreakTime[i], "HH:mm");
+                                const endt = moment_timezone_1.default.utc(EndbreakTime[i], "HH:mm");
                                 while (startt < endt) {
-                                    allendTime.push(startt.format("hh:mm A"));
-                                    startt.add(30, 'minutes');
+                                    allendTime.push(startt.format("HH:mm"));
+                                    startt.utc().add(30, 'minutes');
                                 }
                             }
                             //console.log(allendTime)
@@ -443,14 +443,14 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                                 if (currentTime > startti) {
                                     console.log("first");
                                     for (let i = 0; i < startTime.length; i++) {
-                                        const startt = (0, moment_timezone_1.default)(startTime[i], "HH:mm");
-                                        const endt = (0, moment_timezone_1.default)(endTime[i], "HH:mm");
+                                        const startt = moment_timezone_1.default.utc(startTime[i], "HH:mm");
+                                        const endt = moment_timezone_1.default.utc(endTime[i], "HH:mm");
                                         while (startt < endt) {
-                                            allTime.push(startt.add(30, 'm').format("hh:mm A"));
+                                            allTime.push(startt.add(30, 'm').format("HH:mm"));
                                         }
                                     }
-                                    const h = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('HH');
-                                    let m = (0, moment_timezone_1.default)(currentTime, 'HH:mm').format('mm');
+                                    const h = moment_timezone_1.default.utc(currentTime, 'HH:mm').format('HH');
+                                    let m = moment_timezone_1.default.utc(currentTime, 'HH:mm').format('mm');
                                     if (m >= '1' && m <= '29') {
                                         m = '00';
                                     }
@@ -458,12 +458,12 @@ const GetAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                                         m = '30';
                                     }
                                     const ti = `${h}:${m}`;
-                                    const st = (0, moment_timezone_1.default)(ti, 'HH:mm');
-                                    const startt = (0, moment_timezone_1.default)(startti, "HH:mm");
+                                    const st = moment_timezone_1.default.utc(ti, 'HH:mm');
+                                    const startt = moment_timezone_1.default.utc(startti, "HH:mm");
                                     console.log(startt);
                                     const hello = [];
                                     while (startt < st) {
-                                        hello.push(startt.add(30, 'minutes').format('hh:mm A'));
+                                        hello.push(startt.add(30, 'minutes').format('hh:mm'));
                                     }
                                     let hii = allTime.filter((k) => !hello.includes(k));
                                     const removingslots = allendTime.concat(allslots.flat(), EndbreakTime.flat());
