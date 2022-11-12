@@ -1,3 +1,4 @@
+/* eslint-disable no-var */
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -50,13 +51,12 @@ import Days from "../moduls/daysInterface"
       const timeZn: any = slots?.TimeZone
       const da :any = slots?.repectForWeek
       const startdat = slots?.StartDate      
-      const va =  moment.utc(startdat).format("DD-MM-YYYY");
+      const va =  moment.utc(startdat).format("YYYY-MM-DD");
 
       console.log(va)
-      console.log("hello")
-      const ptz = moment.utc(date).format('DD-MM-YYYY')
+      const ptz = moment.utc(date).format('YYYY-MM-DD')
       
-      const userDt = moment.utc().format("DD-MM-YYYY")
+      const userDt = moment.utc().format("YYYY-MM-DD")
       const userEnteredDt = moment.utc(date).format("YYYY-MM-DD")
       
       const userEnteredDay = moment.utc(userEnteredDt).format('dddd')
@@ -73,15 +73,33 @@ import Days from "../moduls/daysInterface"
           message: "user is not present in our database"
         })
       }
-     
-      console.log(userDt)
-      console.log(ptz)
+
+      const datas = slots?.repectForWeek
+      //console.log(datas)
       
+      if(!datas){ 
+       // eslint-disable-next-line no-var
+       var ds:any = moment.utc(slots.StartDate).add(1, 'week').format("YYYY-MM-DD");
+      } 
+      else{
+        var ds : any = [ ]
+      }
+    
+      console.log(ds)
+      const das = ds > va
+      console.log(das)
 
-      if (userDt <= ptz) {
+     if(ds < va ){
+      console.log("hello")
+      console.log("daa")
+     }
 
-        if(ptz < va){
-        
+      if (userDt <= ptz) { 
+     
+        if(ptz > va){
+
+          if(das){
+
         const slot = await BookingModel.find({ AppointmentDate: userEnteredDt, email: req.query.email }, { "SlotsTime": "$SlotsTime" })
 
         console.log(slot)
@@ -695,9 +713,8 @@ import Days from "../moduls/daysInterface"
             }
             //console.log(allendTime)
             const saremovingslots = SallendTime.concat(allslots.flat())
-            console.log(removingslots)
             Sall = Sall.filter((v: any) => !saremovingslots.includes(v))
-  
+    
   
             if (userDt === ptz) {
               if (currentTime > Sstartti) {
@@ -789,7 +806,7 @@ import Days from "../moduls/daysInterface"
             const SnallTime: any[] = [];
             const SnallendTime: any = []
             const Snstartti = slots?.Saturday[0].startTime[0]
-            console.log(Sstartti)
+           
             let Snall: any = []
             for (let i = 0; i < SnstartTime.length; i++) {
               const startt = moment(SnstartTime[i], "HH:mm");
@@ -893,9 +910,14 @@ import Days from "../moduls/daysInterface"
   
             break
         }
-  
-      }
       
+      }
+      else {
+        return res.status(400).json({
+          message: "slots are not present daa"
+        })
+      }
+    }
       else {
         return res.status(400).json({
           message: "slots are not present"
@@ -905,7 +927,7 @@ import Days from "../moduls/daysInterface"
   
       else {
         return res.status(400).json({
-          message: "slots are not present"
+          message: "slots are not present d"
         })
       }
     } catch (error) {
