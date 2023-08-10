@@ -8,7 +8,7 @@
     "generatedoc": "apidoc -i src -o ./Docs",
     "start": "concurrently \"tsc -w\" \"nodemon dest/index.js\" \"nodemon generatedoc\" ",
     "swagger": "tsoa spec",
-    "another": "nodemon dest/index.js",
+    "another": "dest/index.js",
     "lint": "eslint . --ext .ts",
     "generate": "tsoa routes && tsoa swagger"
   },
